@@ -10,7 +10,8 @@ import gtk
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
-
+import getopt
+import sys
 
 
 class SOTAClientService(dbus.service.Object):
@@ -105,18 +106,115 @@ class SOTAClientService(dbus.service.Object):
                  
 
 
+def usage():
+    print "Usage:", sys.argv[0], "[-p package_id] [-v major.minor.patch] \\"
+    print "                      [-t target] [-c command] [-s size] \\"
+    print "                      [-d description] [-V vendor]"
+    print
+    print "  -p package_id        Pacakage id string. Default: 'bluez'"
+    print "  -v major.minor.patch Version of package. Default: '1.2.3'"
+    print "  -t target            Target installer. package | partition | module_loader"
+    print "                       Default: 'package'"
+    print "  -c command           install | upgrade | remove. Default: 'install'"
+    print "  -s size              Package size in bytes. Default: '1000000'"
+    print "  -d description       Package description. Default: 'Bluez stack'"
+    print "  -V vendor            Package vendor. Default: 'Bluez project'"
+    print
+    print "Example:", sys.argv[0],"-n http://rvi1.nginfotpdx.net:8801 \\"
+    print "                      jlr.com/vin/aaron/4711/test/ping \\"
+    print "                      arg1=val1 arg2=val2"                    
+
+    sys.exit(255)
+
+
+opts, args= getopt.getopt(sys.argv[1:], "p:v:t:c:s:d:V:")
+package_id='bluez'
+major=1
+minor=2
+patch=3
+target='package'
+command='install'
+size=1000000
+description='bluez stack'
+vendor='Bluez project'
+
+for o, a in opts:
+    if o == "-p":
+        package_id = a
+    elif o == "-v":
+        [major,minor,patch] = a
+        major = int(major)
+        minor = int(minor)
+        patch = int(patch)
+    elif o == "-t":
+        target = a
+    elif o == "-c":
+        command = a
+    elif o == "-s":
+        size = int(a)
+    elif o == "-d":
+        description = a
+    elif o == "-V":
+        vendor = a
+    else:
+        usage()
+
+# Sanity check args
+if target != "package" and target != "partition" and  target != "module_loader":
+    print "Error: -t target must be 'package', 'partition' or 'module_loader'"
+    print
+    usage()
+
+if command != "install" and command != "upgrade" and command != "remove":
+    print "Error: -c command must be 'install', 'upgrade' or 'remove'"
+    print
+    usage()
+
+    
+print "Will simulate downloaded package:"
+print "Package ID:  {} {}.{}.{}".format(package_id, major, minor, patch)
+print "Description: {}".format(description)
+print "Vendor:      {}".format(vendor)
+print "Size:        {}".format(size)
+print "Target:      {}".format(target)
+print "Command:     {}".format(command)
 
 DBusGMainLoop(set_as_default=True)
 sota_svc = SOTAClientService()
 
-# Get things started
-sota_svc.package_available('linux_kernel', 
-                         7,8,9, 
-                         "install", 
-                         47114711, 
-                         "Linux Kernel - Now with 6502 support",
-                         "Linux Foundation",
-                           "package_manager")
+# USE CASE
+#
+# This sota_client will send a package_available() call to the 
+# software loading manager (SLM).
+#
+# SLM will pop an operation confirmation dialog on the HMI.
+#
+# If confirmed, SLM will make an initiate_download() callback to 
+# this sota_client.
+#
+# The sota_client will, on simulated download completion, make a
+# download_complete() call to the SLM to  indicate that the package is 
+# ready to be processed.
+#
+# The SLM will look at the target parameter and forward the package to 
+# module_loader, package_manager, or partition_manager.
+# 
+# Once the package has been processed by its target, a package operation
+# report will be sent back to the SLM.
+#
+# The SLM will forward the package operation report to this sota client
+# as an installation_report() call.
+
+
+sota_svc.package_available(package_id, 
+                           major,
+                           minor, 
+                           patch,
+                           command,
+                           size,
+                           description,
+                           vendor,
+                           target)
 
 while True:
     gtk.main_iteration()
