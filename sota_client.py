@@ -14,6 +14,17 @@ import getopt
 import sys
 
 
+# Default command line arguments
+package_id='bluez'
+major=1
+minor=2
+patch=3
+target='package_manager'
+command='install'
+size=1000000
+description='bluez stack'
+vendor='Bluez project'
+path='/nev/dull'
 class SOTAClientService(dbus.service.Object):
     def __init__(self):
         self.bus = dbus.SessionBus()
@@ -60,20 +71,26 @@ class SOTAClientService(dbus.service.Object):
                           major,
                           minor,
                           patch): 
+        global target
+        global command
+        global size
+        global description
+        global vendor
+        global path
         print "Got initiate_download"
         print "  ID:     {}".format(package_id)
         print "  ver:    {}.{}.{} ".format(major, minor, patch)
         print "---"
-        self.download_complete("/nev/dull", 
+        self.download_complete(path,
                                package_id, 
                                major, 
                                minor, 
                                patch, 
-                               "install", 
-                               47114711, 
-                               "Linux Kernel - Now with 6502 support",
-                               "Linux Foundation",
-                               "package_manager")
+                               command,
+                               size,
+                               description,
+                               vendor,
+                               target)
         return True
     
     @dbus.service.method('org.genivi.sota_client')
@@ -128,15 +145,6 @@ def usage():
 
 
 opts, args= getopt.getopt(sys.argv[1:], "p:v:t:c:s:d:V:")
-package_id='bluez'
-major=1
-minor=2
-patch=3
-target='package'
-command='install'
-size=1000000
-description='bluez stack'
-vendor='Bluez project'
 
 for o, a in opts:
     if o == "-p":
@@ -159,16 +167,6 @@ for o, a in opts:
     else:
         usage()
 
-# Sanity check args
-if target != "package" and target != "partition" and  target != "module_loader":
-    print "Error: -t target must be 'package', 'partition' or 'module_loader'"
-    print
-    usage()
-
-if command != "install" and command != "upgrade" and command != "remove":
-    print "Error: -c command must be 'install', 'upgrade' or 'remove'"
-    print
-    usage()
 
     
 print "Will simulate downloaded package:"
