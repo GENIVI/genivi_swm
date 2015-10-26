@@ -113,13 +113,6 @@ class SLMService(dbus.service.Object):
                           description,
                           vendor,
                           target): 
-        def handle_dbus_reply(self, result):
-            print "RESULT: {}".format(result)
-            self.installation_report(package_id, major, minor, patch, res, res_desc)
-            
-        def handle_dbus_error(self, error):
-            print "ERROR: {}".format(result)
-            self.installation_report(package_id, major, minor, patch, 99, 'internal error')
             
         print "Got download complete"
         print "  ID:     {}".format(package_id)
@@ -133,23 +126,21 @@ class SLMService(dbus.service.Object):
         print "---"
 
         try:
-            print "1"
             target_bus_name = dbus.service.BusName('org.genivi.'+target,
                                                    bus=self.bus)
             
-            print "2"
             target_obj = self.bus.get_object(target_bus_name.get_name(), 
                                              "/org/genivi/" + target)
+            
 
-            print "3"
             process_package = target_obj.get_dbus_method("process_package", 
                                                          "org.genivi." + target)
+
 
             #
             # Locate and invoke the correct package processor 
             # (ECU1ModuleLoaderProcessor.process_impl(), etc)
             #
-            print "4"
             (res, res_desc) = process_package(path,
                                               package_id,
                                               major, 
@@ -160,7 +151,7 @@ class SLMService(dbus.service.Object):
                                               description,
                                               vendor,
                                               target)
-            print "5"
+
             self.installation_report(package_id, major, minor, patch, res, res_desc)
             return True
         except: 
@@ -182,14 +173,12 @@ class SLMService(dbus.service.Object):
                    "patch": 1 } ]
                  
 
-
-
+print 
+print "Software Loading Manager."
+print
 
 DBusGMainLoop(set_as_default=True)
 slm_sota = SLMService()
 
-#
-#
-#
 while True:
     gtk.main_iteration()
