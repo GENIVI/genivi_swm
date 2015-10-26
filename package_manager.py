@@ -11,20 +11,14 @@ import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
-package_manager = None
-partition_manager = None
-module_loader = None
-hmi = None
-dbus_name='org.genivi.package_manager'
-       
-    
 #
-# SOTA Client-facing methods
+# Package manager service
 #
 class PkgMgrService(dbus.service.Object):
     def __init__(self):
         self.bus = dbus.SessionBus()
-        self.slm_bus_name = dbus.service.BusName(dbus_name, bus=self.bus)
+        self.slm_bus_name = dbus.service.BusName('org.genivi.package_manager', 
+                                                 bus=self.bus)
         self.initiate_download_dbus = None
         self.installation_report_dbus = None
         dbus.service.Object.__init__(self, 
@@ -47,7 +41,7 @@ class PkgMgrService(dbus.service.Object):
                         vendor,
                         target): 
 
-        print "Got process_package"
+        print "Package Manager: Got process_package()"
         print "  ID:     {}".format(package_id)
         print "  ver:    {}.{}.{} ".format(major, minor, patch)
         print "  cmd:    {}".format(command)
@@ -76,6 +70,9 @@ class PkgMgrService(dbus.service.Object):
                  
 
 
+print 
+print "Package Manager."
+print
 
 
 DBusGMainLoop(set_as_default=True)
