@@ -7,6 +7,7 @@ Attribution-ShareAlike 4.0 International.
 1. Rename package to update in most commands.
 2. Rename installation report to update report.
 3. Implement get installed packages use case.
+4. Handle package dependency listing.
 
 # ACRONYM
 
@@ -32,16 +33,32 @@ The components are outlined in the image below
 
 The components are as follows:
 
+All package commands sent between the components have the following arguments:
 
-# SOTA Client - SC [sota_client.py] ##
-The SC simulator, to be replaced by the real GENIVI Sota
-Client developed by Advanced Telematic Systems, is a command line tool
-that launches the SWM use cases.
+Acronym     | Description                           | Note
+----------- | ------------------------------------- | ---
+package\_id | Package ID string.                    | 
+major       | Package major version number          |
+minor       | Package minor version number          |
+patch       | Package patch version number          |
+command     | Command to carry out on packages      | install, upgrade, or remove
+path        | Path to package, as stored inside SWM | Not provided in package notification
+size        | Size of package in bytes              | 0 on remove operations
+description | Textual package description           |
+vendor      | Package vendor                        |
+target      | target module                         | ecu1\_module\_loader, package\_manager, or partition\_manager
 
-The SOTA client simulator has the following features
+
+
+## SOTA Client - SC [sota\_client.py] ##
+SC simulator, to be replaced by the real GENIVI Sota Client developed
+by Advanced Telematic Systems, is a command line tool that launches
+the SWM use cases.
+
+The SC simulator has the following features
 
 1. **Notify SWM of available packages**<br>
-   Information about the available package, specified at the command line,
+   A notification about the available package, specified at the command line,
    will be sent to SLM for user confirmation.
 
 2. **Download the package**<br>
@@ -56,5 +73,115 @@ The SOTA client simulator has the following features
    Once the package operation has completed, SLM will forward an installation report to SC,
    which will present it as output before exitin.
 
+5. **Get installed packages**<br>
+   A separate use case allows the command line to request all currently installed
+   packages in PkgMgr, PartMgr, or ML.
+
+## Software Loading Manager - SLM [software\_loading\_manager.py] ##
+SLM coordinates all use cases in SWM. SC Initiates these use cases
+through command line parameters
+
+SLM has the following features
+
+1. **Retrieve user approval for packages**<br>
+   When a package notification is received from SC, the notification will be
+   forwarded to HMI for a user approval. 
+
+2. **Signal SC to start download**<br>
+   When SLM receives a package confirmation from HMI, the SC will be signalled to
+   initiate the download.
+
+3. **Process downloaded packages**<br>
+   Once a download is complete, SC will send a process package command to SLM.
+   SLM will forward the command to the approrpiate target, which can be
+   PartMgr for partition operations, PackMgr fo package manager, or ML for
+   the module loader
+
+4. **Handle installation report**<br>
+   When a target has processed a package it will wend back a installation report
+   to SLM, which will forward it to HMI, to inform the user, and SC, to inform
+   the server.
+
+5. **Get installed packages**<br>
+   When a get installed packages command is received from SC, it will be forwarded to
+   the package manaager to retrieve a list of all installed packages.
+
+
+## Human Machine Interface - HMI [hmi.py] ##
+HMI is responsible for reqtrieving a user approval (or decline) on
+a package installation, and to show the user the result of a package
+operation.
+
+HMI has the following features
+
+1. **Retrieve user approval for packages**<br>
+   SLM will send a package notification to HMI, which will
+   ask the user if the package operation is to be carried out or not.
+   The user input (approve or decline) is forwarded as a package confirmation
+   to SLM
+
+2. **Show package operation result**<br>
+   Once a package operation has been carried out by PkgMgr, PartMgr, or ML,
+   the result will be forwarded to HMI to inform the ser.
+
+
+## Package Manager - PackMgr [package\_manager.py] ##
+PackMgr is responsible for processing packages forwarded to it by SLM.
+It can also report all currently installed packages.
+
+PackMgr has the following features
+
+1. **Process package**<br>
+   SLM will send a process package command to PackMgr, which
+   will simulate a five second install time and then send
+   back a installation report.
+
+2. **Get installed packages**<br>
+   PackMgr will send back a static list of currently installed packages.
+
+
+## Partition Manager - PartMgr [partition\_manager.py] ##
+PartMgr is responsible for processing packages forwarded to it by SLM.
+It can also report all currently installed packages.
+
+PartMgr has the following features
+
+1. **Process package**<br>
+   SLM will send a process package command to PartMgr, which
+   will simulate a five second partition update time and then send
+   back a installation report.
+
+2. **Get installed packages**<br>
+   PartMgr will send back a static list of currently installed
+   partitions
+
+
+## Module Loader - ML [ecu1\_module\_loader.py] ##
+ML, which can have multiple different instances for different ECUs
+(SiriusXM, Telematics Control Unit, Body Control Unit, etc), is responsible
+for reflashing external modules through CAN or other in-vehicle networks.
+
+ML has the following features
+
+1. **Process package**<br>
+   SLM will send a process package command to ML, which
+   will simulate a five second module flash time and then send
+   back a installation report.
+
+2. **Get installed packages**<br>
+   ML will send back a static list of currently installed
+   flash images in the module managed by ML.
+
+
+# SEQUENCE DIAGRAM
+
+The following MSC diagram outlines the main package handling use case.
+
+![SWM Sequence Diagram](https://github.com/magnusfeuer/genivi_software_management/raw/master/swm.png)
+
+
+# RUNNING THE PROOF OF CONCEPT
+
+    sh start_swm.sh
 
 
