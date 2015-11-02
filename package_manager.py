@@ -10,6 +10,8 @@ import gtk
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
+import sys
+import time
 
 #
 # Package manager service
@@ -28,18 +30,22 @@ class PkgMgrService(dbus.service.Object):
 
 
 
-    @dbus.service.method('org.genivi.package_manager')
+
+    @dbus.service.method('org.genivi.package_manager',
+                         async_callbacks=('send_reply', 'send_error'))
     def process_package(self, 
-                        path,
                         package_id, 
                         major, 
                         minor, 
                         patch, 
                         command, 
+                        path,
                         size, 
                         description, 
                         vendor,
-                        target): 
+                        target, 
+                        send_reply, 
+                        send_error): 
 
         print "Package Manager: Got process_package()"
         print "  ID:     {}".format(package_id)
@@ -51,10 +57,59 @@ class PkgMgrService(dbus.service.Object):
         print "  vendor: {}".format(vendor)
         print "  target: {}".format(target)
         print "---"
-        return (0, "package manager installed {} {}.{}.{}".format(package_id,
-                                                                  major,
-                                                                  minor,
-                                                                  patch))
+
+        #
+        # Send back an immediate reply since DBUS
+        # doesn't like python dbus-invoked methods to do 
+        # their own calls (nested calls).
+        #
+        send_reply(True)
+
+        # Simulate install
+        print "Intalling package:"
+        for i in xrange(1,10):
+            sys.stdout.write('.')
+            sys.stdout.flush()
+            time.sleep(0.2)
+        print  
+        print "Done"
+
+        #
+        # Retrieve software loading manager bus name, object, 
+        # and installation report method
+        #
+        slm_bus_name = dbus.service.BusName('org.genivi.software_loading_manager', 
+                                            bus=self.bus)
+        slm_obj = self.bus.get_object(slm_bus_name.get_name(), 
+                                      "/org/genivi/software_loading_manager")
+
+        slm_installation_report = slm_obj.get_dbus_method("installation_report", 
+                                                          "org.genivi.software_loading_manager")
+        
+        #
+        # Send back installation report.
+        # Software Loading Manager will distribute the report
+        # to all interested parties.
+        #
+        slm_installation_report(path,
+                                package_id, 
+                                major, 
+                                minor, 
+                                patch, 
+                                command, 
+                                size, 
+                                description, 
+                                vendor,
+                                target,
+                                0,
+                                "Package Manager - Successfully installed {} {}.{}.{}".
+                                format(package_id,
+                                       major,
+                                       minor,
+                                       patch))
+
+
+        return None
         
     @dbus.service.method('org.genivi.package_manager')
     def get_installed_packages(self): 

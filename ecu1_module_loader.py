@@ -10,6 +10,8 @@ import gtk
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
+import sys
+import time
 
 #
 # ECU Module Loader service
@@ -17,27 +19,28 @@ from dbus.mainloop.glib import DBusGMainLoop
 class ECU1ModuleLoaderService(dbus.service.Object):
     def __init__(self):
         self.bus = dbus.SessionBus()
-        self.slm_bus_name = dbus.service.BusName('org.genivi.ecu1_module_loader', 
+        self.ml_bus_name = dbus.service.BusName('org.genivi.ecu1_module_loader', 
                                                  bus=self.bus)
-        self.initiate_download_dbus = None
-        self.installation_report_dbus = None
-        dbus.service.Object.__init__(self, 
-                                     self.slm_bus_name, 
+        dbus.service.Object.__init__(self, self.ml_bus_name, 
                                      '/org/genivi/ecu1_module_loader')
 
 
-    @dbus.service.method('org.genivi.ecu1_module_loader')
+    @dbus.service.method('org.genivi.ecu1_module_loader',
+                         async_callbacks=('send_reply', 'send_error'))
+
     def process_package(self, 
-                        path,
                         package_id, 
                         major, 
                         minor, 
                         patch, 
                         command, 
+                        path,
                         size, 
                         description, 
                         vendor,
-                        target): 
+                        target,
+                        send_reply,
+                        send_error): 
 
         print "ECU1 Module Loader: Got process_package()"
         print "  ID:     {}".format(package_id)
@@ -49,10 +52,58 @@ class ECU1ModuleLoaderService(dbus.service.Object):
         print "  vendor: {}".format(vendor)
         print "  target: {}".format(target)
         print "---"
-        return (0, "ECU1 Module Loader Installer {} {}.{}.{}".format(package_id,
-                                                                  major,
-                                                                  minor,
-                                                                  patch))
+
+        # Send back an immediate reply since DBUS
+        # doesn't like python dbus-invoked methods to do 
+        # their own calls (nested calls).
+        #
+        send_reply(True)
+
+        # Simulate install
+        print "Intalling on ECU1:"
+        for i in xrange(1,10):
+            sys.stdout.write('.')
+            sys.stdout.flush()
+            time.sleep(0.2)
+        print  
+        print "Done"
+
+        #
+        # Retrieve software loading manager bus name, object, 
+        # and installation report method
+        #
+        slm_bus_name = dbus.service.BusName('org.genivi.software_loading_manager', 
+                                            bus=self.bus)
+        slm_obj = self.bus.get_object(slm_bus_name.get_name(), 
+                                      "/org/genivi/software_loading_manager")
+
+        slm_installation_report = slm_obj.get_dbus_method("installation_report", 
+                                                          "org.genivi.software_loading_manager")
+        
+        #
+        # Send back installation report.
+        # Software Loading Manager will distribute the report
+        # to all interested parties.
+        #
+        slm_installation_report(path,
+                                package_id, 
+                                major, 
+                                minor, 
+                                patch, 
+                                command, 
+                                size, 
+                                description, 
+                                vendor,
+                                target,
+                                0,
+                                "ECU1 Module Loader - Successfully installed {} {}.{}.{}".
+                                format(package_id,
+                                       major,
+                                       minor,
+                                       patch))
+
+
+        return None
         
     @dbus.service.method('org.genivi.ecu1_module_loader')
     def get_installed_packages(self): 
