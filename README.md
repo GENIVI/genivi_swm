@@ -33,22 +33,6 @@ The components are outlined in the image below
 
 The components are as follows:
 
-All package commands sent between the components have the following arguments:
-
-Acronym     | Description                           | Note
------------ | ------------------------------------- | ---
-package\_id | Package ID string.                    | 
-major       | Package major version number          |
-minor       | Package minor version number          |
-patch       | Package patch version number          |
-command     | Command to carry out on packages      | install, upgrade, or remove
-path        | Path to package, as stored inside SWM | Not provided in package notification
-size        | Size of package in bytes              | 0 on remove operations
-description | Textual package description           |
-vendor      | Package vendor                        |
-target      | target module                         | ecu1\_module\_loader, package\_manager, or partition\_manager
-
-
 
 ## SOTA Client - SC [sota\_client.py] ##
 SC simulator, to be replaced by the real GENIVI Sota Client developed
@@ -173,6 +157,22 @@ ML has the following features
    flash images in the module managed by ML.
 
 
+# PACKAGE COMMAND ARGUMENTS
+All package commands sent between the components have the following arguments:
+
+Acronym     | Description                           | Note
+----------- | ------------------------------------- | ---
+package\_id | Package ID string.                    | 
+major       | Package major version number          |
+minor       | Package minor version number          |
+patch       | Package patch version number          |
+command     | Command to carry out on packages      | install, upgrade, or remove
+path        | Path to package, as stored inside SWM | Not provided in package notification
+size        | Size of package in bytes              | 0 on remove operations
+description | Textual package description           |
+vendor      | Package vendor                        |
+target      | target module                         | ecu1\_module\_loader, package\_manager, or partition\_manager
+
 # SEQUENCE DIAGRAM
 
 The following MSC diagram outlines the main package handling use case.
@@ -182,6 +182,58 @@ The following MSC diagram outlines the main package handling use case.
 
 # RUNNING THE PROOF OF CONCEPT
 
+## Launch SWM components
+In one terminal window, start all components using:
+
     sh start_swm.sh
 
+Each launched component will get their own terminal window.
 
+
+## Launch SC
+In a second window, launch the SC simulator:
+
+    python sota_client.py
+
+
+The full usage for ```sota_client.py``` is:
+
+
+    sota_client.py [-p package_id] [-v major.minor.patch] \
+                   [-t target] [-c command] [-s size] \
+                   [-d description] [-V vendor]
+    
+      -p package_id        Pacakage id string. Default: 'bluez'
+      -v major.minor.patch Version of package. Default: '1.2.3'
+      -t target            Target installer. package_manager |
+                                             partition_manager |
+                                             ecu1_module_loader
+                           Default: 'package'
+      -c command           install | upgrade | remove. Default: 'install'
+      -s size              Package size in bytes. Default: '1000000'
+      -d description       Package description. Default: 'Bluez stack'
+      -V vendor            Package vendor. Default: 'Bluez project'
+    
+    Example: sota_client.py -p boot_loader -v 2.10.9\
+                            -t partition_manager -c write_image \
+                            -s 524288 -d 'GDP Boot loader' \ 
+                            -v 'DENX Software'
+
+
+## Confirm Package
+In the HMI xterm window, a confirmation text will be displayed.
+Answer ```yes``` to confirm the package operation.
+
+## Wait for download
+SC will execute a five second simulated download.
+
+## Wait for installation
+The target component (PackMgr by default) will simulate a five second
+install
+
+## View installation report
+The installation report will be displayed both by SC and HMI.
+
+
+# DBUS BUS NAMES AND OBJETCS
+TBD
