@@ -24,4 +24,4 @@ echo "Press Ctrl-C shut down Software Manager"
 
 xterm -geometry 80x20+800+400 -T "HMI" -e python hmi.py
 
-case 
+
