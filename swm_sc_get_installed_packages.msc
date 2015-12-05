@@ -12,7 +12,7 @@
 
 msc {
   width="1024";
-  "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
+  "SC",  "SWLM", "PackMgr", "ML";
   "SC" box "SC" [ textbgcolour="silver", label = "\nRequest Installed Packages\n" ];
   "SC" => "SWLM" [  label = "get_installed_packages()" ];
   "SWLM" => "PackMgr" [ label = "get_installed_packages()" ];
