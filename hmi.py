@@ -30,7 +30,7 @@ class HMIService(dbus.service.Object):
 
     @dbus.service.method('org.genivi.hmi', 
                          async_callbacks=('send_reply', 'send_error'))
-    def package_notification(self, 
+    def update_notification(self, 
                               package_id, 
                               major, 
                               minor, 
@@ -43,7 +43,7 @@ class HMIService(dbus.service.Object):
                               send_reply,
                               send_error): 
 
-        print "HMI: Got package_notification()"
+        print "HMI: Got update_notification()"
         print "  ID:     {}".format(package_id)
         print "  ver:    {}.{}.{} ".format(major, minor, patch)
         print "  cmd:    {}".format(command)

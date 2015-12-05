@@ -106,24 +106,24 @@ class SLMService(dbus.service.Object):
     
 
     @dbus.service.method("org.genivi.software_loading_manager")
-    def package_available(self, 
-                          package_id, 
-                          major, 
-                          minor, 
-                          patch, 
-                          command, 
-                          size, 
-                          description, 
-                          vendor,
-                          target): 
+    def update_available(self, 
+                         package_id, 
+                         major, 
+                         minor, 
+                         patch, 
+                         command, 
+                         size, 
+                         description, 
+                         vendor,
+                         target): 
 
         #
-        # Locate HMI bus, object, and package_notification() call.
+        # Locate HMI bus, object, and update_notification() call.
         #
         hmi_bus_name = dbus.service.BusName("org.genivi.hmi", bus=self.bus)
         hmi_obj = self.bus.get_object(hmi_bus_name.get_name(), "/org/genivi/hmi")
 
-        hmi_package_notification = hmi_obj.get_dbus_method("package_notification", 
+        hmi_update_notification = hmi_obj.get_dbus_method("update_notification", 
                                                             "org.genivi.hmi")
 
 
@@ -141,7 +141,7 @@ class SLMService(dbus.service.Object):
         # Once user has responded, HMI will invoke self.package_confirmation()
         # to drive the use case forward.
         #
-        hmi_package_notification(package_id, 
+        hmi_update_notification(package_id, 
                                   major, 
                                   minor, 
                                   patch, 
@@ -151,7 +151,7 @@ class SLMService(dbus.service.Object):
                                   vendor,
                                   target)
 
-        print "Called hmi.package_notification()"
+        print "Called hmi.update_notification()"
         print "---"
         return None
         
@@ -270,7 +270,7 @@ class SLMService(dbus.service.Object):
                                          "/org/genivi/" + target)
             
 
-        process_package = target_obj.get_dbus_method("process_package", 
+        process_update = target_obj.get_dbus_method("process_update", 
                                                      "org.genivi." + target)
 
 
@@ -278,7 +278,7 @@ class SLMService(dbus.service.Object):
         # Locate and invoke the correct package processor 
         # (ECU1ModuleLoaderProcessor.process_impl(), etc)
         #
-        process_package(package_id,
+        process_update(package_id,
                         major, 
                         minor, 
                         patch, 
@@ -295,7 +295,7 @@ class SLMService(dbus.service.Object):
     #
     # Receive and process a installation report.
     # Called by package_manager, partition_manager, or ecu_module_loader
-    # once they have completed their process_package() calls invoked
+    # once they have completed their process_update() calls invoked
     # by software_loading_manager
     #
     @dbus.service.method("org.genivi.software_loading_manager")

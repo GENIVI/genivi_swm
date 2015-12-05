@@ -28,7 +28,7 @@ class ECU1ModuleLoaderService(dbus.service.Object):
     @dbus.service.method('org.genivi.ecu1_module_loader',
                          async_callbacks=('send_reply', 'send_error'))
 
-    def process_package(self, 
+    def process_update(self, 
                         package_id, 
                         major, 
                         minor, 
@@ -42,7 +42,7 @@ class ECU1ModuleLoaderService(dbus.service.Object):
                         send_reply,
                         send_error): 
 
-        print "ECU1 Module Loader: Got process_package()"
+        print "ECU1 Module Loader: Got process_update()"
         print "  ID:     {}".format(package_id)
         print "  ver:    {}.{}.{} ".format(major, minor, patch)
         print "  cmd:    {}".format(command)

@@ -47,7 +47,7 @@ class SOTAClientService(dbus.service.Object):
 
         # Retrieve the methods available on the software_loading_manager object.
 
-        self.package_available = slm_obj.get_dbus_method('package_available', 
+        self.update_available = slm_obj.get_dbus_method('update_available', 
                                                          'org.genivi.software_loading_manager')
 
         self.download_complete = slm_obj.get_dbus_method('download_complete', 
@@ -202,19 +202,6 @@ for o, a in opts:
         vendor = a
     else:
         usage()
-
-
-
-
-
-
-
-
-
-
-
-
-
     
 print "Will simulate downloaded package:"
 print "Package ID:  {} {}.{}.{}".format(package_id, major, minor, patch)
@@ -229,7 +216,7 @@ sota_svc = SOTAClientService()
 
 # USE CASE
 #
-# This sota_client will send a package_available() call to the 
+# This sota_client will send a update_available() call to the 
 # software loading manager (SLM).
 #
 # SLM will pop an operation confirmation dialog on the HMI.
@@ -251,15 +238,15 @@ sota_svc = SOTAClientService()
 # as an installation_report() call.
 
 
-sota_svc.package_available(package_id, 
-                           major,
-                           minor, 
-                           patch,
-                           command,
-                           size,
-                           description,
-                           vendor,
-                           target)
+sota_svc.update_available(package_id, 
+                          major,
+                          minor, 
+                          patch,
+                          command,
+                          size,
+                          description,
+                          vendor,
+                          target)
 
 active = True
 

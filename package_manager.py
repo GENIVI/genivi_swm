@@ -33,7 +33,7 @@ class PkgMgrService(dbus.service.Object):
 
     @dbus.service.method('org.genivi.package_manager',
                          async_callbacks=('send_reply', 'send_error'))
-    def process_package(self, 
+    def process_update(self, 
                         package_id, 
                         major, 
                         minor, 
@@ -47,7 +47,7 @@ class PkgMgrService(dbus.service.Object):
                         send_reply, 
                         send_error): 
 
-        print "Package Manager: Got process_package()"
+        print "Package Manager: Got process_update()"
         print "  ID:     {}".format(package_id)
         print "  ver:    {}.{}.{} ".format(major, minor, patch)
         print "  cmd:    {}".format(command)
