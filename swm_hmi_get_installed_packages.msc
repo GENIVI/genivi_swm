@@ -12,7 +12,7 @@
 
 msc {
   width="1024";
-  "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
+  "HMI", "SWLM", "PackMgr", "ML";
   "HMI" box "HMI" [ textbgcolour="silver", label = "\nUser Requests Software List\n" ];
   "HMI" => "SWLM" [  label = "get_installed_packages()" ];
   "SWLM" => "PackMgr" [ label = "get_installed_packages()" ];
@@ -20,5 +20,5 @@ msc {
   "SWLM" => "ML" [ label = "get_module_firmware_version()" ];
   "SWLM" <= "ML" [ label = "[installed firmware]" ];
   "HMI" <= "SWLM"  [ label = "[installed packages\nand firwmare]" ];
-  "SC" box "SC" [ textbgcolour="silver", label = "Display Software List" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "Display Software List" ];
 }
