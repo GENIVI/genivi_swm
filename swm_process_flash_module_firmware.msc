@@ -1,0 +1,23 @@
+#
+#
+# Sequence diagram description
+#
+# The sequence diagram description below is translated to
+# a PNG image by mscgen (http://www.mcternan.me.uk/mscgen/)
+# 
+# Recompile updated diagrams to a png image with:
+#  
+#   mscgen -T png swm.msc
+#
+
+msc {
+  width="1024";
+  "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
+  --- [ label="Invoked by use case \"Download Software\" or \"Local Media\""];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
+  "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nSoftware operation is \"Flash Module Firmware\"\n" ];
+  "SWLM" -> "PackMgr" [ label = "flash_module_firmware()" ];
+  "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Flash external module" ];
+  "PackMgr" -> "SWLM" [ label = "flash_module_firmware_result()" ];
+  --- [ label = "Return to use case \"Download Software\" or \"Local Media\""];
+}

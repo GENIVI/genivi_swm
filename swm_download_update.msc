@@ -1,0 +1,32 @@
+#
+#
+# Sequence diagram description
+#
+# The sequence diagram description below is translated to
+# a PNG image by mscgen (http://www.mcternan.me.uk/mscgen/)
+# 
+# Recompile updated diagrams to a png image with:
+#  
+#   mscgen -T png swm.msc
+#
+
+msc {
+  width="1024";
+  "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
+  "SC" -> "SWLM" [  label = "update_available()" ];
+  "SWLM" -> "HMI" [ label = "update_notification()" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "\nGet User Confirmation\n" ];
+  "HMI" -> "SWLM" [ label = "update_confirmation()" ];
+  "SWLM" -> "SC" [ label = "initiate_download()" ];
+  "SC" box "SC" [ textbgcolour="silver", label = "Download Update" ];
+  "SC" -> "SWLM" [ label = "download_complete()" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\n Process operation 1\n" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\n Process operation 2\n" ];
+
+  ...;
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\n Process operation N\n" ];
+  "SWLM" -> "HMI"  [ label = "update_report()" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
+  "SWLM" -> "SC"  [ label = "update_report()" ];
+  "SC" box "SC" [ textbgcolour="silver", label = "Transmit Report" ];
+}
