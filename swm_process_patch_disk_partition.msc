@@ -13,11 +13,11 @@
 msc {
   width="1024";
   "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML";
-  --- [ label="Invoked by use case \"Process SC Update\" or \"Process CEDM Update\""];
+  --- [ label="Invoked by use case \"SC Update\" or \"Process CEDM\""];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nSoftware operation is \"Patch Disk Partition\"\n" ];
   "SWLM" -> "PackMgr" [ label = "patch_partition()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Apply Binary Delta" ];
   "PackMgr" -> "SWLM" [ label = "repartition_disk_result()" ];
-  --- [ label = "Return to use case \"Process SC Update\" or \"Process CEDM Update\""];
+  --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }
