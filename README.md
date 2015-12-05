@@ -1,3 +1,4 @@
+
 Copyright (C) 2014-2015 Jaguar Land Rover
 
 This document is licensed under Creative Commons
@@ -182,6 +183,15 @@ The following MSC diagram outlines the main package handling use case.
 
 # RUNNING THE PROOF OF CONCEPT
 
+## Install python and add ons.
+
+Make sure you have Python 2.7 (or later 2.X) installed.
+
+Install the necessary python libraries
+
+    sudo apt-get install python-gtk2
+
+
 ## Launch SWM components
 In one terminal window, start all components using:
 
@@ -191,6 +201,8 @@ Each launched component will get their own terminal window.
 
 
 ## Launch SC
+
+    
 In a second window, launch the SC simulator:
 
     python sota_client.py
