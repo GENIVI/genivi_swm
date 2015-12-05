@@ -13,11 +13,11 @@
 msc {
   width="1024";
   "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML";
-  --- [ label="Invoked by use case \"Download Software\" or \"Local Media\""];
+  --- [ label="Invoked by use case \"Process SC Update\" or \"Process CEDM Update\""];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nSoftware operation is \"write disk partition\"\n" ];
   "SWLM" -> "PackMgr" [ label = "write_disk_partition()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Write Partition Image" ];
   "PackMgr" -> "SWLM" [ label = "write_disk_partition_result()" ];
-  --- [ label = "Return to use case \"Download Software\" or Local Media"];
+  --- [ label = "Return to use case \"Process SC Update\" or \"Process CEDM Update\""];
 }

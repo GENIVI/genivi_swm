@@ -13,7 +13,7 @@
 msc {
   width="1024";
   "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
-  --- [ label="Invoked by use case \"Download Software\" or \"Local Media\""];
+  --- [ label="Invoked by use case \"Process SC Update\" or \"Process CEDM Update\""];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nSoftware operation is \"install package\"\n" ];
   "SWLM" -> "Systemd" [ label = "stop_component()" ];
@@ -22,6 +22,6 @@ msc {
   "PackMgr" -> "SWLM" [ label = "installation_report()" ];
   "SWLM" -> "Systemd" [ label = "start_component()" ];
 
-  --- [ label = "Return to use case \"Download Software\" or \"Local Media\""];
+  --- [ label = "Return to use case \"Process SC Update\" or \"Process CEDM Update\""];
 }
 
