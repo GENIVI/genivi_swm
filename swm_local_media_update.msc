@@ -1,0 +1,55 @@
+#
+#
+# Sequence diagram description
+#
+# The sequence diagram description below is translated to
+# a PNG image by mscgen (http://www.mcternan.me.uk/mscgen/)
+# 
+# Recompile updated diagrams to a png image with:
+#  
+#   mscgen -T png swm.msc
+#
+
+msc {
+  width="1024";
+  "CEDM",  "SWLM", "HMI";
+  "CEDM" -> "SWLM" [  label = "device_available()" ];
+  "SWLM" => "CEDM" [  label = "get_device_files()" ];
+  "SWLM" <= "CEDM" [  label = "file list" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update 1 in file list" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update 1" ];
+  "SWLM" -> "HMI" [ label = "update_notification()" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update 1" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 1: Process operation 1" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 1: Process operation 2" ];
+  ...;
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 1:  Process operation N" ];
+
+  "SWLM" -> "HMI"  [ label = "update_report()" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
+
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update 2 in file list" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update 2" ];
+  "SWLM" -> "HMI" [ label = "update_notification()" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update 2" ];
+  "HMI" -> "SWLM" [ label = "update_confirmation()" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 2: Process operation 1" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 2: Process operation 2" ];
+  ...;
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 2: Process operation N" ];
+  "SWLM" -> "HMI"  [ label = "update_report()" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
+  ...;
+
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update X in file list" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update X" ];
+  "SWLM" -> "HMI" [ label = "update_notification()" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update X" ];
+  "HMI" -> "SWLM" [ label = "update_confirmation()" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update X: Process operation 1" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update X: Process operation 2" ];
+  ...;
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update X: Process operation N" ];
+  "SWLM" -> "HMI"  [ label = "update_report()" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
+}

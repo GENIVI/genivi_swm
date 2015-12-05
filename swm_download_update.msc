@@ -12,19 +12,18 @@
 
 msc {
   width="1024";
-  "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
+  "SC",  "SWLM", "HMI";
   "SC" -> "SWLM" [  label = "update_available()" ];
   "SWLM" -> "HMI" [ label = "update_notification()" ];
-  "HMI" box "HMI" [ textbgcolour="silver", label = "\nGet User Confirmation\n" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation" ];
   "HMI" -> "SWLM" [ label = "update_confirmation()" ];
   "SWLM" -> "SC" [ label = "initiate_download()" ];
   "SC" box "SC" [ textbgcolour="silver", label = "Download Update" ];
   "SC" -> "SWLM" [ label = "download_complete()" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\n Process operation 1\n" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\n Process operation 2\n" ];
-
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = " Process operation 1" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = " Process operation 2" ];
   ...;
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\n Process operation N\n" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = " Process operation N" ];
   "SWLM" -> "HMI"  [ label = "update_report()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
   "SWLM" -> "SC"  [ label = "update_report()" ];
