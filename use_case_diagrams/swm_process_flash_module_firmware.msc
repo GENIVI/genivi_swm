@@ -19,5 +19,6 @@ msc {
   "SWLM" -> "PackMgr" [ label = "flash_module_firmware()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Flash external module" ];
   "PackMgr" -> "SWLM" [ label = "flash_module_firmware_result()" ];
+  "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result calling use case's update report\n" ];
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }

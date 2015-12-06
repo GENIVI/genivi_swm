@@ -20,6 +20,7 @@ msc {
   "SWLM" -> "PackMgr" [ label = "upgrade_package()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Upgrade Package" ];
   "PackMgr" -> "SWLM" [ label = "upgrade_package_result()" ];
+  "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result for calling use case's update report\n" ];
   "SWLM" -> "Systemd" [ label = "start_component()" ];
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }

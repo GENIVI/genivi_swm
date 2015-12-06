@@ -19,5 +19,6 @@ msc {
   "SWLM" -> "PackMgr" [ label = "write_disk_partition()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Write Partition Image" ];
   "PackMgr" -> "SWLM" [ label = "write_disk_partition_result()" ];
+  "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result for calling use case's update report\n" ];
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }

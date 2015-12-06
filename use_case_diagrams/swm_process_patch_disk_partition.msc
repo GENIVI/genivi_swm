@@ -19,5 +19,6 @@ msc {
   "SWLM" -> "PackMgr" [ label = "patch_partition()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Apply Binary Delta" ];
   "PackMgr" -> "SWLM" [ label = "repartition_disk_result()" ];
+  "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result for calling use case's update report\n" ];
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }
