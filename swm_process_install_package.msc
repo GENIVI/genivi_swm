@@ -16,7 +16,6 @@ msc {
   --- [ label="Invoked by use case \"SC Update\" or \"Process CEDM\""];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nSoftware operation is \"install package\"\n" ];
-  "SWLM" -> "Systemd" [ label = "stop_component()" ];
   "SWLM" -> "PackMgr" [ label = "install_package()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Install Package" ];
   "PackMgr" -> "SWLM" [ label = "installation_report()" ];
