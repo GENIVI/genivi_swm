@@ -12,7 +12,7 @@
 
 msc {
   width="1024";
-  "CEDM",  "SWLM", "HMI";
+  "SC", "CEDM",  "SWLM", "HMI";
   "CEDM" -> "SWLM" [  label = "device_available()" ];
   "SWLM" => "CEDM" [  label = "get_device_files()" ];
   "SWLM" <= "CEDM" [  label = "file list" ];
@@ -52,4 +52,6 @@ msc {
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update X: Process operation N" ];
   "SWLM" -> "HMI"  [ label = "update_report()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
+  "SWLM" -> "SC"  [ label = "update_report()" ];
+  "SC" box "SC" [ textbgcolour="silver", label = "Transmit Report" ];
 }
