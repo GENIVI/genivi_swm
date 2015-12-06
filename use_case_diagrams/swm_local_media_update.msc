@@ -1,3 +1,4 @@
+
 #
 #
 # Sequence diagram description
@@ -22,6 +23,7 @@ msc {
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image 1 from file list" ];
   "SWLM" -> "HMI" [ label = "update_notification()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update 1" ];
+  "HMI" -> "SWLM" [ label = "update_confirmation()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 1: Process operation 1" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 1: Process operation 2" ];
   ...;
