@@ -18,7 +18,7 @@ msc {
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSoftware operation is \"resize partition\"\n" ];
   "SWLM" -> "PackMgr" [ label = "resize_disk_partition()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "\nResize and/or Move Partition\n" ];
-  "PackMgr" -> "SWLM" [ label = "resize_disk_partition_result()" ];
+  "PackMgr" -> "SWLM" [ label = "operation_result()" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result for calling use case's update report\n" ];
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }

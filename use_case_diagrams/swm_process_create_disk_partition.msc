@@ -18,7 +18,7 @@ msc {
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSoftware operation is \"create partition\"\n" ];
   "SWLM" -> "PackMgr" [ label = "create_disk_partition()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Create Partition" ];
-  "PackMgr" -> "SWLM" [ label = "create_disk_partition_result()" ];
+  "PackMgr" -> "SWLM" [ label = "operation_result()" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result for calling use case's update report\n" ];
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }

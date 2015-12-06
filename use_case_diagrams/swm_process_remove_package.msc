@@ -19,7 +19,7 @@ msc {
   "SWLM" -> "Systemd" [ label = "stop_component()" ];
   "SWLM" -> "PackMgr" [ label = "remove_package()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Remove Package" ];
-  "PackMgr" -> "SWLM" [ label = "remove_package_result()" ];
+  "PackMgr" -> "SWLM" [ label = "operation_result()" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result for calling use case's update report\n" ];
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }

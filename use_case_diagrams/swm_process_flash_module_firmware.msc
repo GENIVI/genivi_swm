@@ -18,7 +18,7 @@ msc {
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nSoftware operation is \"Flash Module Firmware\"\n" ];
   "SWLM" -> "ML" [ label = "flash_module_firmware()" ];
   "ML" box "ML" [ textbgcolour="silver", label = "Flash external module" ];
-  "ML" -> "SWLM" [ label = "flash_module_firmware_result()" ];
+  "ML" -> "SWLM" [ label = "operation_result()" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result calling use case's update report\n" ];
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }
