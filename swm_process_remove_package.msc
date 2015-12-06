@@ -20,6 +20,5 @@ msc {
   "SWLM" -> "PackMgr" [ label = "remove_package()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Remove Package" ];
   "PackMgr" -> "SWLM" [ label = "remove_package_result()" ];
-  "SWLM" -> "Systemd" [ label = "start_component()" ];
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }
