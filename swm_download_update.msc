@@ -20,10 +20,12 @@ msc {
   "SWLM" -> "SC" [ label = "initiate_download()" ];
   "SC" box "SC" [ textbgcolour="silver", label = "Download Update" ];
   "SC" -> "SWLM" [ label = "download_complete()" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = " Process operation 1" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = " Process operation 2" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update image" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Process operation 1" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Process operation 2" ];
   ...;
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = " Process operation N" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Process operation N" ];
   "SWLM" -> "HMI"  [ label = "update_report()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
   "SWLM" -> "SC"  [ label = "update_report()" ];

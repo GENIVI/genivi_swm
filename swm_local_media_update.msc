@@ -16,8 +16,10 @@ msc {
   "CEDM" -> "SWLM" [  label = "device_available()" ];
   "SWLM" => "CEDM" [  label = "get_device_files()" ];
   "SWLM" <= "CEDM" [  label = "file list" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update 1 in file list" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update 1" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update images in file list" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update signature in file list" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update images" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image 1 from file list" ];
   "SWLM" -> "HMI" [ label = "update_notification()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update 1" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 1: Process operation 1" ];
@@ -28,8 +30,7 @@ msc {
   "SWLM" -> "HMI"  [ label = "update_report()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
 
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update 2 in file list" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update 2" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image 2 in from list" ];
   "SWLM" -> "HMI" [ label = "update_notification()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update 2" ];
   "HMI" -> "SWLM" [ label = "update_confirmation()" ];
@@ -41,8 +42,7 @@ msc {
   "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
   ...;
 
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update X in file list" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update X" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image X from file list" ];
   "SWLM" -> "HMI" [ label = "update_notification()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update X" ];
   "HMI" -> "SWLM" [ label = "update_confirmation()" ];
