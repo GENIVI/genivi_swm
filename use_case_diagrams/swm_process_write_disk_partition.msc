@@ -16,9 +16,9 @@ msc {
   --- [ label="Invoked by use case \"SC Update\" or \"Process CEDM\""];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nSoftware operation is \"write disk partition\"\n" ];
-  "SWLM" -> "PackMgr" [ label = "write_disk_partition()" ];
-  "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Write Partition Image" ];
-  "PackMgr" -> "SWLM" [ label = "operation_result()" ];
+  "SWLM" -> "PartMgr" [ label = "write_disk_partition()" ];
+  "PartMgr" box "PartMgr" [ textbgcolour="silver", label = "Write Partition Image" ];
+  "PartMgr" -> "SWLM" [ label = "operation_result()" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result for calling use case's update report\n" ];
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }
