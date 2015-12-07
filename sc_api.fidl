@@ -1,0 +1,141 @@
+// (c) 2015 - Jaguar Land Rover.
+//
+// Mozilla Public License 2.0
+//
+// GENIVI Software Management IDL
+//
+
+// Abbreviatioms:
+// SC - SOTA CLient
+// SWLM - Software Loading Manager
+// ML - Module Loader (one instance per external module)
+// PackMgr - Package Manager
+// PartMgr - Partition Manager
+// HMI - Human Machine Interface (IVI screen)
+// CEDM - Consumer Electronics Device Manager
+
+// FIXME: Enumerated update operation result codes
+
+package org.genivi.si.swm
+
+<** @description: 
+Software Over The Air Client API
+**>
+interface sc {
+	version { major 1 minor 0 }
+
+	<** 
+	@description: 
+	Sent by SC to start the download of an update previously announced
+	as available through an update_available() call made from SC to
+	SWLM.
+	**>
+	method initiate_download {
+		in {
+			<** @description:
+			Package ID of update to download. 
+			The value is provided by the update_available() call made from SC
+			to SWLM to announce the update availability.
+			**>
+			String package_id
+			<** @description: 
+			The major version number of the update to download. 
+			The value is provided by the update_available() call made from SC
+			to SWLM to announce the update availability.
+			**>
+			UInt32 major
+
+			<** @description: 
+			The minor version number of the update to download.
+			The value is provided by the update_available() call made from SC
+			to SWLM to announce the update availability.
+			**>
+			UInt32 minor
+
+			<** @description: 
+			The patch level number of the update to download.
+			The value is provided by the update_available() call made from SC
+			to SWLM to announce the update availability.
+			**>
+			UInt32 patch
+
+		}
+	}
+
+	<** 
+	@description: 
+	Receive an update report from SC with the processing result of all
+	bundled operations.
+	An update report message can either be sent in response
+	to an download_complete() message transmitted from SC to SWLM,
+	or be sent unsolicited by SWLM to SC 
+	**>
+	method update_report {
+		in {
+			<** @description:
+			Package ID of update reported.
+			The value is provided by the update_available() call made from SC
+			to SWLM to announce the update availability.
+			**>
+			String package_id
+			<** @description: 
+			The major version number of the update reported.
+			The value is provided by the update_available() call made from SC
+			to SWLM to announce the update availability.
+			**>
+			UInt32 major
+
+			<** @description: 
+			The minor version number of the update reported.
+			The value is provided by the update_available() call made from SC
+			to SWLM to announce the update availability.
+			**>
+			UInt32 minor
+
+			<** @description: 
+			The patch level number of the update reported.
+			The value is provided by the update_available() call made from SC
+			to SWLM to announce the update availability.
+			**>
+			UInt32 patch
+
+			<** @description: 
+			A list of operation results. Each result is associated
+			with its original update manifest entry through the id 
+			field.
+			**>
+			array operations_results of OperationResult
+		}
+	}
+
+
+	<** @description:
+	A single result of a software operation, included in an 
+	update_report().
+	**>
+	struct OperationResult {
+		<** @description: 
+		The operation id, as specified by the manifest's 
+		operstions.id field.
+		**>
+		String id
+
+		<** @description: 
+		The result code reported by PackMgr, PartMgr, or ML
+		for the given operation.
+		**>
+		UInt32 result_code
+
+		<** @description: 
+		A descriptive result text reported by PackMgr, PartMgr, or ML
+		for the given operation.
+		**>
+		UInt32 result_code
+
+		<** @description: 
+		A descriptive result text reported by PackMgr, PartMgr, or ML
+		for the given operation.
+		**>
+		String result_text
+	}
+}
