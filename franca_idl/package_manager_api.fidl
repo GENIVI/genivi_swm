@@ -1,0 +1,166 @@
+// (c) 2015 - Jaguar Land Rover.
+//
+// Mozilla Public License 2.0
+//
+// GENIVI Software Management IDL
+//
+
+// Abbreviatioms:
+// SC - SOTA CLient
+// SWLM - Software Loading Manager
+// ML - Module Loader (one instance per external module)
+// PackMgr - Package Manager
+// PartMgr - Partition Manager
+// HMI - Human Machine Interface (IVI screen)
+// CEDM - Consumer Electronics Device Manager
+
+// FIXME: Enumerated update operation result codes
+
+package org.genivi.si.swm
+
+<** @description: 
+Package Manager API
+**>
+interface packmgr {
+	version { major 1 minor 0 }
+
+	<** 
+	@description: 
+	Start the installation of a package using an image available
+	on local storage.
+	**>
+	method install_package {
+		in {
+			<** @description:
+			The local file system path to the image to be forwarded
+			to the native package manager for installation
+			**>
+			String image,
+
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the package installation.
+			**>
+			String transaction_id
+		}
+
+	}
+
+	<** 
+	@description: 
+	Start the upgrade of a previously installed package
+	**>
+	method upgrade_package {
+		in {
+			<** @description:
+			The local file system path to the image to be forwarded
+			to the native package manager for the upgrade operation
+			**>
+			String image,
+
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the package upgrade.
+			**>
+			String transaction_id
+		}
+	}
+
+	<** 
+	@description: 
+	Start the removal of a previously installed package
+	**>
+	method remove_package {
+		in {
+			<** @description:
+			The id of the package to remove.
+			**>
+			String package_id
+
+			<** @description: 
+			The major version number of the package to remove
+			If the value is -1, remove any package with a matching
+			package-id, regardless of its major version number.
+			**>
+			UInt32 major
+
+			<** @description: 
+			The minor version number of the package to remove
+			If the value is -1, remove any package with a matching
+			package-id, regardless of its minor version number.
+			**>
+			UInt32 minor
+
+			<** @description: 
+			The patch level number of the package to remove
+			If the value is -1, remove any package with a matching
+			package-id, regardless of its patch level number.
+			**>
+			UInt32 patch
+
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the package removal.
+			**>
+			String transaction_id
+		}
+	}
+
+	<** @description:
+	Retrieve all installed packages.
+	**>
+	method get_installed_packages {
+		out {
+			<** @description: 
+			All installed packages. 
+
+			FIXME: Move InstalledPackage struct to include file?
+
+			**>
+			array installed_packages of InstalledPackage
+		}
+	}
+	
+	<** @description:
+	A single element inside the list of packages returned by the
+	get_installed_packages method.
+	**>
+	struct InstalledPackage {
+		<** @description: 
+		The ID string of the installed package.
+		**>
+		String package_id
+
+		<** @description: 
+		The major version number of the installed package
+		**>
+		UInt32 major
+
+		<** @description: 
+		The minor version number of the installed package
+		**>
+		UInt32 minor
+
+		<** @description: 
+		The patch level number of the installed package
+		**>
+		UInt32 patch
+
+		<** @description: 
+		A symbolic name of the installed package
+		**>
+		String name
+
+		<** @description: 
+		A descriptive text of the installed package
+		**>
+		String description
+
+		<** @description: 
+		The unix time stamp of when the package was installed
+		or last updated.
+		**>
+		UInt64 last_modified
+	}
+
+}

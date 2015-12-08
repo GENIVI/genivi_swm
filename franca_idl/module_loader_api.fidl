@@ -1,0 +1,78 @@
+// (c) 2015 - Jaguar Land Rover.
+//
+// Mozilla Public License 2.0
+//
+// GENIVI Software Management IDL
+//
+
+// Abbreviatioms:
+// SC - SOTA CLient
+// SWLM - Software Loading Manager
+// ML - Module Loader (one instance per external module)
+// PackMgr - Package Manager
+// PartMgr - Partition Manager
+// HMI - Human Machine Interface (IVI screen)
+// CEDM - Consumer Electronics Device Manager
+
+
+
+package org.genivi.si.swm
+
+<** @description: 
+Module Loader API.
+There will be one specific module loader component instance for 
+each external module that can be flashed by the system.
+**>
+interface ml {
+	version { major 1 minor 0 }
+
+	<** 
+	@description: 
+	Flash a new firmware to the module managed
+	by the component.
+	**>
+	method flash_module_firmware {
+		in {
+			<** @description:
+			A path to the local file system where the firwmare 
+			image to reflash the module can be found.
+			**>
+			String image
+			
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the firmware flashing.
+			**>
+			String transaction_id
+		}
+	}
+
+	<** @description:
+	Retrieve information about the firmware running on the
+	external module controlled by the component.
+	**>
+	method get_module_firmware_version {
+		out {
+			<** @description: 
+			The major version number of the installed firmware
+			**>
+			UInt32 major
+
+			<** @description: 
+			The minor version number of the installed firmware
+			**>
+			UInt32 minor
+
+			<** @description: 
+			The patch level number of the installed firmware
+			**>	
+			UInt32 patch
+
+			<** @description: 
+			The unix time stamp of when the module was flashed
+			with the given firmware version
+			**>
+			UInt64 last_modified
+		}
+	}
+}

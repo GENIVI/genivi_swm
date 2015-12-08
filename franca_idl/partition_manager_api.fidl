@@ -1,0 +1,210 @@
+// (c) 2015 - Jaguar Land Rover.
+//
+// Mozilla Public License 2.0
+//
+// GENIVI Software Management IDL
+//
+
+// Abbreviatioms:
+// SC - SOTA CLient
+// SWLM - Software Loading Manager
+// ML - Module Loader (one instance per external module)
+// PackMgr - Package Manager
+// PartMgr - Partition Manager
+// HMI - Human Machine Interface (IVI screen)
+// CEDM - Consumer Electronics Device Manager
+
+// FIXME: Enumerated update operation result codes
+
+package org.genivi.si.swm
+
+<** @description: 
+Partition Manager API
+**>
+interface partmgr {
+	version { major 1 minor 0 }
+
+	<** 
+	@description: 
+	Create a new partition on a a disk.
+	**>
+	method create_disk_partition {
+		in {
+			<** @description:
+			The path to a disk to create a partition on
+			**>
+			String disk,
+
+			<** @description:
+			The partition number to create on the given disk
+			**>
+			UInt32 partition_number,
+
+			<** @description:
+			The start of the partition, in offset bytes from disk
+			start. Local disk characteristics may require the value to
+			be a multiple of the disk sector size 
+			**>
+			UInt64 start
+
+			<** @description:
+			The size of the partition, in bytes. Local disk
+			characteristics may require the value to be a multiple of
+			the disk sector size.
+			**>
+			UInt64 size
+
+			<** @description:
+			The GUID of the partition to create.
+			**>
+			String guid
+
+			<** @description:
+			The partition type.
+			**>
+			UInt32 type 
+
+			<** @description:
+			The symbolic name of the partition.
+			**>
+			UInt32 name 
+			
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the partition creation.
+			**>
+			String transaction_id
+		}
+	}
+
+	<** 
+	@description: 
+	Delete an existing partition on a disk, destroying the content
+	of the partition.
+	**>
+	method delete_disk_partition {
+		in {
+			<** @description:
+			The path to a disk from which to delete a partition.
+			**>
+			String disk,
+
+			<** @description:
+			The number of the specific paritition to delete on the
+			given disk.
+			**>
+			UInt32 partition_number,
+
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the partition deletion.
+			**>
+			String transaction_id
+		}
+	}
+
+	<** 
+	@description: 
+	Resize an existing partition on a disk, retaining the 
+	file sytem content of the partition.
+	**>
+	method resize_disk_partition {
+		in {
+			<** @description:
+			The path to a disk to resize a partition on
+			**>
+			String disk,
+
+			<** @description:
+			The number of the specific partition to resize
+			on the given disk.
+			**>
+			UInt32 partition_number,
+
+			<** @description:
+			The new start of the partition, in offset bytes from disk
+			start. Local disk characteristics may require the value to
+			be a multiple of the disk sector size.
+			**>
+			UInt64 start
+
+			<** @description:
+			The new size of the partition, in bytes. Local disk
+			characteristics may require the value to be a multiple of
+			the disk sector size.
+			**>
+			UInt64 size
+			
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the partition resizing.
+			**>
+			String transaction_id
+		}
+	}
+
+
+	<** 
+	@description: 
+	Write an image to an existing disk partition, destroying the
+	original content of the partition.
+	**>
+	method write_disk_partition {
+		in {
+			<** @description:
+			The device path to the disk to write an image to.
+			**>
+			String disk,
+
+			<** @description:
+			The number of the specific partition to write to
+			on the given disk.
+			**>
+			UInt32 partition_number,
+
+			<** @description:
+			A path to the local file system where the image
+			to write to the given partition can be found.
+			**>
+			String image
+			
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the partition write.
+			**>
+			String transaction_id
+		}
+	}
+
+	<** 
+	@description: 
+	Apply an image as a binary delta to an existing disk partition, 
+	modifying the original content of the partition
+	**>
+	method patch_disk_partition {
+		in {
+			<** @description:
+			The device path to the disk to patch.
+			**>
+			String disk,
+
+			<** @description:
+			The number of the specific partition to patch
+			on the given disk.
+			**>
+			UInt32 partition_number,
+
+			<** @description:
+			A path to the local file system where the binary
+			delta to apply to the partition can be found.
+			**>
+			String image
+			
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the partition patching.
+			**>
+			String transaction_id
+		}
+	}
+}
