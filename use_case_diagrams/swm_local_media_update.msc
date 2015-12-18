@@ -13,11 +13,9 @@
 
 msc {
   width="1024";
-  "SC", "CEDM",  "SWLM", "HMI";
-  "CEDM" -> "SWLM" [  label = "device_available()" ];
-  "SWLM" => "CEDM" [  label = "get_device_files()" ];
-  "SWLM" <= "CEDM" [  label = "file list" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update images in file list" ];
+  "SC", "LocMedMgr",  "SWLM", "HMI";
+  "LocMedMgr" -> "SWLM" [  label = "media_attached()" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update images in media" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update signature in file list" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update images" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image 1 from file list" ];
