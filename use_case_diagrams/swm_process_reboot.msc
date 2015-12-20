@@ -20,5 +20,6 @@ msc {
   "Systemd" box "Systemd" [ textbgcolour="silver", label = "Reboot" ];
   --- [ label = "System reboots"];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSWLM reloads currently processed manifest file\n" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSWLM stores a successful operation result code for reboot\n" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSWLM continues with the next softare operation\n" ];
 }
