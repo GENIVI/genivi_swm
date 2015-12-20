@@ -10,7 +10,7 @@ import gtk
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
-
+import update_manager
             
     
 #
@@ -18,7 +18,6 @@ from dbus.mainloop.glib import DBusGMainLoop
 #
 class SLMService(dbus.service.Object):
     def __init__(self):
-        
         # Retrieve the session bus.
         self.bus = dbus.SessionBus()
 
@@ -33,6 +32,23 @@ class SLMService(dbus.service.Object):
 
 
 
+        
+    def initiate_download(self,
+                          package_id, 
+                          major, 
+                          minor, 
+                          patch):
+        #
+        # Find the local sota client bus, object and method.
+        #
+        sota_client_bus_name = dbus.service.BusName("org.genivi.sota_client", bus=self.bus)
+        sota_client_obj = self.bus.get_object(sota_client_bus_name.get_name(), 
+                                              "/org/genivi/sota_client")
+
+        sota_initiate_download = sota_client_obj.get_dbus_method("initiate_download", 
+                                                                 "org.genivi.sota_client")
+        
+        sota_initiate_download(package_id, major, minor, patch)
 
     # 
     # Distribute a report of a completed installation
@@ -111,11 +127,9 @@ class SLMService(dbus.service.Object):
                          major, 
                          minor, 
                          patch, 
-                         command, 
-                         size, 
                          description, 
-                         vendor,
-                         target): 
+                         update_file,
+                         request_confirmation): 
 
         #
         # Locate HMI bus, object, and update_notification() call.
@@ -128,34 +142,34 @@ class SLMService(dbus.service.Object):
 
 
         print "Got package available"
-        print "  ID:     {}".format(package_id)
-        print "  ver:    {}.{}.{} ".format(major, minor, patch)
-        print "  cmd:    {}".format(command)
-        print "  size:   {}".format(size)
-        print "  descr:  {}".format(description)
-        print "  vendor: {}".format(vendor)
-        print "  target: {}".format(target)
+        print "  ID:      {}".format(package_id)
+        print "  ver:     {}.{}.{} ".format(major, minor, patch)
+        print "  descr:   {}".format(description)
+        print "  path:    {}".format(update_file)
+        print "  confirm: {}".format(request_confirmation)
 
         #
         # Send a notification to the HMI to get user approval / decline
         # Once user has responded, HMI will invoke self.package_confirmation()
         # to drive the use case forward.
         #
-        hmi_update_notification(package_id, 
-                                  major, 
-                                  minor, 
-                                  patch, 
-                                  command, 
-                                  size, 
-                                  description, 
-                                  vendor,
-                                  target)
+        if request_confirmation:
+            hmi_update_notification(package_id, 
+                                    major, 
+                                    minor, 
+                                    patch, 
+                                    description)
+            print "  Called hmi.update_notification()"
+            print "---"
+            return None
 
-        print "Called hmi.update_notification()"
+        print "  No user confirmation requested. Will initiate download"
         print "---"
+        self.initiate_download(package_id, major, minor, patch)
+
         return None
         
-        
+
     @dbus.service.method("org.genivi.software_loading_manager",
                          async_callbacks=('send_reply', 'send_error'))
     def package_confirmation(self,        
@@ -164,11 +178,6 @@ class SLMService(dbus.service.Object):
                              major, 
                              minor, 
                              patch, 
-                             command, 
-                             size, 
-                             description, 
-                             vendor,
-                             target, 
                              send_reply, 
                              send_error): 
 
@@ -179,26 +188,13 @@ class SLMService(dbus.service.Object):
         #
         send_reply(True)
 
-        #
-        # Find the local sota client bus, object and method.
-        #
-        sota_client_bus_name = dbus.service.BusName("org.genivi.sota_client", bus=self.bus)
-        sota_client_obj = self.bus.get_object(sota_client_bus_name.get_name(), 
-                                              "/org/genivi/sota_client")
 
-        sota_initiate_download = sota_client_obj.get_dbus_method("initiate_download", 
-                                                                 "org.genivi.sota_client")
-        
         print "Got package_confirmation()."
         print "  Approved: {}".format(approved)
         print "  ID:       {}".format(package_id)
         print "  ver:      {}.{}.{} ".format(major, minor, patch)
-        print "  cmd:      {}".format(command)
-        print "  size:     {}".format(size)
-        print "  descr:    {}".format(description)
-        print "  vendor:   {}".format(vendor)
-        print "  target:   {}".format(target)
         if approved:
+        
             #
             # Call the SOTA client and ask it to start the download.
             # Once the download is complete, SOTA client will call 
@@ -206,7 +202,7 @@ class SLMService(dbus.service.Object):
             # process the package.
             #
             print "Approved: Will call initiate_download()"
-            sota_initiate_download(package_id, major, minor, patch)
+            self.initiate_download(package_id, major, pinor, patch)
             print "Approved: Called sota_client.initiate_download()"
             print "---"
         else:
@@ -218,10 +214,10 @@ class SLMService(dbus.service.Object):
                                                 patch, 
                                                 command, 
                                                 '', # No path yet since it was declined
-                                                size,
-                                                description, 
-                                                vendor, 
-                                                target,
+                                                0,
+                                                '', 
+                                                '', 
+                                                '',
                                                 2, 
                                                 'Package declined by user')
             print "Declined. Called sota_client.installation_report()"
@@ -237,24 +233,16 @@ class SLMService(dbus.service.Object):
                           major, 
                           minor, 
                           patch, 
-                          command,
                           path,
-                          size, 
-                          description,
-                          vendor,
-                          target,
+                          signature,
                           send_reply,
                           send_error): 
             
         print "Got download complete"
-        print "  ID:     {}".format(package_id)
-        print "  ver:    {}.{}.{} ".format(major, minor, patch)
-        print "  cmd:    {}".format(command)
-        print "  path:   {}".format(path)
-        print "  size:   {}".format(size)
-        print "  descr:  {}".format(description)
-        print "  vendor: {}".format(vendor)
-        print "  target: {}".format(target)
+        print "  ID:        {}".format(package_id)
+        print "  ver:       {}.{}.{} ".format(major, minor, patch)
+        print "  path:      {}".format(path)
+        print "  signature: {}".format(signature)
         print "---"
 
         # Send back an immediate reply since DBUS
@@ -269,29 +257,19 @@ class SLMService(dbus.service.Object):
         target_obj = self.bus.get_object(target_bus_name.get_name(), 
                                          "/org/genivi/" + target)
             
-
-        process_update = target_obj.get_dbus_method("process_update", 
-                                                     "org.genivi." + target)
-
-
         #
         # Locate and invoke the correct package processor 
         # (ECU1ModuleLoaderProcessor.process_impl(), etc)
         #
-        process_update(package_id,
-                        major, 
-                        minor, 
-                        patch, 
-                        command,
-                        path,
-                        size, 
-                        description,
-                        vendor,
-                        target)
+        update_manager.process_update(package_id,
+                                      major, 
+                                      minor, 
+                                      patch, 
+                                      path,
+                                      signature)
 
         return None
 
-        
     #
     # Receive and process a installation report.
     # Called by package_manager, partition_manager, or ecu_module_loader
@@ -351,7 +329,6 @@ class SLMService(dbus.service.Object):
                    "major": 3,
                    "minor": 2,
                    "patch": 1 } ]
-                 
 
 print 
 print "Software Loading Manager."

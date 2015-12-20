@@ -15,16 +15,13 @@ import sys
 import time
 
 # Default command line arguments
-package_id='bluez'
+package_id='media_player'
 major=1
 minor=2
 patch=3
-target='package_manager'
-command='install'
-size=1000000
-description='bluez stack'
-vendor='Bluez project'
-path='/nev/dull'
+description='Media Player Update'
+signature='d2889ee6bc1fe1f3d7c5cdaca78384776bf437b7c6ca4db0e2c8b1d22cdb8f4e'
+update_file=''
 active=True
 class SOTAClientService(dbus.service.Object):
     def __init__(self):
@@ -150,38 +147,29 @@ class SOTAClientService(dbus.service.Object):
                    'major': 3,
                    'minor': 2,
                    'patch': 1 } ]
-                 
-
 
 def usage():
-    print "Usage:", sys.argv[0], "[-p package_id] [-v major.minor.patch] \\"
-    print "                      [-t target] [-c command] [-s size] \\"
-    print "                      [-d description] [-V vendor]"
+    print "Usage:", sys.argv[0], "-p package_id -v major.minor.patch \\"
+    print "                       -s signature [-c] \\"
     print
     print "  -p package_id        Pacakage id string. Default: 'bluez'"
     print "  -v major.minor.patch Version of package. Default: '1.2.3'"
-    print "  -t target            Target installer. package_manager |"
-    print "                                         partition_manager |"
-    print "                                         ecu1_module_loader"
-    print "                       Default: 'package'"
-    print "  -c command           install | upgrade | remove. Default: 'install'"
-    print "  -s size              Package size in bytes. Default: '1000000'"
-    print "  -d description       Package description. Default: 'Bluez stack'"
-    print "  -V vendor            Package vendor. Default: 'Bluez project'"
+    print "  -u update_file       Update squashfs image file."
+    print "  -s signature         RSA encrypted sha256um of udpdate_file."
+    print "  -c                   Request user confirmation."
     print
     print "Example:", sys.argv[0],"-p boot_loader -v 2.10.9\\"
-    print "                        -t partition_manager -c write_image \\"
-    print "                        -s 524288 -d 'GDP Boot loader' \\ "
-    print "                        -v 'DENX Software'"
-
+    print "                        -u boot_loader.img  \\"
+    print "                        -s 2889ee...4db0ed22cdb8f4e -c"
     sys.exit(255)
 
 
 try:  
-    opts, args= getopt.getopt(sys.argv[1:], "p:v:t:c:s:d:V:")
+    opts, args= getopt.getopt(sys.argv[1:], "p:v:u:s:c")
 except getopt.GetoptError:
     usage()
 
+request_confirmation = False
 for o, a in opts:
     if o == "-p":
         package_id = a
@@ -190,26 +178,38 @@ for o, a in opts:
         major = int(major)
         minor = int(minor)
         patch = int(patch)
-    elif o == "-t":
-        target = a
-    elif o == "-c":
-        command = a
-    elif o == "-s":
-        size = int(a)
-    elif o == "-d":
+    if o == "-d":
         description = a
-    elif o == "-V":
-        vendor = a
+    elif o == "-u":
+        update_file = a
+    elif o == "-s":
+        signature = a
+    elif o == "-c":
+        request_confirmation = True
     else:
         usage()
+
+if update_file == '':
+    print
+    print "No -u update_file provided."
+    print
+    usage()
     
+# Can we open the confirmation file?
+try:
+   update_desc = open(update_file, "r")
+except IOError as e:
+    print "Could not open {} for reading: {}".format(update_file, e)
+    sys.exit(255)
+    
+update_desc.close()
+
 print "Will simulate downloaded package:"
-print "Package ID:  {} {}.{}.{}".format(package_id, major, minor, patch)
-print "Description: {}".format(description)
-print "Vendor:      {}".format(vendor)
-print "Size:        {}".format(size)
-print "Target:      {}".format(target)
-print "Command:     {}".format(command)
+print "Package ID:         {} {}.{}.{}".format(package_id, major, minor, patch)
+print "Description:        {}".format(description)
+print "Update file:        {}".format(update_file)
+print "User Confirmation:  {}".format(request_confirmation)
+
 
 DBusGMainLoop(set_as_default=True)
 sota_svc = SOTAClientService()
@@ -242,11 +242,10 @@ sota_svc.update_available(package_id,
                           major,
                           minor, 
                           patch,
-                          command,
-                          size,
                           description,
-                          vendor,
-                          target)
+                          update_file,
+                          request_confirmation)
+
 
 active = True
 
