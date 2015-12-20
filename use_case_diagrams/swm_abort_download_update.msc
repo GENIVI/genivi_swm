@@ -18,8 +18,9 @@ msc {
   "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation" ];
   "HMI" -> "SWLM" [ label = "update_confirmation()" ];
   "SWLM" -> "SC" [ label = "initiate_download()" ];
-  "SC" box "SC" [ textbgcolour="silver", label = "Download Update" ];
+  "SC" box "SC" [ textbgcolour="silver", label = "Start download" ];
   ...;
+  "HMI" box "HMI" [ textbgcolour="silver", label = "User aborts download" ];
   "HMI" -> "SWLM" [ label = "abort_download()" ];
   "SWLM" -> "SC"  [ label = "abort_download()" ];
   "SC" box "SC" [ textbgcolour="silver", label = "abort_download()" ];
