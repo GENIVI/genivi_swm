@@ -13,10 +13,10 @@
 
 msc {
   width="1024";
-  "SC", "CEDM",  "SWLM", "HMI";
-  "CEDM" -> "SWLM" [  label = "device_available()" ];
-  "SWLM" => "CEDM" [  label = "get_device_files()" ];
-  "SWLM" <= "CEDM" [  label = "file list" ];
+  "SC", "LocMedMgr",  "SWLM", "HMI";
+  "LocMedMgr" -> "SWLM" [  label = "device_available()" ];
+  "SWLM" => "LocMedMgr" [  label = "get_device_files()" ];
+  "SWLM" <= "LocMedMgr" [  label = "file list" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update images in file list" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update signature in file list" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update images" ];

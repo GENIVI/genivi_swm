@@ -12,14 +12,13 @@
 
 msc {
   width="1024";
-  "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
-  --- [ label="Invoked by use case \"SC Update\", \"Process DiagToolMgr Update\", or \"Process CEDM\""];
+  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
+  --- [ label="Invoked by use case \"SC Update\", \"Process DiagToolMgr Update\", or \"Process LocMedMgr\""];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSoftware operation is \"create partition\"\n" ];
-  "SWLM" -> "PartMgr" [ label = "create_disk_partition()" ];
-  "PartMgr" box "PartMgr" [ textbgcolour="silver", label = "Create Partition" ];
-  "PartMgr" -> "SWLM" [ label = "operation_result()" ];
-  "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result for calling use case's update report\n" ];
-  --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSoftware operation is \"reboot\"\n" ];
+  "SWLM" -> "Systemd" [ label = "reboot()" ];
+  "Systemd" box "Systemd" [ textbgcolour="silver", label = "Reboot" ];
+  --- [ label = "System reboots"];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSWLM reloads currently processed manifest file\n" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSWLM continues with the next softare operation\n" ];
 }
-p
