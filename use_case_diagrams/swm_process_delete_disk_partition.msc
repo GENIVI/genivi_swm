@@ -13,7 +13,7 @@
 msc {
   width="1024";
   "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
-  --- [ label="Invoked by use case \"SC Update\" or \"Process CEDM\""];
+  --- [ label="Invoked by use case \"SC Update\", \"Process DiagToolMgr Update\", or \"Process CEDM\""];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSoftware operation is \"delete partition\"\n" ];
   "SWLM" -> "PartMgr" [ label = "delete_disk_partition()" ];

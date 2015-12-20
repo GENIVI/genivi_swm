@@ -13,15 +13,13 @@
 msc {
   width="1024";
   "SC",  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
-  --- [ label="Invoked by use case \"SC Update\" or \"Process CEDM\""];
+  --- [ label="Invoked by use case \"SC Update\", \"Process DiagToolMgr Update\", or \"Process CEDM\""];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nSoftware operation is \"install package\"\n" ];
   "SWLM" -> "PackMgr" [ label = "install_package()" ];
   "PackMgr" box "PackMgr" [ textbgcolour="silver", label = "Install Package" ];
   "PackMgr" -> "SWLM" [ label = "operation_result()" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result for calling use case's update report\n" ];
-  "SWLM" -> "Systemd" [ label = "start_component()" ];
-
   --- [ label = "Return to use case \"SC Update\" or \"Process CEDM\""];
 }
 

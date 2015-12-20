@@ -1,5 +1,6 @@
 TARGET= swm_download_update.png \
 	swm_local_media_update.png \
+	swm_diagnostic_update.png \
 	swm_process_install_package.png \
 	swm_process_upgrade_package.png \
 	swm_process_remove_package.png \
