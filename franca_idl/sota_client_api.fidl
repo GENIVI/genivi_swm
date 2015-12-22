@@ -12,7 +12,7 @@
 // PackMgr - Package Manager
 // PartMgr - Partition Manager
 // HMI - Human Machine Interface (IVI screen)
-// CEDM - Consumer Electronics Device Manager
+// LocMedMgr - Local Media Manager
 
 // FIXME: Enumerated update operation result codes
 
@@ -38,27 +38,21 @@ interface sc {
 			to SWLM to announce the update availability.
 			**>
 			String package_id
-			<** @description: 
-			The major version number of the update to download. 
-			The value is provided by the update_available() call made from SC
-			to SWLM to announce the update availability.
-			**>
-			UInt32 major
+		}
+	}
 
-			<** @description: 
-			The minor version number of the update to download.
-			The value is provided by the update_available() call made from SC
-			to SWLM to announce the update availability.
+	<** 
+	@description: 
+	Abort a download previously initiated with initiate_download().
+	**>
+	method abort_download {
+		in {
+			<** @description:
+			Package ID of update to abort..
+			The value was previously provided to a initiate_download() call 
+			made from SWLM to SC.
 			**>
-			UInt32 minor
-
-			<** @description: 
-			The patch level number of the update to download.
-			The value is provided by the update_available() call made from SC
-			to SWLM to announce the update availability.
-			**>
-			UInt32 patch
-
+			String package_id
 		}
 	}
 
@@ -78,26 +72,6 @@ interface sc {
 			to SWLM to announce the update availability.
 			**>
 			String package_id
-			<** @description: 
-			The major version number of the update reported.
-			The value is provided by the update_available() call made from SC
-			to SWLM to announce the update availability.
-			**>
-			UInt32 major
-
-			<** @description: 
-			The minor version number of the update reported.
-			The value is provided by the update_available() call made from SC
-			to SWLM to announce the update availability.
-			**>
-			UInt32 minor
-
-			<** @description: 
-			The patch level number of the update reported.
-			The value is provided by the update_available() call made from SC
-			to SWLM to announce the update availability.
-			**>
-			UInt32 patch
 
 			<** @description: 
 			A list of operation results. Each result is associated

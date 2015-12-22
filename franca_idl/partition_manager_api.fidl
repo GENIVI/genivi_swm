@@ -12,7 +12,7 @@
 // PackMgr - Package Manager
 // PartMgr - Partition Manager
 // HMI - Human Machine Interface (IVI screen)
-// CEDM - Consumer Electronics Device Manager
+// LocMedMgr - Local Media Manager
 
 // FIXME: Enumerated update operation result codes
 
@@ -33,12 +33,12 @@ interface partmgr {
 			<** @description:
 			The path to a disk to create a partition on
 			**>
-			String disk,
+			String disk
 
 			<** @description:
 			The partition number to create on the given disk
 			**>
-			UInt32 partition_number,
+			UInt32 partition_number
 
 			<** @description:
 			The start of the partition, in offset bytes from disk
@@ -79,7 +79,7 @@ interface partmgr {
 
 	<** 
 	@description: 
-	Delete an existing partition on a disk, destroying the content
+	Delete an existing partition on a disk destroying the content
 	of the partition.
 	**>
 	method delete_disk_partition {
@@ -87,13 +87,13 @@ interface partmgr {
 			<** @description:
 			The path to a disk from which to delete a partition.
 			**>
-			String disk,
+			String disk
 
 			<** @description:
 			The number of the specific paritition to delete on the
 			given disk.
 			**>
-			UInt32 partition_number,
+			UInt32 partition_number
 
 			<** @description:
 			The transaction ID to send back with the operation_result()
@@ -113,13 +113,13 @@ interface partmgr {
 			<** @description:
 			The path to a disk to resize a partition on
 			**>
-			String disk,
+			String disk
 
 			<** @description:
 			The number of the specific partition to resize
 			on the given disk.
 			**>
-			UInt32 partition_number,
+			UInt32 partition_number
 
 			<** @description:
 			The new start of the partition, in offset bytes from disk
@@ -154,13 +154,13 @@ interface partmgr {
 			<** @description:
 			The device path to the disk to write an image to.
 			**>
-			String disk,
+			String disk
 
 			<** @description:
 			The number of the specific partition to write to
 			on the given disk.
 			**>
-			UInt32 partition_number,
+			UInt32 partition_number
 
 			<** @description:
 			A path to the local file system where the image
@@ -186,13 +186,13 @@ interface partmgr {
 			<** @description:
 			The device path to the disk to patch.
 			**>
-			String disk,
+			String disk
 
 			<** @description:
 			The number of the specific partition to patch
 			on the given disk.
 			**>
-			UInt32 partition_number,
+			UInt32 partition_number
 
 			<** @description:
 			A path to the local file system where the binary

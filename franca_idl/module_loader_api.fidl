@@ -12,7 +12,7 @@
 // PackMgr - Package Manager
 // PartMgr - Partition Manager
 // HMI - Human Machine Interface (IVI screen)
-// CEDM - Consumer Electronics Device Manager
+// LocMedMgr - Local Media Manager
 
 
 
@@ -53,20 +53,11 @@ interface ml {
 	**>
 	method get_module_firmware_version {
 		out {
-			<** @description: 
-			The major version number of the installed firmware
+			<** @description:
+			The version id string for the currently installed 
+			firmware.
 			**>
-			UInt32 major
-
-			<** @description: 
-			The minor version number of the installed firmware
-			**>
-			UInt32 minor
-
-			<** @description: 
-			The patch level number of the installed firmware
-			**>	
-			UInt32 patch
+			String firmware_id
 
 			<** @description: 
 			The unix time stamp of when the module was flashed

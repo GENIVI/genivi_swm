@@ -1,0 +1,33 @@
+package org.genivi.si.swm.result
+
+<** @description: Error codes returned by operation_result.**>
+
+enumeration SWMResult {
+	<** @description: Operation executed successfully **>
+	SWM_OK,  
+
+	<** @description: Software was blacklisted **>
+	SWM_SOFTWARE_BLACKLISTED,
+
+	<** @description: Ran out of disk space **>
+	SWM_DISK_FULL,
+
+	<** @description: Update image integrity ha been compromised **>
+	SWM_VALIDATION_FAILED,
+
+	<** @description: Software package not found **>
+	SWM_NOT_FOUND,
+
+	<** @description: Tried to downgrade to older version **>
+	SWM_OLD_VERSION,
+
+	<** @description: Module flashing failed. **>
+	SWM_MODULE_FLASH_FAILED,
+
+	<** @description: Dependency failure during package install, upgrade, or removal **>
+	SWM_UNSATISIFIED_DEPENDENCIES,
+
+	<** @description: Other error **>
+	SWM_OTHER
+}
+	
