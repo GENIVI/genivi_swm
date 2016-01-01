@@ -24,8 +24,14 @@ signature='d2889ee6bc1fe1f3d7c5cdaca78384776bf437b7c6ca4db0e2c8b1d22cdb8f4e'
 update_file=''
 active=True
 class SOTAClientService(dbus.service.Object):
-    def __init__(self):
-        
+    def __init__(self, image_file, signature):
+
+        # Store where we have the image file
+        self.image_file = image_file
+
+        # Store signature
+        self.signature = signature
+
         # Retrieve the session bus.
         self.bus = dbus.SessionBus()
 
@@ -61,11 +67,9 @@ class SOTAClientService(dbus.service.Object):
 
     @dbus.service.method('org.genivi.sota_client',
                          async_callbacks=('send_reply', 'send_error'))
+
     def initiate_download(self, 
                           package_id,
-                          major,
-                          minor,
-                          patch,
                           send_reply,
                           send_error): 
         global target
@@ -76,7 +80,6 @@ class SOTAClientService(dbus.service.Object):
         global path
         print "Got initiate_download"
         print "  ID:     {}".format(package_id)
-        print "  ver:    {}.{}.{} ".format(major, minor, patch)
         print "---"
 
         # Send back an immediate reply since DBUS
@@ -90,47 +93,23 @@ class SOTAClientService(dbus.service.Object):
         for i in xrange(1,10):
             sys.stdout.write('.')
             sys.stdout.flush()
-            time.sleep(0.2)
+            time.sleep(0.1)
         print 
         print "Done."
 
-        self.download_complete(package_id, 
-                               major, 
-                               minor, 
-                               patch, 
-                               command,
-                               path,
-                               size,
-                               description,
-                               vendor,
-                               target)
+        self.download_complete(self.image_file, self.signature)
         return None
     
     @dbus.service.method('org.genivi.sota_client')
-    def installation_report(self,
-                            package_id, 
-                            major,
-                            minor,
-                            patch,
-                            command, 
-                            path,
-                            size,
-                            description, 
-                            vendor,
-                            target,
-                            result_code,
-                            result_msg):
+    def update_report(self,
+                      package_id, 
+                      results,
+                      result_code,
+                      result_msg):
         global active
         print "Installation report"
         print "  ID:          {}".format(package_id)
-        print "  ver:         {}.{}.{} ".format(major, minor, patch)
-        print "  command:     {}".format(command)
-        print "  path:        {}".format(path)
-        print "  description: {}".format(description)
-        print "  vendor:      {}".format(vendor)
-        print "  target:      {}".format(target)
-        print "  result_code: {}".format(result_code)
-        print "  result_desc: {}".format(result_msg)
+        print "  results:     {}".format(results)
         print "---"
         active = False
         return None
@@ -139,24 +118,18 @@ class SOTAClientService(dbus.service.Object):
     @dbus.service.method('org.genivi.sota_client')
     def get_installed_packages(self): 
         print "Got get_installed_packages()"
-        return [ { 'package_id': 'bluez_driver', 
-                   'major': 1,
-                   'minor': 2,
-                   'patch': 3 },
-                 { 'package_id': 'bluez_apps', 
-                   'major': 3,
-                   'minor': 2,
-                   'patch': 1 } ]
+        return [ { 'package_id': 'bluez_driver' },
+                 { 'package_id': 'bluez_apps' } ]
 
 def usage():
-    print "Usage:", sys.argv[0], "-p package_id -v major.minor.patch \\"
-    print "                       -s signature [-c] \\"
+    print "Usage:", sys.argv[0], "-p package_id -i image_file -d description \\"
+    print "                       -s signature [-c]"
     print
     print "  -p package_id        Pacakage id string. Default: 'bluez'"
-    print "  -v major.minor.patch Version of package. Default: '1.2.3'"
-    print "  -u update_file       Update squashfs image file."
-    print "  -s signature         RSA encrypted sha256um of udpdate_file."
+    print "  -i image_file        Path to update squashfs image."
+    print "  -s signature         RSA encrypted sha256um of image_file."
     print "  -c                   Request user confirmation."
+    print "  -d description       Description of update."
     print
     print "Example:", sys.argv[0],"-p boot_loader -v 2.10.9\\"
     print "                        -u boot_loader.img  \\"
@@ -165,54 +138,53 @@ def usage():
 
 
 try:  
-    opts, args= getopt.getopt(sys.argv[1:], "p:v:u:s:c")
+    opts, args= getopt.getopt(sys.argv[1:], "p:d:i:s:c")
 except getopt.GetoptError:
+    print "Could not parse arguments."
     usage()
+
+image_file = None
 
 request_confirmation = False
 for o, a in opts:
     if o == "-p":
         package_id = a
-    elif o == "-v":
-        [major,minor,patch] = a
-        major = int(major)
-        minor = int(minor)
-        patch = int(patch)
-    if o == "-d":
+    elif o == "-d":
         description = a
-    elif o == "-u":
-        update_file = a
+    elif o == "-i":
+        image_file = a
     elif o == "-s":
         signature = a
     elif o == "-c":
         request_confirmation = True
     else:
+        print "Unknown option: {}".format(o)
         usage()
 
-if update_file == '':
+if not image_file:
     print
-    print "No -u update_file provided."
+    print "No -i image_file provided."
     print
     usage()
     
 # Can we open the confirmation file?
 try:
-   update_desc = open(update_file, "r")
+   image_desc = open(image_file, "r")
 except IOError as e:
-    print "Could not open {} for reading: {}".format(update_file, e)
+    print "Could not open {} for reading: {}".format(image_file, e)
     sys.exit(255)
     
-update_desc.close()
+image_desc.close()
 
 print "Will simulate downloaded package:"
-print "Package ID:         {} {}.{}.{}".format(package_id, major, minor, patch)
+print "Package ID:         {}".format(package_id)
 print "Description:        {}".format(description)
-print "Update file:        {}".format(update_file)
+print "Image file:         {}".format(image_file)
 print "User Confirmation:  {}".format(request_confirmation)
 
 
 DBusGMainLoop(set_as_default=True)
-sota_svc = SOTAClientService()
+sota_svc = SOTAClientService(image_file, signature)
 
 # USE CASE
 #
@@ -228,22 +200,17 @@ sota_svc = SOTAClientService()
 # download_complete() call to the SLM to  indicate that the package is 
 # ready to be processed.
 #
-# The SLM will look at the target parameter and forward the package to 
-# module_loader, package_manager, or partition_manager.
+# The SLM will mount the provided image file as a loopback file system
+# and execute its update_manifest.json file. Each software operation in
+# the manifest file will be fanned out to its correct target (PackMgr,
+# ML, PartMgr)
 # 
-# Once the package has been processed by its target, a package operation
-# report will be sent back to the SLM.
+# Once the update has been processed by SLM, an update operation
+# report will be sent back to SC and HMI.
 #
-# The SLM will forward the package operation report to this sota client
-# as an installation_report() call.
-
 
 sota_svc.update_available(package_id, 
-                          major,
-                          minor, 
-                          patch,
                           description,
-                          update_file,
                           request_confirmation)
 
 
