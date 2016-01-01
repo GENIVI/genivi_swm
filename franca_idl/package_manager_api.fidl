@@ -12,7 +12,7 @@
 // PackMgr - Package Manager
 // PartMgr - Partition Manager
 // HMI - Human Machine Interface (IVI screen)
-// CEDM - Consumer Electronics Device Manager
+// LocMedMgr - Local Media Manager
 
 // FIXME: Enumerated update operation result codes
 
@@ -35,7 +35,7 @@ interface packmgr {
 			The local file system path to the image to be forwarded
 			to the native package manager for installation
 			**>
-			String image,
+			String image
 
 			<** @description:
 			The transaction ID to send back with the operation_result()
@@ -56,7 +56,7 @@ interface packmgr {
 			The local file system path to the image to be forwarded
 			to the native package manager for the upgrade operation
 			**>
-			String image,
+			String image
 
 			<** @description:
 			The transaction ID to send back with the operation_result()
@@ -76,27 +76,6 @@ interface packmgr {
 			The id of the package to remove.
 			**>
 			String package_id
-
-			<** @description: 
-			The major version number of the package to remove
-			If the value is -1, remove any package with a matching
-			package-id, regardless of its major version number.
-			**>
-			UInt32 major
-
-			<** @description: 
-			The minor version number of the package to remove
-			If the value is -1, remove any package with a matching
-			package-id, regardless of its minor version number.
-			**>
-			UInt32 minor
-
-			<** @description: 
-			The patch level number of the package to remove
-			If the value is -1, remove any package with a matching
-			package-id, regardless of its patch level number.
-			**>
-			UInt32 patch
 
 			<** @description:
 			The transaction ID to send back with the operation_result()
@@ -130,21 +109,6 @@ interface packmgr {
 		The ID string of the installed package.
 		**>
 		String package_id
-
-		<** @description: 
-		The major version number of the installed package
-		**>
-		UInt32 major
-
-		<** @description: 
-		The minor version number of the installed package
-		**>
-		UInt32 minor
-
-		<** @description: 
-		The patch level number of the installed package
-		**>
-		UInt32 patch
 
 		<** @description: 
 		A symbolic name of the installed package

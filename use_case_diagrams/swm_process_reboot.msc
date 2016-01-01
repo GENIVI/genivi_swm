@@ -1,0 +1,25 @@
+#
+#
+# Sequence diagram description
+#
+# The sequence diagram description below is translated to
+# a PNG image by mscgen (http://www.mcternan.me.uk/mscgen/)
+# 
+# Recompile updated diagrams to a png image with:
+#  
+#   mscgen -T png swm.msc
+#
+
+msc {
+  width="1024";
+  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
+  --- [ label="Invoked by use case \"SC Update\", \"Process DiagToolMgr Update\", or \"Process LocMedMgr\""];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSoftware operation is \"reboot\"\n" ];
+  "SWLM" -> "Systemd" [ label = "reboot()" ];
+  "Systemd" box "Systemd" [ textbgcolour="silver", label = "Reboot" ];
+  --- [ label = "System reboots"];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSWLM reloads currently processed manifest file\n" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSWLM stores a successful operation result code for reboot\n" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSWLM continues with the next softare operation\n" ];
+}

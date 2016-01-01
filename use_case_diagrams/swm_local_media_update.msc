@@ -14,8 +14,10 @@
 msc {
   width="1024";
   "SC", "LocMedMgr",  "SWLM", "HMI";
-  "LocMedMgr" -> "SWLM" [  label = "media_attached()" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update images in media" ];
+  "LocMedMgr" -> "SWLM" [  label = "device_available()" ];
+  "SWLM" => "LocMedMgr" [  label = "get_device_files()" ];
+  "SWLM" <= "LocMedMgr" [  label = "file list" ];
+  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update images in file list" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Locate update signature in file list" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update images" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image 1 from file list" ];

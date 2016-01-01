@@ -12,13 +12,13 @@
 
 msc {
   width="1024";
-  "SC", "DiagToolMgr", "SWLM", "HMI";
+  "SC",  "DiagToolMgr", "SWLM", "HMI";
   "DiagToolMgr" -> "SWLM" [  label = "update_available()" ];
   "SWLM" -> "HMI" [ label = "update_notification()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation" ];
   "HMI" -> "SWLM" [ label = "update_confirmation()" ];
   "SWLM" -> "DiagToolMgr" [ label = "initiate_download()" ];
-  "DiagToolMgr" box "DiagToolMgr" [ textbgcolour="silver", label = "Download Update" ];
+  "DiagToolMgr" box "DiagToolMgr" [ textbgcolour="silver", label = "Download update from tool" ];
   "DiagToolMgr" -> "SWLM" [ label = "download_complete()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update image" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image" ];
