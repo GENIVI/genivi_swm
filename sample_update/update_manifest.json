@@ -1,0 +1,65 @@
+{
+    "update_id": "media_player",
+    "name": "Media Player",
+    "description": "A media player that will connect to all your devices and stream their audio and video.",
+    "get_user_confirmation": true, 
+    "show_hmi_progress": false, 
+    "show_hmi_result": true, 
+    "operations": [
+		{ 
+			"id": "b9e3865e-9d35-11e5-b235-eb755e788c52",
+			"hmi_message": "Stopping media player.",
+			"time_estimate": 3000,
+			"operation": "stop_components",
+			"components": [ "media_player" ],
+			"on_failure": "continue"
+		},
+		{ 
+			"id": "b9e3865e-9d35-11e5-b235-eb755e788c52",
+			"hmi_message": "Deleting old media player.",
+			"time_estimate": 3000,
+			"operation": "remove_package",
+			"package_id": "old_media_player",
+			"os_component": "media_player",
+			"major": 2,
+			"minor": -1,
+			"patch": -1,
+			"on_failure": "continue"
+		},
+		{ 
+			"id": "d1c96216-9d35-11e5-a00b-57f2b4f03098",
+			"hmi_message": "Installing new media player.",
+			"time_estimate": 4500,
+			"operation": "install_package",
+			"image": "packages/media_player.pkg",
+			"on_failure": "abort"
+		},
+		{ 
+			"id": "b9e3865e-9d35 -11e5-b235-eb755e788c52",
+			"hmi_message": "Starting media player.",
+			"time_estimate": 3000,
+			"operation": "start_components",
+			"components": [ "media_player" ],
+			"on_failure": "continue"
+		},
+		{
+			"id": "df7e5ba0-9d35-11e5-bcea-8b5024045531",
+			"hmi_message": "Reflashing amplifier software.",
+			"time_estimate": 12000,
+			"operation": "flash_module_firmware",
+			"target_module_loader": "amplifier",
+			"image": "images/ecu1.img",
+			"on_failure": "continue"
+		},
+		{
+			"id": "df7e5ba0-9d35-11e5-bcea-8b5024045531",
+			"hmi_message": "Writing disk partition.",
+			"time_estimate": 12000,
+			"operation": "write_disk_partition",
+			"image": "images/data.part",
+			"disk": "/dev/sdd",
+			"partition_number": 1,
+			"on_failure": "continue"
+		}
+    ]
+}
