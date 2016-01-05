@@ -46,7 +46,7 @@
 			"id": "df7e5ba0-9d35-11e5-bcea-8b5024045531",
 			"hmi_message": "Reflashing amplifier software.",
 			"time_estimate": 12000,
-			"operation": "flash_module_firmware",
+			"operation": "flash_module_firmware_ecu1",
 			"target_module_loader": "amplifier",
 			"image": "images/ecu1.img",
 			"on_failure": "continue"
