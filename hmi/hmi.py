@@ -104,31 +104,22 @@ class HMIService(dbus.service.Object):
         
 
     @dbus.service.method('org.genivi.hmi')
-    def installation_report(self,
-                            package_id, 
-                            major,
-                            minor,
-                            patch,
-                            command, 
-                            path,
-                            size,
-                            description, 
-                            vendor,
-                            target,
-                            result_code,
-                            result_msg):
-        print "Installation report"
-        print "  ID:          {}".format(package_id)
-        print "  ver:         {}.{}.{} ".format(major, minor, patch)
-        print "  command:     {}".format(command)
-        print "  path:        {}".format(path)
-        print "  description: {}".format(description)
-        print "  vendor:      {}".format(vendor)
-        print "  target:      {}".format(target)
-        print "  result_code: {}".format(result_code)
-        print "  result_desc: {}".format(result_msg)
+    def update_report(self,
+                      update_id, 
+                      results):
+        global active
+        print "Update report"
+        print "  ID:          {}".format(update_id)
+        print "  results:"
+        for result in results:
+            print "    operation_id: {}".format(result['id'])
+            print "    code:         {}".format(result['result_code'])
+            print "    text:         {}".format(result['result_text'])
+            print "  ---"
         print "---"
+        active = False
         return None
+
 
 
 print 

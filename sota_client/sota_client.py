@@ -102,18 +102,20 @@ class SOTAClientService(dbus.service.Object):
     
     @dbus.service.method('org.genivi.sota_client')
     def update_report(self,
-                      package_id, 
-                      results,
-                      result_code,
-                      result_msg):
+                      update_id, 
+                      results):
         global active
-        print "Installation report"
-        print "  ID:          {}".format(package_id)
+        print "Update report"
+        print "  ID:          {}".format(update_id)
         print "  results:     {}".format(results)
+        for result in results:
+            print "    operation_id: {}".format(result['id'])
+            print "    code:         {}".format(result['result_code'])
+            print "    text:         {}".format(result['result_text'])
+            print "  ---"
         print "---"
         active = False
         return None
-
 
     @dbus.service.method('org.genivi.sota_client')
     def get_installed_packages(self): 
