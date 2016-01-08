@@ -72,11 +72,11 @@ class PkgMgrService(dbus.service.Object):
         send_reply(True)
 
         # Simulate install
-        print "Intalling package :"
-        for i in xrange(1,10):
+        print "Intalling package: {} (5 sec)".format(image_path)
+        for i in xrange(1,50):
             sys.stdout.write('.')
             sys.stdout.flush()
-            time.sleep(0.2)
+            time.sleep(0.1)
         print  
         print "Done"
         self.send_operation_result(transaction_id,
@@ -108,11 +108,11 @@ class PkgMgrService(dbus.service.Object):
         send_reply(True)
 
         # Simulate install
-        print "Upgrading package :"
-        for i in xrange(1,10):
+        print "Upgrading package: {} (5 sec)".format(image_path)
+        for i in xrange(1,50):
             sys.stdout.write('.')
             sys.stdout.flush()
-            time.sleep(0.2)
+            time.sleep(0.1)
         print  
         print "Done"
         self.send_operation_result(transaction_id,
@@ -140,12 +140,12 @@ class PkgMgrService(dbus.service.Object):
         #
         send_reply(True)
 
-        # Simulate install
-        print "Removing package:"
-        for i in xrange(1,10):
+        # Simulate remove
+        print "Upgrading package: {} (5 sec)".format(package_id)
+        for i in xrange(1,50):
             sys.stdout.write('.')
             sys.stdout.flush()
-            time.sleep(0.2)
+            time.sleep(0.1)
         print  
         print "Done"
         self.send_operation_result(transaction_id,

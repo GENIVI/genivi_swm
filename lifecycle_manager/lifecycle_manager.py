@@ -74,8 +74,8 @@ class LCMgrService(dbus.service.Object):
         # Simulate install
         print "Starting :"
         for i in components:
-            print "    Starting: {}".format(i)
-            time.sleep(0.3)
+            print "    Starting: {} (3 sec)".format(i)
+            time.sleep(3.0)
         print  
         print "Done"
         self.send_operation_result(transaction_id,
@@ -108,8 +108,8 @@ class LCMgrService(dbus.service.Object):
         # Simulate install
         print "Stopping :"
         for i in components:
-            print "    Stopping: {}".format(i)
-            time.sleep(0.3)
+            print "    Stopping: {} (3 sec)".format(i)
+            time.sleep(3.0)
         print  
         print "Done"
         self.send_operation_result(transaction_id,

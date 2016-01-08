@@ -86,11 +86,11 @@ class PartMgrService(dbus.service.Object):
         send_reply(True)
 
         # Simulate install
-        print "Creating partition :"
-        for i in xrange(1,10):
+        print "Create partition: disk({}) partiton({}) (3 sec)".format(disk, partition_number)
+        for i in xrange(1,30):
             sys.stdout.write('.')
             sys.stdout.flush()
-            time.sleep(0.2)
+            time.sleep(0.1)
         print  
         print "Done"
         self.send_operation_result(transaction_id,
@@ -127,8 +127,8 @@ class PartMgrService(dbus.service.Object):
         send_reply(True)
 
         # Simulate install
-        print "Resizing partition :"
-        for i in xrange(1,20):
+        print "Resizing partition: disk({}) partiton({}) (10 sec)".format(disk, partition_number)
+        for i in xrange(1,50):
             sys.stdout.write('.')
             sys.stdout.flush()
             time.sleep(0.2)
@@ -163,7 +163,7 @@ class PartMgrService(dbus.service.Object):
         send_reply(True)
 
         # Simulate install
-        print "Resizing partition :"
+        print "Delete partition: disk({}) partiton({}) (5 sec)".format(disk, partition_number)
         for i in xrange(1,10):
             sys.stdout.write('.')
             sys.stdout.flush()
@@ -203,9 +203,9 @@ class PartMgrService(dbus.service.Object):
         #
         send_reply(True)
 
-        # Simulate install
-        print "Writing Partition :"
-        for i in xrange(1,20):
+        # Simulate write
+        print "Writing partition: disk({}) partiton({}) (10 sec)".format(disk, partition_number)
+        for i in xrange(1,50):
             sys.stdout.write('.')
             sys.stdout.flush()
             time.sleep(0.2)
@@ -244,9 +244,9 @@ class PartMgrService(dbus.service.Object):
         #
         send_reply(True)
 
-        # Simulate install
-        print "Patching partition :"
-        for i in xrange(1,20):
+        # Simulate patch
+        print "Patching partition: disk({}) partiton({}) (10 sec)".format(disk, partition_number)
+        for i in xrange(1,50):
             sys.stdout.patch('.')
             sys.stdout.flush()
             time.sleep(0.2)
