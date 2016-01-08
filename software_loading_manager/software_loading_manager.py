@@ -10,7 +10,7 @@ import gtk
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
-import update_manager
+import manifest_processor
 import traceback
 import sys
 
@@ -19,7 +19,7 @@ import sys
 #
 class SLMService(dbus.service.Object):
     def __init__(self):
-        self.manifest_processor = update_manager.ManifestProcessor("/tmp/completed_operations.json")
+        self.manifest_processor = manifest_processor.ManifestProcessor("/tmp/completed_operations.json")
         # Setup a update processor
         
         # Retrieve the session bus.
