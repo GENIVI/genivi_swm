@@ -70,11 +70,11 @@ class ECU1ModuleLoaderService(dbus.service.Object):
         send_reply(True)
 
         # Simulate install
-        print "Intalling on ECU1:"
-        for i in xrange(1,10):
+        print "Intalling on ECU1: {} (5 sec):".format(image_path)
+        for i in xrange(1,50):
             sys.stdout.write('.')
             sys.stdout.flush()
-            time.sleep(0.2)
+            time.sleep(0.1)
         print  
         print "Done"
         self.send_operation_result(transaction_id,
