@@ -107,7 +107,6 @@ class SOTAClientService(dbus.service.Object):
         global active
         print "Update report"
         print "  ID:          {}".format(update_id)
-        print "  results:     {}".format(results)
         for result in results:
             print "    operation_id: {}".format(result['id'])
             print "    code:         {}".format(result['result_code'])

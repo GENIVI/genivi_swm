@@ -72,7 +72,7 @@ class ManifestProcessor:
         self.image_queue.appendleft(image_path)
 
     def add_completed_operation(self, operation_id):
-        print "ManifestProcessor.add_completed_operation({}): Called".format(operation_id)
+        print "ManifestProcessor.add_completed_operation({})".format(operation_id)
         self.completed.append(operation_id)
 
     #

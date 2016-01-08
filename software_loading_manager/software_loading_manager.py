@@ -40,8 +40,6 @@ class SLMService(dbus.service.Object):
             bus_name = dbus.service.BusName(path, bus=self.bus)
             obj = self.bus.get_object(bus_name.get_name(), "/{}".format(path.replace(".", "/")))
             remote_method = obj.get_dbus_method(method, path)
-            print "Will send: {}:{}".format(path, method)
-            print "Will send: {}".format(arguments)
             remote_method(*arguments)
         except Exception as e:
             print "dbus_method(): Exception: {}".format(e)
@@ -79,9 +77,6 @@ class SLMService(dbus.service.Object):
 
     
     def get_current_manifest(self):
-        print "proc: {}".format(self.manifest_processor)
-        print "cur: {}".format(self.manifest_processor.current_manifest)
-
         return self.manifest_processor.current_manifest
 
     def start_next_manifest(self):
@@ -119,18 +114,14 @@ class SLMService(dbus.service.Object):
         # Load next manifest and, if successful, start the
         # fist operation in said manifest
         #
-        print "1"
         manifest = self.get_current_manifest()
         if not manifest:
-            print "2"
             return self.start_next_manifest()
 
 
-        print "3"
         # We have an active manifest. Check if we have an active operation.
         # If so return success
         if  manifest.active_operation:
-            print "4"
             return True
 
         # We have an active manifest, but no active operation.
@@ -139,7 +130,6 @@ class SLMService(dbus.service.Object):
         # manifest. Try to load the next manifest, which
         # will also start its first operation.
         if not manifest.start_next_operation():
-            print "6"
             return self.manifest_processor.load_next_manifest()
 
         # Inform HMI of active operation
@@ -299,9 +289,9 @@ class SLMService(dbus.service.Object):
         manifest.complete_transaction(transaction_id, result_code, result_text)
         if not self.start_next_operation():
             self.distribute_update_result(manifest.update_id,
-                                          manifest.operation_result)
-
-
+                                              manifest.operation_results)
+        else:
+            print "Will not distribute result"
                 
     @dbus.service.method("org.genivi.software_loading_manager")
     def get_installed_packages(self): 

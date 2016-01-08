@@ -164,9 +164,6 @@ class SoftwareOperation:
 
             obj = self.bus.get_object(bus_name.get_name(), "/{}".format(self.path.replace(".", "/")))
             remote_method = obj.get_dbus_method(self.method, self.path)
-            print "send_transaction(): id {}".format(transaction_id)
-            print "send_transaction(): method {}".format(self.method)
-            print "send_transaction(): arg {}".format(self.arguments)
             remote_method(transaction_id, *self.arguments)
         except Exception as e:
             print "SoftwareOperation.send_transaction({}): Exception: {}".format(self.operation_id, e)

@@ -21,7 +21,7 @@ PkgMgr   | Package Manager
 PartMgr  | Partition Manager
 ML       | Module Loader
 HMI      | Human Machine Interface
-
+LCMgr    | Life Cycle Manager
 
 # GENIVI SOFTWARE MANAGEMENT - PROOF OF CONCEPT #
 This directory contains a set of python components that are used to
@@ -31,9 +31,7 @@ system.
 The components are outlined in the image below
 
 ![SWM Layout](https://github.com/magnusfeuer/genivi_software_management/raw/master/swm_illustration.png)
-
 The components are as follows:
-
 
 ## SOTA Client - SC [sota\_client.py] ##
 SC simulator, to be replaced by the real GENIVI Sota Client developed
@@ -42,7 +40,7 @@ the SWM use cases.
 
 The SC simulator has the following features
 
-1. **Notify SWM of available packages**<br>
+1. **Notify SWM of available updates**<br>
    A notification about the available package, specified at the command line,
    will be sent to SLM for user confirmation.
 
