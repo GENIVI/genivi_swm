@@ -308,17 +308,6 @@ class Manifest:
 
         return False
 
-    def is_operation_active(self):
-        if self.active_operation:
-            return True
-
-        return False
-
-    def get_operation_results(self):
-        return self.operation_results
-
-    def get_update_id(self):
-        return self.update_id
 
     #
     # Check if this operation has already been executed.
@@ -420,9 +409,6 @@ class ManifestProcessor:
     def get_next_transaction_id(self):
         self.next_transaction_id = self.next_transaction_id + 1
         return self.next_transaction_id
-
-    def get_current_manifest(self):
-        return self.current_manifest
     
     #
     # Load the next manifest to process from the queue populated
