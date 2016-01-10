@@ -12,7 +12,8 @@ import subprocess
 import dbus
 from collections import deque
 import software_operation
-
+import swm_result
+import traceback
 #
 # Load and execute a single manifest
 #
@@ -87,9 +88,26 @@ class Manifest:
         # object for each one.
         try:
             for op in manifest.get('operations', []):
+
+                # Grab opearation id. 
+                op_id = op.get('id', False)
+
+                # Skip entire operation if operation_id is not defined.
+                if not op_id:
+                    print "Manifest operation is missing operation_id. Skipped"
+                    continue
+
                 # Check if this operation has already been executed
-                if self.manifest_processor.is_operation_completed(op.get('id', False)):
-                    print "Software operation {} already completed. Skip".format(op.get('id', False))
+                if self.manifest_processor.is_operation_completed(op_id):
+                    # Add the result code for the given operation id
+                    self.operation_results.append(
+                        swm_result.result(op_id,
+                                          swm_result.SWM_RES_ALREADY_PROCESSED,
+                                          "Operation already processed")
+                        )
+
+                    print "Software operation {} already completed. Skip".format(op_id)
+                    # Continue with the next operation
                     continue
 
                 # Retrieve the class to instantiate for the given operation
@@ -101,13 +119,14 @@ class Manifest:
                 try:
                     op_obj = software_operation.SoftwareOperation(self, op)
                 except OperationException as e:
-                    print "Could not process softare operation {}: {}".format(op.get('id', None), e)
+                    print "Could not process softare operation {}: {}\nSkipped".format(op_id, e)
                     return False
 
                 # Add new object to operations we need to process
                 self.operations.append(op_obj)
         except Exception as e:
             print "Manifest exception: {}".format(e)
+            traceback.print_exc()
             return False
 
         # Check that we have all mandatory fields set
@@ -123,6 +142,7 @@ class Manifest:
         
         # Retrieve next operation to process.
         op = self.operations.popleft()
+ 
         transaction_id = self.manifest_processor.get_next_transaction_id()
 
         #
@@ -156,12 +176,12 @@ class Manifest:
         # Add the result code from a software operation to self
         # All operation results will be reported to SOTA.
         #
-        result = {
-            'id': self.active_operation.operation_id,
-            'result_code': result_code,
-            'result_text': result_text
-        }
-        self.operation_results.append(result)
+        self.operation_results.append(
+            swm_result.result(
+                self.active_operation.operation_id,
+                result_code,
+                result_text)
+        )
 
         self.active_operation = None
         return True

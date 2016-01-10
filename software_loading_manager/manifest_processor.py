@@ -61,12 +61,6 @@ class ManifestProcessor:
         self.completed = json.load(ifile)
         ifile.close()
 
-    # Write self to file prior to destroying.
-    def __del__(self):
-        ofile = open(self.storage_fname, "w")
-        json.dump(self.completed, ofile)
-        ofile.close()
-
     def queue_image(self, image_path):
         print "ManifestProcessor:queue_image({}): Called".format(image_path)
         self.image_queue.appendleft(image_path)
@@ -74,6 +68,10 @@ class ManifestProcessor:
     def add_completed_operation(self, operation_id):
         print "ManifestProcessor.add_completed_operation({})".format(operation_id)
         self.completed.append(operation_id)
+        # Slow, but we don't care.
+        ofile = open(self.storage_fname, "w")
+        json.dump(self.completed, ofile)
+        ofile.close()
 
     #
     # Return true if the provided tranasaction id has

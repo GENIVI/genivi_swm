@@ -13,13 +13,16 @@ from dbus.mainloop.glib import DBusGMainLoop
 import manifest_processor
 import traceback
 import sys
+import getopt
+import os
+import swm_result
 
 #
 # Define the DBUS-facing Software Loading Manager service
 #
 class SLMService(dbus.service.Object):
-    def __init__(self):
-        self.manifest_processor = manifest_processor.ManifestProcessor("/tmp/completed_operations.json")
+    def __init__(self, db_path):
+        self.manifest_processor = manifest_processor.ManifestProcessor(db_path)
         # Setup a update processor
         
         # Retrieve the session bus.
@@ -33,6 +36,7 @@ class SLMService(dbus.service.Object):
         dbus.service.Object.__init__(self, 
                                      self.slm_bus_name, 
                                      "/org/genivi/software_loading_manager")
+
 
 
     def dbus_method(self, path, method, *arguments):
@@ -58,7 +62,6 @@ class SLMService(dbus.service.Object):
         
         self.dbus_method("org.genivi.sota_client", "initiate_download", package_id)
 
-
     # 
     # Distribute a report of a completed installation
     # to all involved parties. So far those parties are
@@ -68,14 +71,15 @@ class SLMService(dbus.service.Object):
                                  update_id, 
                                  results):
         # Send installation report to HMI
-        print "Sending report to hmi.installation_report()"
-        self.dbus_method("org.genivi.hmi", "update_report", update_id, results)
+        print "Sending report to hmi.update_report()"
+        print "update_id: {}".format(update_id)
+        print "results: {}".format(results)
+        self.dbus_method("org.genivi.hmi", "update_report", dbus.String(update_id), results)
 
         # Send installation report to SOTA
-        print "Sending report to sota.installation_report()"
-        self.dbus_method("org.genivi.sota_client", "update_report", update_id, results)
+        print "Sending report to sota.update_report()"
+        self.dbus_method("org.genivi.sota_client", "update_report", dbus.String(update_id), results)
 
-    
     def get_current_manifest(self):
         return self.manifest_processor.current_manifest
 
@@ -85,7 +89,17 @@ class SLMService(dbus.service.Object):
 
         manifest = self.get_current_manifest()
         self.inform_hmi_of_new_manifest(manifest)
-        manifest.start_next_operation()
+        # 
+        # This whole manifest may already have been executed and stored
+        # as completed by the manifest_processor. If so, distribute the
+        # given result
+        # 
+        if not manifest.start_next_operation():
+            self.distribute_update_result(manifest.update_id,
+                                          manifest.operation_results)
+            # Recursively call self to engage next manifest.
+            return self.start_next_manifest()
+
         self.inform_hmi_of_new_operation(manifest.active_operation)
         return True
         
@@ -211,7 +225,9 @@ class SLMService(dbus.service.Object):
             # User did not approve. Send installation report
             print "Declined: Will call installation_report()"
             self.distribute_update_result(update_id, [
-                { result_code: 10, result_text: "Installation declined by user"}
+                swm_result.result('N/A',
+                                  swm_result.SWM_RES_USER_DECLINED,
+                                  "Installation declined by user")
             ]) 
 
             print "Declined. Called sota_client.installation_report()"
@@ -269,40 +285,82 @@ class SLMService(dbus.service.Object):
                          send_reply,
                          send_error): 
 
-        print "Got operation_result()"
-        print "  transaction_id: {}".format(transaction_id)
-        print "  result_code:    {}".format(result_code)
-        print "  result_text:    {}".format(result_text)
-        print "---"
+        try:
+            print "Got operation_result()"
+            print "  transaction_id: {}".format(transaction_id)
+            print "  result_code:    {}".format(result_code)
+            print "  result_text:    {}".format(result_text)
+            print "---"
 
-        # Send back an immediate reply since DBUS
-        # doesn't like python dbus-invoked methods to do 
-        # their own calls (nested calls).
-        #
-        send_reply(True)
+            # Send back an immediate reply since DBUS
+            # doesn't like python dbus-invoked methods to do 
+            # their own calls (nested calls).
+            #
+            send_reply(True)
 
-        manifest = self.get_current_manifest()
-        if not manifest:
-            print "Warning: No manifest to handle callback reply"
-            return None
+            manifest = self.get_current_manifest()
+            if not manifest:
+                print "Warning: No manifest to handle callback reply"
+                return None
 
-        manifest.complete_transaction(transaction_id, result_code, result_text)
-        if not self.start_next_operation():
-            self.distribute_update_result(manifest.update_id,
+            manifest.complete_transaction(transaction_id, result_code, result_text)
+            if not self.start_next_operation():
+                self.distribute_update_result(manifest.update_id,
                                               manifest.operation_results)
-        else:
-            print "Will not distribute result"
-                
+        except Exception as e:
+            print "Failed to process operation result: {}".format(e)
+            traceback.print_exc()
+
+
     @dbus.service.method("org.genivi.software_loading_manager")
     def get_installed_packages(self): 
         print "Got get_installed_packages()"
         return [ "bluez_driver", "bluez_apps" ]
 
+def usage():
+    print "Usage:", sys.argv[0], "[-r] [-d database_file] "
+    print
+    print "  -r                Reset the completed operations database prior to running"
+    print "  -d database_file  Path to database file to store completed operations in"
+    print
+    print "Example:", sys.argv[0],"-r -d /tmp/database"
+    sys.exit(255)
+
+
 print 
 print "Software Loading Manager."
 print
+
+try:  
+    opts, args= getopt.getopt(sys.argv[1:], "rd:")
+
+except getopt.GetoptError:
+    print "Could not parse arguments."
+    usage()
+
+db_path = "/tmp/completed_operations.json"
+reset_db = False
+
+for o, a in opts:
+    if o == "-r":
+        reset_db = True
+    elif o == "-d":
+        db_path = a
+    else:
+        print "Unknown option: {}".format(o)
+        usage()
+
 DBusGMainLoop(set_as_default=True)
-slm_sota = SLMService()
+
+# Check if we are to delete the old database.
+if reset_db:
+    try:
+        os.remove(db_path)
+    except:
+        pass
+
+
+slm_sota = SLMService(db_path)
 
 while True:
     gtk.main_iteration()
