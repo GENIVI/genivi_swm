@@ -12,6 +12,7 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import sys
 import time
+import swm_result
 
 #
 # ECU Module Loader service
@@ -78,8 +79,8 @@ class ECU1ModuleLoaderService(dbus.service.Object):
         print  
         print "Done"
         self.send_operation_result(transaction_id,
-                                   0,
-                                   "Firmware flashing successful for ecu1")
+                                   swm_result.SWM_RES_OK,
+                                   "Firmware flashing successful for ecu1. Path: {}".format(image_path))
 
         return None
         

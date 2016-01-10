@@ -12,6 +12,7 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import sys
 import time
+import swm_result
 
 #
 # Package manager service
@@ -58,32 +59,40 @@ class PkgMgrService(dbus.service.Object):
                         send_reply, 
                         send_error): 
 
-        print "Package Manager: Got install_package()"
-        print "  Operation Transaction ID: {}".format(transaction_id)
-        print "  Image Path:               {}".format(image_path)
-        print "  Blacklisted packages:     {}".format(blacklisted_packages)
-        print "---"
+        try:
+            print "Package Manager: Got install_package()"
+            print "  Operation Transaction ID: {}".format(transaction_id)
+            print "  Image Path:               {}".format(image_path)
+            print "  Blacklisted packages:     {}".format(blacklisted_packages)
+            print "---"
 
-        #
-        # Send back an immediate reply since DBUS
-        # doesn't like python dbus-invoked methods to do 
-        # their own calls (nested calls).
-        #
-        send_reply(True)
+            #
+            # Send back an immediate reply since DBUS
+            # doesn't like python dbus-invoked methods to do 
+            # their own calls (nested calls).
+            #
+            send_reply(True)
 
-        # Simulate install
-        print "Intalling package: {} (5 sec)".format(image_path)
-        for i in xrange(1,50):
-            sys.stdout.write('.')
-            sys.stdout.flush()
-            time.sleep(0.1)
-        print  
-        print "Done"
-        self.send_operation_result(transaction_id,
-                                   0,
-                                   "Installation successful")                                 
-
+            # Simulate install
+            print "Intalling package: {} (5 sec)".format(image_path)
+            for i in xrange(1,50):
+                sys.stdout.write('.')
+                sys.stdout.flush()
+                time.sleep(0.1)
+            print  
+            print "Done"
+            self.send_operation_result(transaction_id,
+                                       swm_result.SWM_RES_OK,
+                                       "Installation successful. Path: {}".format(image_path))
+        except Exception as e:
+            print "install_package() Exception: {}".format(e)
+            traceback.print_exc()
+            self.send_operation_result(transaction_id,
+                                       swm_result.SWM_RES_INTERNAL_ERROR,
+                                       "Internal_error: {}".format(e))
         return None
+        
+            
 
     @dbus.service.method('org.genivi.package_manager',
                          async_callbacks=('send_reply', 'send_error'))
@@ -94,31 +103,38 @@ class PkgMgrService(dbus.service.Object):
                         send_reply, 
                         send_error): 
 
-        print "Package Manager: Got upgrade_package()"
-        print "  Operation Transaction ID: {}".format(transaction_id)
-        print "  Image Path:               {}".format(image_path)
-        print "  Blacklisted packages:     {}".format(blacklisted_packages)
-        print "---"
+        try:
+            print "Package Manager: Got upgrade_package()"
+            print "  Operation Transaction ID: {}".format(transaction_id)
+            print "  Image Path:               {}".format(image_path)
+            print "  Blacklisted packages:     {}".format(blacklisted_packages)
+            print "---"
 
-        #
-        # Send back an immediate reply since DBUS
-        # doesn't like python dbus-invoked methods to do 
-        # their own calls (nested calls).
-        #
-        send_reply(True)
+            #
+            # Send back an immediate reply since DBUS
+            # doesn't like python dbus-invoked methods to do 
+            # their own calls (nested calls).
+            #
+            send_reply(True)
 
-        # Simulate install
-        print "Upgrading package: {} (5 sec)".format(image_path)
-        for i in xrange(1,50):
-            sys.stdout.write('.')
-            sys.stdout.flush()
-            time.sleep(0.1)
-        print  
-        print "Done"
-        self.send_operation_result(transaction_id,
-                                   0,
-                                   "Upgrade successful")
+            # Simulate install
+            print "Upgrading package: {} (5 sec)".format(image_path)
+            for i in xrange(1,50):
+                sys.stdout.write('.')
+                sys.stdout.flush()
+                time.sleep(0.1)
+            print  
+            print "Done"
+            self.send_operation_result(transaction_id,
+                                       swm_result.SWM_RES_OK,
+                                       "Upgrade successful. Path: {}".format(image_path))
 
+        except Exception as e:
+            print "upgrade_package() Exception: {}".format(e)
+            traceback.print_exc()
+            self.send_operation_result(transaction_id,
+                                       swm_result.SWM_RES_INTERNAL_ERROR,
+                                       "Internal_error: {}".format(e))
         return None
 
     @dbus.service.method('org.genivi.package_manager',
@@ -128,30 +144,37 @@ class PkgMgrService(dbus.service.Object):
                        package_id,
                        send_reply, 
                        send_error): 
-        print "Package Manager: Remove package upgrade_package()"
-        print "  Operation Transaction ID: {}".format(transaction_id)
-        print "  Package ID:               {}".format(package_id)
-        print "---"
+        try:
+            print "Package Manager: Remove package upgrade_package()"
+            print "  Operation Transaction ID: {}".format(transaction_id)
+            print "  Package ID:               {}".format(package_id)
+            print "---"
 
-        #
-        # Send back an immediate reply since DBUS
-        # doesn't like python dbus-invoked methods to do 
-        # their own calls (nested calls).
-        #
-        send_reply(True)
+            #
+            # Send back an immediate reply since DBUS
+            # doesn't like python dbus-invoked methods to do 
+            # their own calls (nested calls).
+            #
+            send_reply(True)
 
-        # Simulate remove
-        print "Upgrading package: {} (5 sec)".format(package_id)
-        for i in xrange(1,50):
-            sys.stdout.write('.')
-            sys.stdout.flush()
-            time.sleep(0.1)
-        print  
-        print "Done"
-        self.send_operation_result(transaction_id,
-                                   0,
-                                   "Removal successful")                                 
-
+            # Simulate remove
+            print "Upgrading package: {} (5 sec)".format(package_id)
+            for i in xrange(1,50):
+                sys.stdout.write('.')
+                sys.stdout.flush()
+                time.sleep(0.1)
+            print  
+            print "Done"
+            self.send_operation_result(transaction_id,
+                                       swm_result.SWM_RES_OK,
+                                       "Removal successful. Package_id: {}".format(package_id))
+        except Exception as e:
+            print "upgrade_package() Exception: {}".format(e)
+            traceback.print_exc()
+            self.send_operation_result(transaction_id,
+                                       swm_result.SWM_RES_INTERNAL_ERROR,
+                                       "Internal_error: {}".format(e))
+        return None
         return None
 
     @dbus.service.method('org.genivi.package_manager')

@@ -12,6 +12,7 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import sys
 import time
+import swm_result
 
 #
 # Partition manager service
@@ -94,8 +95,8 @@ class PartMgrService(dbus.service.Object):
         print  
         print "Done"
         self.send_operation_result(transaction_id,
-                                   0,
-                                   "Partition create successful")                                 
+                                   swm_result.SWM_RES_OK,
+                                   "Partition create successful. Disk: {}:{}".format(disk, partition_number))
 
         return None
                  
@@ -135,9 +136,8 @@ class PartMgrService(dbus.service.Object):
         print  
         print "Done"
         self.send_operation_result(transaction_id,
-                                   0,
-                                   "Partition resize successful")                                 
-
+                                   swm_result.SWM_RES_OK,
+                                   "Partition resize success. Disk: {}:{}".format(disk, partition_number))
         return None
 
 
@@ -171,8 +171,8 @@ class PartMgrService(dbus.service.Object):
         print  
         print "Done"
         self.send_operation_result(transaction_id,
-                                   0,
-                                   "Partition delete successful")                                 
+                                   swm_result.SWM_RES_OK,
+                                   "Partition delete success. Disk: {}:{}".format(disk, partition_number))
 
         return None
 
@@ -183,7 +183,7 @@ class PartMgrService(dbus.service.Object):
                              transaction_id,
                              disk,
                              partition_number,
-                             image,
+                             image_path,
                              blacklisted_partitions,
                              send_reply, 
                              send_error): 
@@ -192,7 +192,7 @@ class PartMgrService(dbus.service.Object):
         print "  Operfation Transaction ID: {}".format(transaction_id)
         print "  Disk:                      {}".format(disk)
         print "  Partition Number:          {}".format(partition_number)
-        print "  Image Path:                {}".format(image)
+        print "  Image Path:                {}".format(image_path)
         print "  Blacklisted Partitions:    {}".format(blacklisted_partitions)
         print "---"
 
@@ -212,8 +212,9 @@ class PartMgrService(dbus.service.Object):
         print  
         print "Done"
         self.send_operation_result(transaction_id,
-                                   0,
-                                   "Partition write successful")                                 
+                                   swm_result.SWM_RES_OK,
+                                   "Partition write success. Disk: {}:{} Image: {}".
+                                   format(disk, partition_number, image_path))
 
         return None
                  
@@ -224,7 +225,7 @@ class PartMgrService(dbus.service.Object):
                              transaction_id,
                              disk,
                              partition_number,
-                             image,
+                             image_path,
                              blacklisted_partitions,
                              send_reply, 
                              send_error): 
@@ -233,7 +234,7 @@ class PartMgrService(dbus.service.Object):
         print "  Operfation Transaction ID: {}".format(transaction_id)
         print "  Disk:                      {}".format(disk)
         print "  Partition Number:          {}".format(partition_number)
-        print "  Image Path:                {}".format(image)
+        print "  Image Path:                {}".format(image_path)
         print "  Blacklisted Partitions:    {}".format(blacklisted_partitions)
         print "---"
 
@@ -253,9 +254,9 @@ class PartMgrService(dbus.service.Object):
         print  
         print "Done"
         self.send_operation_result(transaction_id,
-                                   0,
-                                   "Partition patch successful")                                 
-
+                                   swm_result.SWM_RES_OK,
+                                   "Partition patch success. Disk: {}:{} Image: {}".
+                                   format(disk, partition_number, image_path))
         return None
                  
 
