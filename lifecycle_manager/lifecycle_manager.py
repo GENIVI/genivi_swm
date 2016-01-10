@@ -12,6 +12,7 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import sys
 import time
+import swm_result
 
 #
 # Lifecycle manager service
@@ -79,7 +80,7 @@ class LCMgrService(dbus.service.Object):
         print  
         print "Done"
         self.send_operation_result(transaction_id,
-                                   0,
+                                   swm_result.SWM_RES_OK,
                                    "Started components {}".format(", ".join(components)))
         return None
  
@@ -113,7 +114,7 @@ class LCMgrService(dbus.service.Object):
         print  
         print "Done"
         self.send_operation_result(transaction_id,
-                                   0,
+                                   swm_result.SWM_RES_OK,
                                    "Stopped components {}".format(", ".join(components)))
         
         return None
