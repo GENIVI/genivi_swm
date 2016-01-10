@@ -24,7 +24,6 @@ class DisplayProgress(threading.Thread):
         self.operation_hmi_message = None
         self.operation_start_time = None
         self.operation_stop_time = None
-        print "DisplayProgress(): Called"
 
     def set_manifest(self, description, start_time, stop_time):
         self.update_description = description
@@ -57,9 +56,9 @@ class DisplayProgress(threading.Thread):
             else:
                 completion = 0.0
 
-            print "\033[HUpdate:    {}".format(self.update_description)
+            print "\033[HUpdate:    {}\033[K".format(self.update_description)
 
-            print "{}{} ".format("+"*int(60.0 - completion*60), "-"*int(completion*60))
+            print "{}{}\033[K".format("+"*int(60.0 - completion*60), "-"*int(completion*60))
 
 
             # If no operation is in progress, clear sreen
@@ -71,10 +70,9 @@ class DisplayProgress(threading.Thread):
             else:
                 completion = 0.0
 
-            print "\nOperation: {}".format(self.operation_hmi_message)
-            print "{}{} ".format("+"*int(60.0 - completion*60), "-"*int(completion*60))
+            print "\nOperation: {}\033[K".format(self.operation_hmi_message)
+            print "{}{}".format("+"*int(60.0 - completion*60), "-"*int(completion*60))
             print "\033[J"
-
     
 #
 # hmi service
