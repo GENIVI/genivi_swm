@@ -1,5 +1,5 @@
 {
-    "update_id": "media_player",
+    "update_id": "media_player_update",
     "name": "Media Player",
     "description": "A media player that will connect to all your devices and stream their audio and video.",
     "get_user_confirmation": true, 
@@ -15,15 +15,11 @@
 			"on_failure": "continue"
 		},
 		{ 
-			"id": "b9e3865e-9d35-11e5-b235-eb755e788c52",
+			"id": "b9e3865e-9d35-11e5-b235-eb755e788c53",
 			"hmi_message": "Deleting old media player.",
 			"time_estimate": 5000,
 			"operation": "remove_package",
 			"package_id": "old_media_player",
-			"os_component": "media_player",
-			"major": 2,
-			"minor": -1,
-			"patch": -1,
 			"on_failure": "continue"
 		},
 		{ 
@@ -35,7 +31,7 @@
 			"on_failure": "abort"
 		},
 		{ 
-			"id": "b9e3865e-9d35 -11e5-b235-eb755e788c52",
+			"id": "b9e3865e-9d35-11e5-b235-eb755e788c54",
 			"hmi_message": "Starting media player.",
 			"time_estimate": 3000,
 			"operation": "start_components",
@@ -47,12 +43,11 @@
 			"hmi_message": "Reflashing amplifier software.",
 			"time_estimate": 5000,
 			"operation": "flash_module_firmware_ecu1",
-			"target_module_loader": "amplifier",
 			"image": "images/ecu1.img",
 			"on_failure": "continue"
 		},
 		{
-			"id": "df7e5ba0-9d35-11e5-bcea-8b5024045531",
+			"id": "df7e5ba0-9d35-11e5-bcea-8b5024045532",
 			"hmi_message": "Writing disk partition.",
 			"time_estimate": 10000,
 			"operation": "write_disk_partition",
