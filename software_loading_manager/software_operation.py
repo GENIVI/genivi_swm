@@ -9,7 +9,7 @@ import json
 import os
 import subprocess
 import dbus
-
+import swm
 #
 # Software operation
 # Contains a single software operation
@@ -100,7 +100,6 @@ class SoftwareOperation:
         self.time_estimate = op_obj.get('time_estimate', 0)
         self.hmi_message = op_obj.get('hmi_message', '')
         self.on_failure = op_obj.get('on_failure', 'continue')
-        self.bus = dbus.SessionBus()
         
         # Retrieve operation
         if not 'operation' in op_obj:
@@ -156,18 +155,12 @@ class SoftwareOperation:
                 self.arguments.append(value)
 
         print "  ----"
-
-        
+    
     def send_transaction(self, transaction_id):
         try:
-            bus_name = dbus.service.BusName(self.path, bus=self.bus)
-
-            obj = self.bus.get_object(bus_name.get_name(), "/{}".format(self.path.replace(".", "/")))
-            remote_method = obj.get_dbus_method(self.method, self.path)
-            remote_method(transaction_id, *self.arguments)
+            swm.dbus_method(self.path, self.method, transaction_id, *self.arguments)
         except Exception as e:
             print "SoftwareOperation.send_transaction({}): Exception: {}".format(self.operation_id, e)
             return False
 
         return True
-    

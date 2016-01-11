@@ -134,12 +134,10 @@ class ManifestProcessor:
             return False
 
         # Create the new manifest object
-        print "1"
         try:
             self.current_manifest = manifest.Manifest([], [], [], self)
         except Exception as e:
             print "Manifest exception: {}".format(e)
-        print "2"
 
         # Specify manifest file to load
         manifest_file= "{}/update_manifest.json".format(self.mount_point)

@@ -12,7 +12,7 @@ import subprocess
 import dbus
 from collections import deque
 import software_operation
-import swm_result
+import swm
 import traceback
 #
 # Load and execute a single manifest
@@ -71,7 +71,6 @@ class Manifest:
         self.update_id = manifest.get('update_id', False)
         self.name = manifest.get('name', False)
         self.description = manifest.get('description', False)
-        self.get_user_confirmation = manifest.get('get_user_confirmation', False)
         self.show_hmi_progress = manifest.get('show_hmi_progress', False)
         self.show_hmi_result = manifest.get('show_hmi_result', False)
         self.allow_downgrade = manifest.get('allow_downgrade', False)
@@ -79,7 +78,6 @@ class Manifest:
         print "Manifest.update_id: {}".format(self.update_id)
         print "Manifest.name: {}".format(self.name)
         print "Manifest.description: {}".format(self.description)
-        print "Manifest.get_user_confirmation: {}".format(self.get_user_confirmation)
         print "Manifest.show_hmi_progress: {}".format(self.show_hmi_progress)
         print "Manifest.show_hmi_result: {}".format(self.show_hmi_result)
         print "Manifest.allow_downgrade: {}".format(self.allow_downgrade)
@@ -101,12 +99,12 @@ class Manifest:
                 if self.manifest_processor.is_operation_completed(op_id):
                     # Add the result code for the given operation id
                     self.operation_results.append(
-                        swm_result.result(op_id,
-                                          swm_result.SWM_RES_ALREADY_PROCESSED,
-                                          "Operation already processed")
+                        swm.result(op_id,
+                                   swm.SWM_RES_ALREADY_PROCESSED,
+                                   "Operation already processed")
                         )
 
-                    print "Software operation {} already completed. Skip".format(op_id)
+                    print "Software operation {} already completed. Deleted from manifest".format(op_id)
                     # Continue with the next operation
                     continue
 
@@ -177,7 +175,7 @@ class Manifest:
         # All operation results will be reported to SOTA.
         #
         self.operation_results.append(
-            swm_result.result(
+            swm.result(
                 self.active_operation.operation_id,
                 result_code,
                 result_text)
