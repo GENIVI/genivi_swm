@@ -12,43 +12,16 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import sys
 import time
-import swm_result
+import swm
 
 #
 # Package manager service
 #
 class PkgMgrService(dbus.service.Object):
     def __init__(self):
-        self.bus = dbus.SessionBus()
-        self.slm_bus_name = dbus.service.BusName('org.genivi.package_manager', 
-                                                 bus=self.bus)
-        dbus.service.Object.__init__(self, 
-                                     self.slm_bus_name, 
-                                     '/org/genivi/package_manager')
+        bus_name = dbus.service.BusName('org.genivi.package_manager', bus=dbus.SessionBus())
+        dbus.service.Object.__init__(self, bus_name, '/org/genivi/package_manager')
 
-
-    def send_operation_result(self, transaction_id, result_code, result_text):
-        #
-        # Retrieve software loading manager bus name, object, 
-        # and installation report method
-        #
-        slm_bus_name = dbus.service.BusName('org.genivi.software_loading_manager', 
-                                            bus=self.bus)
-        slm_obj = self.bus.get_object(slm_bus_name.get_name(), 
-                                      "/org/genivi/software_loading_manager")
-
-        slm_operation_result = slm_obj.get_dbus_method("operation_result", 
-                                                       "org.genivi.software_loading_manager")
-        
-        #
-        # Send back operation result.
-        # Software Loading Manager will distribute the report
-        # to all interested parties.
-        #
-        print "Will send back {} {}/{}".format(transaction_id, result_code, result_text)
-        slm_operation_result(transaction_id, result_code, result_text)
-        print "Sent"
-        return None
 
     @dbus.service.method('org.genivi.package_manager',
                          async_callbacks=('send_reply', 'send_error'))
@@ -81,15 +54,15 @@ class PkgMgrService(dbus.service.Object):
                 time.sleep(0.1)
             print  
             print "Done"
-            self.send_operation_result(transaction_id,
-                                       swm_result.SWM_RES_OK,
-                                       "Installation successful. Path: {}".format(image_path))
+            swm.send_operation_result(transaction_id,
+                                      swm.SWM_RES_OK,
+                                      "Installation successful. Path: {}".format(image_path))
         except Exception as e:
             print "install_package() Exception: {}".format(e)
             traceback.print_exc()
-            self.send_operation_result(transaction_id,
-                                       swm_result.SWM_RES_INTERNAL_ERROR,
-                                       "Internal_error: {}".format(e))
+            swm.send_operation_result(transaction_id,
+                                      swm.SWM_RES_INTERNAL_ERROR,
+                                      "Internal_error: {}".format(e))
         return None
         
             
@@ -125,16 +98,16 @@ class PkgMgrService(dbus.service.Object):
                 time.sleep(0.1)
             print  
             print "Done"
-            self.send_operation_result(transaction_id,
-                                       swm_result.SWM_RES_OK,
-                                       "Upgrade successful. Path: {}".format(image_path))
+            swm.send_operation_result(transaction_id,
+                                      swm.SWM_RES_OK,
+                                      "Upgrade successful. Path: {}".format(image_path))
 
         except Exception as e:
             print "upgrade_package() Exception: {}".format(e)
             traceback.print_exc()
-            self.send_operation_result(transaction_id,
-                                       swm_result.SWM_RES_INTERNAL_ERROR,
-                                       "Internal_error: {}".format(e))
+            swm.send_operation_result(transaction_id,
+                                      swm.SWM_RES_INTERNAL_ERROR,
+                                      "Internal_error: {}".format(e))
         return None
 
     @dbus.service.method('org.genivi.package_manager',
@@ -165,15 +138,15 @@ class PkgMgrService(dbus.service.Object):
                 time.sleep(0.1)
             print  
             print "Done"
-            self.send_operation_result(transaction_id,
-                                       swm_result.SWM_RES_OK,
-                                       "Removal successful. Package_id: {}".format(package_id))
+            swm.send_operation_result(transaction_id,
+                                      swm.SWM_RES_OK,
+                                      "Removal successful. Package_id: {}".format(package_id))
         except Exception as e:
             print "upgrade_package() Exception: {}".format(e)
             traceback.print_exc()
-            self.send_operation_result(transaction_id,
-                                       swm_result.SWM_RES_INTERNAL_ERROR,
-                                       "Internal_error: {}".format(e))
+            swm.send_operation_result(transaction_id,
+                                      swm.SWM_RES_INTERNAL_ERROR,
+                                      "Internal_error: {}".format(e))
         return None
         return None
 
