@@ -11,7 +11,11 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import time
 import threading
-
+import code, signal
+import traceback
+import swm
+from termios import tcflush, TCIOFLUSH
+import sys
 
 class DisplayProgress(threading.Thread):
     
@@ -75,17 +79,14 @@ class DisplayProgress(threading.Thread):
             print "\033[J"
     
 #
-# hmi service
+# Human Machine Interface Service
 #
 class HMIService(dbus.service.Object):
     def __init__(self):
-        self.bus = dbus.SessionBus()
-        hmi_bus_name = dbus.service.BusName('org.genivi.hmi', 
-                                            bus=self.bus)
+        bus_name = dbus.service.BusName('org.genivi.hmi', 
+                                        bus=dbus.SessionBus())
 
-        dbus.service.Object.__init__(self, 
-                                     hmi_bus_name, 
-                                     '/org/genivi/hmi')
+        dbus.service.Object.__init__(self, bus_name, '/org/genivi/hmi')
         self.progress_thread = DisplayProgress()
         self.progress_thread.start()
 
@@ -98,94 +99,119 @@ class HMIService(dbus.service.Object):
                             send_reply,
                             send_error): 
 
-        print "HMI: Got update_notification()"
-        print "  ID:            {}".format(update_id)
-        print "  description:   {}".format(description)
-        print "---"
+        try:
+            print "HMI:  update_notification()"
+            print "  ID:            {}".format(update_id)
+            print "  description:   {}".format(description)
+            print "---"
 
-        #
-        # Send back an async reply to the invoking software_loading_manager
-        # so that we can continue with user interaction without
-        # risking a DBUS timeout
-        #
-        send_reply(True)
+            #
+            # Send back an async reply to the invoking software_loading_manager
+            # so that we can continue with user interaction without
+            # risking a DBUS timeout
+            #
+            send_reply(True)
 
-        print
-        print
-        print "DIALOG:"
-        print "DIALOG: Available update"
-        print "DIALOG:   Description: {}".format(description)
-        print "DIALOG:   Vendor:      {}".format(vendor)
-        print "DIALOG:"
-        resp = raw_input("DIALOG: Install? (yes/no): ")
-        print 
-        #
-        # Setup DBUS call to software loading manager.
-        #
-        slm_bus_name = dbus.service.BusName('org.genivi.software_loading_manager', 
-                                            bus=self.bus)
-        slm_obj = self.bus.get_object(slm_bus_name.get_name(), 
-                                         "/org/genivi/software_loading_manager")
+            print
+            print
+            print "DIALOG:"
+            print "DIALOG: UPDATE AVAILABLE"
+            print "DIALOG:   update_id:   {}".format(update_id)
+            print "DIALOG:   Description: {}".format(description)
+            print "DIALOG:"
+            print "DIALOG: Process? (yes/no)"
 
-        package_confirmation = slm_obj.get_dbus_method("package_confirmation", 
-                                                       "org.genivi.software_loading_manager")
-    
-        if len(resp) == 0 or (resp[0] != 'y' and resp[0] != 'Y'):
-            approved = False
-        else:
-            approved = True
+            # If we use input or raw_input, the whole dbus loop hangs after
+            # this method returns, for some reason.
+            tcflush(sys.stdin, TCIOFLUSH)
+            resp = sys.stdin.read(1)
+            tcflush(sys.stdin, TCIOFLUSH)
+            
+            # resp = raw_input("DIALOG: Process? (yes/no): ")
+            print 
 
-        #
-        # Call software_loading_manager.package_confirmation() 
-        # to inform it of user approval / decline.
-        #
-        package_confirmation(approved, update_id)
+            if len(resp) == 0 or (resp[0] != 'y' and resp[0] != 'Y'):
+                approved = False
+            else:
+                approved = True
+
+            #
+            # Call software_loading_manager.package_confirmation() 
+            # to inform it of user approval / decline.
+            #
+            swm.dbus_method('org.genivi.software_loading_manager','update_confirmation', update_id, approved)
+
+        except Exception as e:
+            print "Exception: {}".format(e)
+            traceback.print_exc()
 
         return None
-
-        
         
 
-    @dbus.service.method('org.genivi.hmi')
+    @dbus.service.method('org.genivi.hmi', 
+                         async_callbacks=('send_reply', 'send_error'))
     def manifest_started(self,
                          update_id, 
                          total_time_estimate,
-                         description):
-        print "\033[H\033[J"
-        ct = time.time()
-        self.progress_thread.set_manifest(description,
-                                          ct,
-                                          ct + float(total_time_estimate) / 1000.0)
+                         description,
+                         send_reply,
+                         send_error):
+        try:
+            print "Manifest started"
+            send_reply(True)
+            print "\033[H\033[J"
+            ct = time.time()
+            self.progress_thread.set_manifest(description,
+                                              ct,
+                                              ct + float(total_time_estimate) / 1000.0)
+            
+        except Exception as e:
+            print "Exception: {}".format(e)
+            traceback.print_exc()
 
         return None
     
-    @dbus.service.method('org.genivi.hmi')
+    @dbus.service.method('org.genivi.hmi', 
+                         async_callbacks=('send_reply', 'send_error'))
     def operation_started(self,
                           operation_id, 
                           time_estimate,
-                          hmi_message):
-        ct = time.time()
-        self.progress_thread.set_operation(hmi_message, ct, ct + float(time_estimate) / 1000.0)
+                          hmi_message,
+                          send_reply,
+                          send_error):
+
+        try:
+            print "Op started"
+            send_reply(True)
+            ct = time.time()
+            self.progress_thread.set_operation(hmi_message, ct, ct + float(time_estimate) / 1000.0)
+        except Exception as e:
+            print "Exception: {}".format(e)
+            traceback.print_exc()
         return None
     
-    @dbus.service.method('org.genivi.hmi')
+    @dbus.service.method('org.genivi.hmi', 
+                         async_callbacks=('send_reply', 'send_error'))
     def update_report(self,
                       update_id, 
-                      results):
-
-        
-        self.progress_thread.exit_thread()
-
-
-        print "Update report"
-        print "  ID:          {}".format(update_id)
-        print "  results:"
-        for result in results:
-            print "    operation_id: {}".format(result['id'])
-            print "    code:         {}".format(result['result_code'])
-            print "    text:         {}".format(result['result_text'])
-            print "  ---"
-        print "---"
+                      results,
+                      send_reply,
+                      send_error):
+        try: 
+            send_reply(True)
+            self.progress_thread.exit_thread()
+            print "Update report"
+            print "  ID:          {}".format(update_id)
+            print "  results:"
+            for result in results:
+                print "    operation_id: {}".format(result['id'])
+                print "    code:         {}".format(result['result_code'])
+                print "    text:         {}".format(result['result_text'])
+                print "  ---"
+            print "---"
+        except Exception as e:
+            print "Exception: {}".format(e)
+            traceback.print_exc()
         return None
 
 print
@@ -193,9 +219,13 @@ print "HMI Simulator"
 print "Please enter package installation approval when prompted"
 print
 
+
 gtk.gdk.threads_init()
 DBusGMainLoop(set_as_default=True)
 pkg_mgr = HMIService()
 
 while True:
     gtk.main_iteration()
+
+    
+
