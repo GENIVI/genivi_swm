@@ -23,24 +23,29 @@ then
 fi
 
 usage() {
-	echo "Usage: ${0} [-r]"
+	echo "Usage: ${0} [-r] [-i]"
 	echo "  -r    Reset completed operation database"
+	echo "  -i    Run in interactive mode. Start sota_client separately"
 	exit 255
 }
 
 SWLM_ARG=""
-while getopts ":r" opt; do
+INTERACTIVE=false
+while getopts ":ri" opt; do
   case $opt in
     r)
 		SWLM_ARG="-r"
-      ;;
+		;;
+	i)
+		INTERACTIVE="true"
+		;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
       ;;
   esac
 done
 
-export PYTHONPATH="${PWD}/include/"
+export PYTHONPATH="${PWD}/common/"
 rm -f $PID_FNAME
 gnome-terminal --geometry 80x15+0+0 -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;Package Manager\007\"; cd package_manager;python package_manager.py" 
 
@@ -57,10 +62,12 @@ gnome-terminal --geometry 80x20+0+2500 -x bash -c "echo \$BASHPID >> $PID_FNAME;
 
 trap killswm INT
 
-if [ "$1" != "-i" ]
+if [ "${INTERACTIVE}" = "false" ]
 then
 	cd sota_client
-	python sota_client.py -p test_package -i ../sample_update.upd -s xxx -d "Sample Update Description"
+	echo "Running SOTA client with HMI user confirmation turned off. Use -c to turn on"
+	python sota_client.py -u sample_app_1.2.3 -i ../sample_update.upd -s xxx -d "Sample Update Description"
+	read x
 	killswm
 	exit 0
 fi
@@ -68,7 +75,7 @@ fi
 echo "Please run"
 echo
 echo "   cd sota_client"
-echo "   sudo python sota_client.py -p test_package -i ../sample_update.upd -s xxx -d "Sample Update Description""
+echo "   sudo PYTHONPATH=\"\${PWD}/../common/\" python sota_client.py -u sample_app_1.2.3 -c -i ../sample_update.upd -s xxx -d \"Sample Update Description\""
 echo
 echo "to start package use case."
 echo 
