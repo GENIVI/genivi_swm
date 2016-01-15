@@ -24,9 +24,13 @@ msc {
   "SWLM" -> "HMI" [ label = "update_notification()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update 1" ];
   "HMI" -> "SWLM" [ label = "update_confirmation()" ];
+  "SWLM" -> "HMI" [ label = "manifest_started()" ];
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 1: Process operation 1" ];
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 1: Process operation 2" ];
   ...;
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 1:  Process operation N" ];
 
   "SWLM" -> "HMI"  [ label = "update_report()" ];
@@ -36,9 +40,13 @@ msc {
   "SWLM" -> "HMI" [ label = "update_notification()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update 2" ];
   "HMI" -> "SWLM" [ label = "update_confirmation()" ];
+  "SWLM" -> "HMI" [ label = "manifest_started()" ];
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 2: Process operation 1" ];
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 2: Process operation 2" ];
   ...;
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 2: Process operation N" ];
   "SWLM" -> "HMI"  [ label = "update_report()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
@@ -48,9 +56,13 @@ msc {
   "SWLM" -> "HMI" [ label = "update_notification()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update X" ];
   "HMI" -> "SWLM" [ label = "update_confirmation()" ];
+  "SWLM" -> "HMI" [ label = "manifest_started()" ];
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update X: Process operation 1" ];
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update X: Process operation 2" ];
   ...;
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update X: Process operation N" ];
   "SWLM" -> "HMI"  [ label = "update_report()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
