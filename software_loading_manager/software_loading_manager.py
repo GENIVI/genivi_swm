@@ -2,10 +2,8 @@
 #
 # Mozilla Public License 2.0
 #
-# Python dbus service that faces the SOTA client.
-
-
-
+# Python dbus service that coordinates all use cases.
+#
 import gtk
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
