@@ -22,9 +22,13 @@ msc {
   "SC" -> "SWLM" [ label = "download_complete()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Validate update image" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image" ];
+  "SWLM" -> "HMI" [ label = "manifest_started()" ];
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Process operation 1" ];
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Process operation 2" ];
   ...;
+  "SWLM" -> "HMI" [ label = "operation_started()" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Process operation N" ];
   "SWLM" -> "HMI"  [ label = "update_report()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
