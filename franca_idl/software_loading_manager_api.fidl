@@ -17,7 +17,7 @@
 // FIXME: CEDM Interface compliance
 // FIXME: Enumerated update operation result codes
 
-package org.genivi.si.swm
+package org.genivi.swm
 
 <** @description: Software Loading Manager interfaace
 **>
@@ -36,11 +36,16 @@ interface swlm {
 			<** @description:
 			Package ID of update. Not currently used.
 			**>
-			String package_id
+			String update_id
+
+			<** @description: 
+			A descriptive text of the available update.
+			**>
+			String description
 
 			<** @description:
-			Signature generated on package_id using: 
-			echo $PACKAGE_ID | openssl dgst -sha256 -sign private_key | base64 
+			Signature generated on update_id using: 
+			echo $UPDATE_ID | openssl dgst -sha256 -sign private_key | base64 
 			**>
 			String signature
 
@@ -58,11 +63,6 @@ interface swlm {
 			A symbolic name of the available update.
 			**>
 			String name
-
-			<** @description: 
-			A descriptive text of the available update.
-			**>
-			String description
 		}
 	}
 
@@ -77,7 +77,7 @@ interface swlm {
 			Package ID of downloaded update. 
 			Not currently used.
 			**>
-			String package_id
+			String update_id
 
 			<** @description: 
 			The absolute file name path in the local file system
@@ -115,6 +115,23 @@ interface swlm {
 			FIXME: Third option: Remind me later?
 			**>
 			Boolean confirmed
+		}
+	}
+
+	<** 
+	@description: 
+	Abort a download in progress.
+	Invoked by HMI in response to SWLM in response to a user abort.
+	Will be forwarded by SWLM to SC in order to complete the abort.
+	**>
+	method abort_download {
+		in {
+			<** @description:
+			Package ID of update to abort..
+			The value was previously provided to an update_notification() call 
+			made from SWLM to HMI.
+			**>
+			String update_id
 		}
 	}
 
@@ -190,7 +207,7 @@ interface swlm {
 		<** @description: 
 		The ID string of the installed package.
 		**>
-		String package_id
+		String update_id
 
 		<** @description: 
 		A symbolic name of the installed package
