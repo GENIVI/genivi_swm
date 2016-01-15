@@ -108,4 +108,30 @@ interface hmi {
 			String description
 		}
 	}
+
+	<** 
+	@description: 
+	Receive an update report from SWLM with the processing result of all
+	bundled operations.
+	An update report message can either be sent in response
+	to an download_complete() message transmitted from SC to SWLM,
+	or be sent unsolicited by SWLM to HMI 
+	**>
+	method update_report {
+		in {
+			<** @description:
+			Update ID of update reported.
+			The value is provided by the update_available() call made from SC
+			to SWLM to announce the update availability.
+			**>
+			String update_id
+
+			<** @description: 
+			A list of operation results. Each result is associated
+			with its original update manifest entry through the id 
+			field.
+			**>
+			array operations_results of OperationResult
+		}
+	}
 }
