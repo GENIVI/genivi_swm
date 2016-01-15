@@ -4,7 +4,12 @@
 //
 // GENIVI Software Management IDL
 //
-
+// NOTE:
+//   This file is not a part of the GENIVI specification.
+//   The module loader is still a placeholder component with
+//   no defined API. This FrancaIDL file only here to reflect
+//   the API implemented by the PoC code.
+//
 // Abbreviatioms:
 // SC - SOTA CLient
 // SWLM - Software Loading Manager
@@ -15,8 +20,7 @@
 // LocMedMgr - Local Media Manager
 
 
-
-package org.genivi.si.swm
+package org.genivi.swm
 
 <** @description: 
 Module Loader API.
