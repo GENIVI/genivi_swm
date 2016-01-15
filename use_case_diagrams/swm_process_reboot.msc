@@ -12,12 +12,13 @@
 
 msc {
   width="1024";
-  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "Systemd";
+  "SWLM", "HMI", "PackMgr", "PartMgr", "ML", "NSM";
   --- [ label="Invoked by use case \"SC Update\", \"Process DiagToolMgr Update\", or \"Process LocMedMgr\""];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSoftware operation is \"reboot\"\n" ];
-  "SWLM" -> "Systemd" [ label = "reboot()" ];
-  "Systemd" box "Systemd" [ textbgcolour="silver", label = "Reboot" ];
+  "SWLM" => "NSM" [ label = "SetApplicationMode()" ];
+  "SWLM" => "NSM" [ label = "RequestNodeRestart()" ];
+  "NSM" box "NSM" [ textbgcolour="silver", label = "Reboot" ];
   --- [ label = "System reboots"];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSWLM reloads currently processed manifest file\n" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSWLM stores a successful operation result code for reboot\n" ];
