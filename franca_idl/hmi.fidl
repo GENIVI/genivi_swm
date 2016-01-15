@@ -1,0 +1,111 @@
+// (c) 2015 - Jaguar Land Rover.
+//
+// Mozilla Public License 2.0
+//
+// GENIVI Software Management IDL
+//
+
+// Abbreviatioms:
+// SC - SOTA CLient
+// SWLM - Software Loading Manager
+// ML - Module Loader (one instance per external module)
+// PackMgr - Package Manager
+// PartMgr - Partition Manager
+// HMI - Human Machine Interface (IVI screen)
+// LocMedMgr - Local Media Manager
+
+// FIXME: Enumerated update operation result codes
+
+package org.genivi.swm
+
+<** @description: 
+HMI External component API
+**>
+interface hmi {
+	version { major 1 minor 0 }
+
+	<** 
+	@description: 
+	Invoked by SWLM to notify the HMI (and the user) that there is
+	an update that needs user approval. The result of the user approval/decline
+	is sent back to SWLM using its update_confirmation() method.
+	**>
+	method update_notification {
+		in {
+			<** @description:
+			The manifest's update_id entry, uniquely identifying
+			this update.
+			**>
+			String update_id
+
+			<** @description:
+			A descriptive text to be shown on the HMI, explaining what
+			the update is about
+			**>
+			String description
+		}
+	}
+
+	<** 
+	@description: 
+	Invoked by SWLM to notify the HMI (and the user) that the processing
+	of an update has started. The given update, identified by update_id,
+	may or may not have been reported earlier through an update_notification()
+	call, depending on if a user confirmation was requested for the 
+	update.
+	**>
+	method manifest_started {
+		in {
+			<** @description:
+			The manifest's update_id entry, uniquely identifying
+			this update.
+			**>
+			String update_id
+
+			<** @description:
+			The estimated time, in milliseconds, it will take to
+			execute all software operations contained in the manifest.
+
+			The value is calculated in SWLM by summing up the time
+			estimate of all software opreations in the manifest.
+			**>
+			Int32 total_time_estimate
+
+			<** @description:
+			A descriptive text to be shown on the HMI for the duration
+			of the update operation.
+			**>
+			String description
+		}
+	}
+
+	<** 
+	@description: 
+	Invoked by SWLM to notify the HMI (and the user) that the
+	processing of a software operation inside an update has started.
+
+	The given update, identified by update_id, will have reported
+	earlier through an manifest_started() call.
+	**>
+	method operation_started {
+		in {
+			<** @description:
+			The unique software operation ID, as retrieved from the
+			manifest.
+			**>
+			String operation_id
+
+			<** @description:
+			The estimated time it will take to execute this specific
+			software operation.	Given in milliseonds.
+			**>
+			Int32 time_estimate
+
+			<** @description:
+			A message to show on the HMI for the duration of the
+			software operation.
+			**>
+			String description
+		}
+	}
+}
