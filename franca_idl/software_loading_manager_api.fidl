@@ -19,6 +19,72 @@
 
 package org.genivi.swm
 
+
+<** @description: Error codes returned by operation_result.**>
+
+enumeration SWMResult {
+	<** @description: Operation executed successfully **>
+	SWM_RES_OK = "0",  
+
+	<** @description: Operation has already been processed **>
+	SWM_RES_ALREADY_PROCESSED = "1",
+
+	<** @description: Dependency failure during package install, upgrade, or removal **>
+	SWM_RES_DEPENDENCY_FAILURE = "2",
+
+	<** @description: Update image integrity has been compromised **>
+	SWM_RES_VALIDATION_FAILED = "3",
+
+	<** @description: Package installation failed **>
+	SWM_RES_INSTALL_FAILED = "4",
+
+	<** @description: Package upgrade failed **>
+	SWM_RES_UPGRADE_FAILED = "5",
+
+	<** @description: Package removal failed **>
+	SWM_RES_REMOVAL_FAILED = "6",
+
+	<** @description: The module loader could not flash its managed module **>
+	SWM_RES_FLASH_FAILED = "7",
+
+	<** @description: Partition creation failed **>
+	SWM_RES_CREATE_PARTITION_FAILED = "8",
+
+	<** @description: Partition deletion failed **>
+	SWM_RES_DELETE_PARTITION_FAILED = "9",
+
+	<** @description: Partition resize failed **>
+	SWM_RES_RESIZE_PARTITION_FAILED = "10",
+
+	<** @description: Partition write failed **>
+	SWM_RES_WRITE_PARTITION_FAILED = "11",
+
+	<** @description: Partition patching failed **>
+	SWM_RES_PATCH_PARTITION_FAILED = "12",
+
+	<** @description: User declined the update **>
+	SWM_RES_USER_DECLINED = "13"
+	
+	<** @description: Software was blacklisted **>
+	SWM_RES_SOFTWARE_BLACKLISTED = "14",
+
+	<** @description: Ran out of disk space **>
+	SWM_RES_DISK_FULL = "15",
+
+	<** @description: Software package not found **>
+	SWM_RES_NOT_FOUND = "16",
+
+	<** @description: Tried to downgrade to older version **>
+	SWM_RES_OLD_VERSION = "17",
+
+	<** @description: SWM Internal integrity error **>
+	SWM_RES_INTERNAL_ERROR = "18",
+
+	<** @description: Other error **>
+	SWM_RES_GENERAL_ERROR = "19"
+}
+
+
 <** @description: Software Loading Manager interfaace
 **>
 interface swlm {
