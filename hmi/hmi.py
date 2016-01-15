@@ -176,7 +176,7 @@ class HMIService(dbus.service.Object):
     def operation_started(self,
                           operation_id, 
                           time_estimate,
-                          hmi_message,
+                          description,
                           send_reply,
                           send_error):
 
@@ -184,7 +184,7 @@ class HMIService(dbus.service.Object):
             print "Op started"
             send_reply(True)
             ct = time.time()
-            self.progress_thread.set_operation(hmi_message, ct, ct + float(time_estimate) / 1000.0)
+            self.progress_thread.set_operation(description, ct, ct + float(time_estimate) / 1000.0)
         except Exception as e:
             print "Exception: {}".format(e)
             traceback.print_exc()
