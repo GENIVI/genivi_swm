@@ -16,7 +16,7 @@
 
 // FIXME: Enumerated update operation result codes
 
-package org.genivi.si.swm
+package org.genivi.swm
 
 <** @description: 
 Software Over The Air Client API
@@ -44,6 +44,8 @@ interface sc {
 	<** 
 	@description: 
 	Abort a download previously initiated with initiate_download().
+	Invoked by SWLM in response to an error or an explicit
+	request sent by HMI to SWLM in response to a user abort.
 	**>
 	method abort_download {
 		in {
@@ -52,13 +54,13 @@ interface sc {
 			The value was previously provided to a initiate_download() call 
 			made from SWLM to SC.
 			**>
-			String package_id
+			String update_id
 		}
 	}
 
 	<** 
 	@description: 
-	Receive an update report from SC with the processing result of all
+	Receive an update report from SWLM with the processing result of all
 	bundled operations.
 	An update report message can either be sent in response
 	to an download_complete() message transmitted from SC to SWLM,
@@ -71,7 +73,7 @@ interface sc {
 			The value is provided by the update_available() call made from SC
 			to SWLM to announce the update availability.
 			**>
-			String package_id
+			String update_id
 
 			<** @description: 
 			A list of operation results. Each result is associated
