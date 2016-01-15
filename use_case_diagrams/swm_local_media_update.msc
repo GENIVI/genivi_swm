@@ -35,23 +35,7 @@ msc {
 
   "SWLM" -> "HMI"  [ label = "update_report()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
-
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image 2 in from list" ];
-  "SWLM" -> "HMI" [ label = "update_notification()" ];
-  "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update 2" ];
-  "HMI" -> "SWLM" [ label = "update_confirmation()" ];
-  "SWLM" -> "HMI" [ label = "manifest_started()" ];
-  "SWLM" -> "HMI" [ label = "operation_started()" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 2: Process operation 1" ];
-  "SWLM" -> "HMI" [ label = "operation_started()" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 2: Process operation 2" ];
   ...;
-  "SWLM" -> "HMI" [ label = "operation_started()" ];
-  "SWLM" box "SWLM" [ textbgcolour="silver", label = "Update 2: Process operation N" ];
-  "SWLM" -> "HMI"  [ label = "update_report()" ];
-  "HMI" box "HMI" [ textbgcolour="silver", label = "Display Report" ];
-  ...;
-
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "Mount update image X from file list" ];
   "SWLM" -> "HMI" [ label = "update_notification()" ];
   "HMI" box "HMI" [ textbgcolour="silver", label = "Get User Confirmation on update X" ];
