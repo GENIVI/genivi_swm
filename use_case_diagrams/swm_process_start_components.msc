@@ -16,9 +16,10 @@ msc {
   --- [ label="Invoked by use case \"SC Update\", \"Process DiagToolMgr Update\", or \"Process LocMedMgr\""];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nProcess software operation\n" ];
   "SWLM" box "SWLM" [ textbgcolour="silver", label = "\nSoftware operation is \"start_components\"\n" ];
-  "SWLM" -> "Systemd" [ label = "start_components()" ];
+  "SWLM" => "Systemd" [ label = "StartUnit()" ];
+  "SWLM" << "Systemd" [ label = "Job object" ];
   "Systemd" box "Systemd" [ textbgcolour="silver", label = "Start components" ];
-  "Systemd" -> "SWLM" [ label = "operation_result()" ];
+  "SWLM" -> "Systemd" [ label = "Wait for Job object to be finished" ];
   "SWLM" box "SWLM" [  textbgcolour="silver", label = "\nStore result for calling use case's update report\n" ];
   --- [ label = "Return to use case \"SC Update\", \"DiagToolMgr Update\", or \"Process LocMedMgr\""];
 }
