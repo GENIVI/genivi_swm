@@ -1,4 +1,4 @@
-package org.genivi.si.swm.result
+package org.genivi.swm
 
 <** @description: Error codes returned by operation_result.**>
 

@@ -16,7 +16,7 @@
 
 // FIXME: Enumerated update operation result codes
 
-package org.genivi.si.swm
+package org.genivi.swm
 
 <** @description: 
 Partition Manager API
