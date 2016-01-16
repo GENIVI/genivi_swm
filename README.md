@@ -6,9 +6,9 @@ Attribution-ShareAlike 4.0 International.
 
 # TODO
 1. **Implement get installed packages use case**<br>
-   \ ```module_loader_ecu1.py``` needs to correctly implement ```get_module_firmware_version()```.
-   \ ```package_manager.py``` needs to correctly implement ```get_installed_packages()```.
-   \ ```software_loading_manager.py``` needs to implement ```get_installed_software()```, which means
+   ```module_loader_ecu1.py``` needs to correctly implement ```get_module_firmware_version()```.
+   ```package_manager.py``` needs to correctly implement ```get_installed_packages()```.
+   ```software_loading_manager.py``` needs to implement ```get_installed_software()```, which means
    invoking ```package_manager.get_installed_packages()``` and ```get_module_firmware_version()```
    of each module loader instance. There is today no tracking in ```software_loading_manager.py```
    of deployed module loaders. Maybe extend ```SoftwareOperation.operation_descriptor```?
