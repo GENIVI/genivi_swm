@@ -33,7 +33,7 @@ class PkgMgrService(dbus.service.Object):
                         send_error): 
 
         try:
-            print "Package Manager: Got install_package()"
+            print "Package Manager: Install Package"
             print "  Operation Transaction ID: {}".format(transaction_id)
             print "  Image Path:               {}".format(image_path)
             print "  Blacklisted packages:     {}".format(blacklisted_packages)
@@ -78,7 +78,7 @@ class PkgMgrService(dbus.service.Object):
                         send_error): 
 
         try:
-            print "Package Manager: Got upgrade_package()"
+            print "Package Manager: Upgrade package"
             print "  Operation Transaction ID: {}".format(transaction_id)
             print "  Image Path:               {}".format(image_path)
             print "  Allow downgrade:          {}".format(allow_downgrade)
@@ -120,7 +120,7 @@ class PkgMgrService(dbus.service.Object):
                        send_reply, 
                        send_error): 
         try:
-            print "Package Manager: Remove package upgrade_package()"
+            print "Package Manager: Remove package"
             print "  Operation Transaction ID: {}".format(transaction_id)
             print "  Package ID:               {}".format(package_id)
             print "---"
