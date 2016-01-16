@@ -100,8 +100,8 @@ def usage():
     print "  -c                   Request user confirmation."
     print "  -d description       Description of update."
     print
-    print "Example:", sys.argv[0],"up boot_loader_2.10.9\\"
-    print "                        -u boot_loader.img  \\"
+    print "Example:", sys.argv[0],"-u boot_loader_2.10.9\\"
+    print "                        -i boot_loader.img  \\"
     print "                        -s 2889ee...4db0ed22cdb8f4e -c"
     sys.exit(255)
 
