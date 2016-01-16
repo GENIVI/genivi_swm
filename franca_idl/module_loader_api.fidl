@@ -56,6 +56,12 @@ interface ml {
 			**>
 			array blacklisted_firmware of String
 			
+
+			<** @description:
+			Are we allowed to install an older version of the firmware
+			than the one currently installed?
+			**>
+			Boolean allow_downgrade
 		}
 	}
 
