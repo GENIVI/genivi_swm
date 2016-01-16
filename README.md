@@ -5,11 +5,30 @@ This document is licensed under Creative Commons
 Attribution-ShareAlike 4.0 International.
 
 # TODO
-1. Rename package to update in most commands.
-2. Rename installation report to update report.
-3. Implement get installed packages use case.
-4. Handle package dependency listing.
+1. **Implement get installed packages use case**<br>
+   \ ```module_loader_ecu1.py``` needs to correctly implement ```get_module_firmware_version()```.
+   \ ```package_manager.py``` needs to correctly implement ```get_installed_packages()```.
+   \ ```software_loading_manager.py``` needs to implement ```get_installed_software()```, which means
+   invoking ```package_manager.get_installed_packages()``` and ```get_module_firmware_version()```
+   of each module loader instance. There is today no tracking in ```software_loading_manager.py```
+   of deployed module loaders. Maybe extend ```SoftwareOperation.operation_descriptor```?
 
+2. Implement blacklists
+Package Manager's ```install_package``` and ```update_package``` needs to verify that the package in the ```image_path``` 
+argument is not present in the list of banned packages in the ```blacklist``` argument.
+
+3. 
+Signatures
+Check confirmation
+Local Media
+Clean up manifest
+get_installed_packages()
+Parse and use show_progress and show_result
+blacklist persistence, replacing with newever versions
+abort_download
+ReAdd user confirmation for local media case
+install_pacakge(): Allow downgrade
+2. 
 # ACRONYM
 
 Acronym  | Description
