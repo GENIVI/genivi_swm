@@ -3,6 +3,18 @@ Copyright (C) 2014-2015 Jaguar Land Rover
 
 This document is licensed under Creative Commons
 Attribution-ShareAlike 4.0 International.
+
+# GENIVI SOFTWARE MANAGEMENT - PROOF OF CONCEPT #
+This directory contains a set of python components that are used to
+explore the API between the components forming the Software Management
+system.
+
+The components are outlined in the image below
+
+![SWM Layout](https://github.com/magnusfeuer/genivi_software_management/raw/master/swm_illustration.png)
+The components are as follows:
+
+See the GENIVI SWLM specification for details on use cases, features, etc.
 	
 # ACRONYMS
 
@@ -104,17 +116,6 @@ LocMedMgr | Local Media Manager
     and implement the appropriate ```StartUnit()``` and ```StopUnit``` callas.
     
 
-# GENIVI SOFTWARE MANAGEMENT - PROOF OF CONCEPT #
-This directory contains a set of python components that are used to
-explore the API between the components forming the Software Management
-system.
-
-The components are outlined in the image below
-
-![SWM Layout](https://github.com/magnusfeuer/genivi_software_management/raw/master/swm_illustration.png)
-The components are as follows:
-
-See the GENIVI SWLM specification for details on use cases, features, etc.
 
 # RUNNING THE CODE
 
