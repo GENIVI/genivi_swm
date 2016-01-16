@@ -14,8 +14,8 @@ TARGET= swm_download_update.png \
 	swm_process_reboot.png \
 	swm_process_start_components.png \
 	swm_process_stop_components.png \
-	swm_sc_get_installed_packages.png \
-	swm_hmi_get_installed_packages.png 
+	swm_sc_get_installed_software.png \
+	swm_hmi_get_installed_software.png 
 
 .PHONY: all clean
 
