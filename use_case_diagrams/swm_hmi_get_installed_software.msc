@@ -1,0 +1,24 @@
+#
+#
+# Sequence diagram description
+#
+# The sequence diagram description below is translated to
+# a PNG image by mscgen (http://www.mcternan.me.uk/mscgen/)
+# 
+# Recompile updated diagrams to a png image with:
+#  
+#   mscgen -T png swm.msc
+#
+
+msc {
+  width="1024";
+  "HMI", "SWLM", "PackMgr", "ML";
+  "HMI" box "HMI" [ textbgcolour="silver", label = "\nUser Requests Software List\n" ];
+  "HMI" => "SWLM" [  label = "get_installed_software()" ];
+  "SWLM" => "PackMgr" [ label = "get_installed_packages()" ];
+  "SWLM" <= "PackMgr" [ label = "[installed packages]" ];
+  "SWLM" => "ML" [ label = "get_module_firmware_version()" ];
+  "SWLM" <= "ML" [ label = "[installed firmware]" ];
+  "HMI" <= "SWLM"  [ label = "[installed packages\nand firwmare]" ];
+  "HMI" box "HMI" [ textbgcolour="silver", label = "Display Software List" ];
+}
