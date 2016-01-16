@@ -29,6 +29,7 @@ class ECU1ModuleLoaderService(dbus.service.Object):
                               transaction_id, 
                               image_path,
                               blacklisted_firmware,
+                              allow_downgrade,
                               send_reply,
                               send_error): 
 
@@ -37,6 +38,7 @@ class ECU1ModuleLoaderService(dbus.service.Object):
         print "  Operation Transaction ID: {}".format(transaction_id)
         print "  Image Path:               {}".format(image_path)
         print "  Blacklisted firmware:     {}".format(blacklisted_firmware)
+        print "  Allow downgrade:          {}".format(allow_downgrade)
         print "---"
 
         # Send back an immediate reply since DBUS

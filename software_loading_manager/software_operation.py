@@ -88,7 +88,8 @@ class SoftwareOperation:
         #        This should be done programmatically
         'flash_module_firmware_ecu1': ( "org.genivi.module_loader_ecu1", "flash_module_firmware",
                                         [ ("image", None),
-                                          ("blacklisted_firmware", dbus.Array(manifest.blacklisted_firmware, "s"))
+                                          ("blacklisted_firmware", dbus.Array(manifest.blacklisted_firmware, "s")),
+                                          ("allow_downgrade", manifest.allow_downgrade)
                                         ])
         }
 
