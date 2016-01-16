@@ -74,13 +74,15 @@ class Manifest:
         self.show_hmi_progress = manifest.get('show_hmi_progress', False)
         self.show_hmi_result = manifest.get('show_hmi_result', False)
         self.allow_downgrade = manifest.get('allow_downgrade', False)
+        self.get_user_confirmation = manifest.get('get_user_confirmation', False)
         self.operations = deque()
-        print "Manifest.update_id: {}".format(self.update_id)
-        print "Manifest.name: {}".format(self.name)
-        print "Manifest.description: {}".format(self.description)
-        print "Manifest.show_hmi_progress: {}".format(self.show_hmi_progress)
-        print "Manifest.show_hmi_result: {}".format(self.show_hmi_result)
-        print "Manifest.allow_downgrade: {}".format(self.allow_downgrade)
+        print "Manifest.update_id:             {}".format(self.update_id)
+        print "Manifest.name:                  {}".format(self.name)
+        print "Manifest.description:           {}".format(self.description)
+        print "Manifest.get_user_confirmation: {}".format(self.get_user_confirmation)
+        print "Manifest.show_hmi_progress:     {}".format(self.show_hmi_progress)
+        print "Manifest.show_hmi_result:       {}".format(self.show_hmi_result)
+        print "Manifest.allow_downgrade:       {}".format(self.allow_downgrade)
 
         # Traverse all operations and create / load up a relevant 
         # object for each one.

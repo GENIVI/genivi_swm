@@ -70,7 +70,7 @@ class SLMService(dbus.service.Object):
         
     def inform_hmi_of_new_operation(self,op):
         swm.dbus_method("org.genivi.hmi", "operation_started",
-                        op.operation_id, op.time_estimate, op.hmi_message)
+                        op.operation_id, op.time_estimate, op.description)
         return None
     
     def inform_hmi_of_new_manifest(self,manifest):

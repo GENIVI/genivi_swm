@@ -100,7 +100,7 @@ class SoftwareOperation:
         self.operation_id = op_obj['id']
         self.arguments = []
         self.time_estimate = op_obj.get('time_estimate', 0)
-        self.hmi_message = op_obj.get('hmi_message', '')
+        self.description = op_obj.get('description', '')
         self.on_failure = op_obj.get('on_failure', 'continue')
         
         # Retrieve operation
@@ -120,7 +120,7 @@ class SoftwareOperation:
         print "  SoftwareOperation(): operation_id:  {}".format(self.operation_id)
         print "  SoftwareOperation(): operation:     {}".format(operation)
         print "  SoftwareOperation(): time_estimate: {}".format(self.time_estimate)
-        print "  SoftwareOperation(): hmi_message:   {}".format(self.hmi_message)
+        print "  SoftwareOperation(): description:   {}".format(self.description)
         print "  SoftwareOperation(): on_failure:    {}".format(self.on_failure)
         print "  SoftwareOperation(): dbus path:     {}".format(self.path)
         print "  SoftwareOperation(): dbus method:   {}".format(self.method)
