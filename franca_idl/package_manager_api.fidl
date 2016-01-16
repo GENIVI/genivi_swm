@@ -32,16 +32,21 @@ interface packmgr {
 	method install_package {
 		in {
 			<** @description:
-			The local file system path to the image to be forwarded
-			to the native package manager for installation
-			**>
-			String image
-
-			<** @description:
 			The transaction ID to send back with the operation_result()
 			message that reports the outcome of the package installation.
 			**>
 			String transaction_id
+
+			<** @description:
+			The local file system path to the image to be forwarded
+			to the native package manager for installation
+			**>
+			String image_path
+
+			<** @description:
+			A list of package IDs that are not to be installed
+			**>
+			array blacklisted_packages of String
 		}
 
 	}
@@ -53,16 +58,27 @@ interface packmgr {
 	method upgrade_package {
 		in {
 			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the package installation.
+			**>
+			String transaction_id
+
+			<** @description:
 			The local file system path to the image to be forwarded
 			to the native package manager for the upgrade operation
 			**>
 			String image
 
 			<** @description:
-			The transaction ID to send back with the operation_result()
-			message that reports the outcome of the package upgrade.
+			A list of package IDs that are not to be installed
 			**>
-			String transaction_id
+			array blacklisted_packages of String
+
+			<** @description:
+			Are we allowed to install an older version of the package
+			than the one currently installed?
+			**>
+			Boolean allow_downgrade
 		}
 	}
 
@@ -73,15 +89,15 @@ interface packmgr {
 	method remove_package {
 		in {
 			<** @description:
-			The id of the package to remove.
-			**>
-			String package_id
-
-			<** @description:
 			The transaction ID to send back with the operation_result()
 			message that reports the outcome of the package removal.
 			**>
 			String transaction_id
+
+			<** @description:
+			The id of the package to remove.
+			**>
+			String package_id
 		}
 	}
 

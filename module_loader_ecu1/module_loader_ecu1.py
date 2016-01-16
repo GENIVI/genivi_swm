@@ -22,7 +22,6 @@ class ECU1ModuleLoaderService(dbus.service.Object):
         bus_name = dbus.service.BusName('org.genivi.module_loader_ecu1', bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, '/org/genivi/module_loader_ecu1')
 
-
     @dbus.service.method('org.genivi.module_loader_ecu1',
                          async_callbacks=('send_reply', 'send_error'))
 
@@ -61,9 +60,9 @@ class ECU1ModuleLoaderService(dbus.service.Object):
         return None
         
     @dbus.service.method('org.genivi.module_loader_ecu1')
-    def get_installed_packages(self): 
+    def get_module_firmware_version(self): 
         print "Got get_installed_packages()"
-        return [ "ecu1_firmware_1.2.3" ]
+        return ("ecu1_firmware_1.2.3", 1452904544)
                  
 print 
 print "ECU1 Module Loader."

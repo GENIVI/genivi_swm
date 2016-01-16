@@ -38,16 +38,24 @@ interface ml {
 	method flash_module_firmware {
 		in {
 			<** @description:
-			A path to the local file system where the firwmare 
-			image to reflash the module can be found.
-			**>
-			String image
-			
-			<** @description:
 			The transaction ID to send back with the operation_result()
 			message that reports the outcome of the firmware flashing.
 			**>
 			String transaction_id
+
+			<** @description:
+			A path to the local file system where the firwmare 
+			image to reflash the module can be found.
+			**>
+			String image_path
+			
+
+			<** @description:
+			A list of SHA256 check sums of firwmare
+			(pointed out by image_path) that are not to be flashed
+			**>
+			array blacklisted_firmware of String
+			
 		}
 	}
 

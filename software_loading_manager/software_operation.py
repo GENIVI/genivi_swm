@@ -29,12 +29,14 @@ class SoftwareOperation:
             # Second element in tupe is default value. None -> Mandatory 
             [ ("image", None),
               ("blacklisted_packages", dbus.Array(manifest.blacklisted_packages, "s"))
+
             ]),
 
         'upgrade_package': ( "org.genivi.package_manager",
                              "upgrade_package",
                              [ ("image", None),
-                               ("blacklisted_packages", dbus.Array(manifest.blacklisted_packages, "s"))
+                               ("blacklisted_packages", dbus.Array(manifest.blacklisted_packages, "s")),
+                               ("allow_downgrade", manifest.allow_downgrade)
                              ]),
 
         'remove_package': ( "org.genivi.package_manager",

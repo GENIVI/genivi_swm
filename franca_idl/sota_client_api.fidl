@@ -33,11 +33,11 @@ interface sc {
 	method initiate_download {
 		in {
 			<** @description:
-			Package ID of update to download. 
+			ID of update to download. 
 			The value is provided by the update_available() call made from SC
 			to SWLM to announce the update availability.
 			**>
-			String package_id
+			String update_id
 		}
 	}
 
@@ -98,12 +98,6 @@ interface sc {
 
 		<** @description: 
 		The result code reported by PackMgr, PartMgr, or ML
-		for the given operation.
-		**>
-		UInt32 result_code
-
-		<** @description: 
-		A descriptive result text reported by PackMgr, PartMgr, or ML
 		for the given operation.
 		**>
 		UInt32 result_code

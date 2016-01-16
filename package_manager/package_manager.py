@@ -73,6 +73,7 @@ class PkgMgrService(dbus.service.Object):
                         transaction_id,
                         image_path,
                         blacklisted_packages,
+                        allow_downgrade,
                         send_reply, 
                         send_error): 
 
@@ -80,6 +81,7 @@ class PkgMgrService(dbus.service.Object):
             print "Package Manager: Got upgrade_package()"
             print "  Operation Transaction ID: {}".format(transaction_id)
             print "  Image Path:               {}".format(image_path)
+            print "  Allow downgrade:          {}".format(allow_downgrade)
             print "  Blacklisted packages:     {}".format(blacklisted_packages)
             print "---"
 

@@ -30,6 +30,13 @@ interface partmgr {
 	**>
 	method create_disk_partition {
 		in {
+			
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the partition creation.
+			**>
+			String transaction_id
+
 			<** @description:
 			The path to a disk to create a partition on
 			**>
@@ -39,6 +46,11 @@ interface partmgr {
 			The partition number to create on the given disk
 			**>
 			UInt32 partition_number
+
+			<** @description:
+			The partition type.
+			**>
+			UInt32 partition_type 
 
 			<** @description:
 			The start of the partition, in offset bytes from disk
@@ -59,21 +71,11 @@ interface partmgr {
 			**>
 			String guid
 
-			<** @description:
-			The partition type.
-			**>
-			UInt32 type 
 
 			<** @description:
 			The symbolic name of the partition.
 			**>
 			UInt32 name 
-			
-			<** @description:
-			The transaction ID to send back with the operation_result()
-			message that reports the outcome of the partition creation.
-			**>
-			String transaction_id
 		}
 	}
 
@@ -85,6 +87,12 @@ interface partmgr {
 	method delete_disk_partition {
 		in {
 			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the partition deletion.
+			**>
+			String transaction_id
+
+			<** @description:
 			The path to a disk from which to delete a partition.
 			**>
 			String disk
@@ -94,12 +102,6 @@ interface partmgr {
 			given disk.
 			**>
 			UInt32 partition_number
-
-			<** @description:
-			The transaction ID to send back with the operation_result()
-			message that reports the outcome of the partition deletion.
-			**>
-			String transaction_id
 		}
 	}
 
@@ -110,6 +112,12 @@ interface partmgr {
 	**>
 	method resize_disk_partition {
 		in {
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the partition resizing.
+			**>
+			String transaction_id
+
 			<** @description:
 			The path to a disk to resize a partition on
 			**>
@@ -134,12 +142,6 @@ interface partmgr {
 			the disk sector size.
 			**>
 			UInt64 size
-			
-			<** @description:
-			The transaction ID to send back with the operation_result()
-			message that reports the outcome of the partition resizing.
-			**>
-			String transaction_id
 		}
 	}
 
@@ -151,6 +153,12 @@ interface partmgr {
 	**>
 	method write_disk_partition {
 		in {
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the partition write.
+			**>
+			String transaction_id
+
 			<** @description:
 			The device path to the disk to write an image to.
 			**>
@@ -166,14 +174,15 @@ interface partmgr {
 			A path to the local file system where the image
 			to write to the given partition can be found.
 			**>
-			String image
-			
+			String image_path
+
 			<** @description:
-			The transaction ID to send back with the operation_result()
-			message that reports the outcome of the partition write.
+			A list of SHA256 check sums of images (pointed out by
+			image_path) that are not to be installed
 			**>
-			String transaction_id
+			array blacklisted_partitions of String
 		}
+
 	}
 
 	<** 
@@ -183,6 +192,12 @@ interface partmgr {
 	**>
 	method patch_disk_partition {
 		in {
+			<** @description:
+			The transaction ID to send back with the operation_result()
+			message that reports the outcome of the partition patching.
+			**>
+			String transaction_id
+
 			<** @description:
 			The device path to the disk to patch.
 			**>
@@ -198,13 +213,13 @@ interface partmgr {
 			A path to the local file system where the binary
 			delta to apply to the partition can be found.
 			**>
-			String image
-			
+			String image_path
+
 			<** @description:
-			The transaction ID to send back with the operation_result()
-			message that reports the outcome of the partition patching.
+			A list of SHA256 check sums of binary delta files
+			(pointed out by image_path) that are not to be used
 			**>
-			String transaction_id
+			array blacklisted_partitions of String
 		}
 	}
 }
