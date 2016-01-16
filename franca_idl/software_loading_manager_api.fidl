@@ -19,66 +19,64 @@
 
 package org.genivi.swm
 
-
 <** @description: Error codes returned by operation_result.**>
-
 enumeration SWMResult {
 	<** @description: Operation executed successfully **>
-	SWM_RES_OK = "0",  
+	SWM_RES_OK = "0"  
 
 	<** @description: Operation has already been processed **>
-	SWM_RES_ALREADY_PROCESSED = "1",
+	SWM_RES_ALREADY_PROCESSED = "1"
 
 	<** @description: Dependency failure during package install, upgrade, or removal **>
-	SWM_RES_DEPENDENCY_FAILURE = "2",
+	SWM_RES_DEPENDENCY_FAILURE = "2"
 
 	<** @description: Update image integrity has been compromised **>
-	SWM_RES_VALIDATION_FAILED = "3",
+	SWM_RES_VALIDATION_FAILED = "3"
 
 	<** @description: Package installation failed **>
-	SWM_RES_INSTALL_FAILED = "4",
+	SWM_RES_INSTALL_FAILED = "4"
 
 	<** @description: Package upgrade failed **>
-	SWM_RES_UPGRADE_FAILED = "5",
+	SWM_RES_UPGRADE_FAILED = "5"
 
 	<** @description: Package removal failed **>
-	SWM_RES_REMOVAL_FAILED = "6",
+	SWM_RES_REMOVAL_FAILED = "6"
 
 	<** @description: The module loader could not flash its managed module **>
-	SWM_RES_FLASH_FAILED = "7",
+	SWM_RES_FLASH_FAILED = "7"
 
 	<** @description: Partition creation failed **>
-	SWM_RES_CREATE_PARTITION_FAILED = "8",
+	SWM_RES_CREATE_PARTITION_FAILED = "8"
 
 	<** @description: Partition deletion failed **>
-	SWM_RES_DELETE_PARTITION_FAILED = "9",
+	SWM_RES_DELETE_PARTITION_FAILED = "9"
 
 	<** @description: Partition resize failed **>
-	SWM_RES_RESIZE_PARTITION_FAILED = "10",
+	SWM_RES_RESIZE_PARTITION_FAILED = "10"
 
 	<** @description: Partition write failed **>
-	SWM_RES_WRITE_PARTITION_FAILED = "11",
+	SWM_RES_WRITE_PARTITION_FAILED = "11"
 
 	<** @description: Partition patching failed **>
-	SWM_RES_PATCH_PARTITION_FAILED = "12",
+	SWM_RES_PATCH_PARTITION_FAILED = "12"
 
 	<** @description: User declined the update **>
 	SWM_RES_USER_DECLINED = "13"
 	
 	<** @description: Software was blacklisted **>
-	SWM_RES_SOFTWARE_BLACKLISTED = "14",
+	SWM_RES_SOFTWARE_BLACKLISTED = "14"
 
 	<** @description: Ran out of disk space **>
-	SWM_RES_DISK_FULL = "15",
+	SWM_RES_DISK_FULL = "15"
 
 	<** @description: Software package not found **>
-	SWM_RES_NOT_FOUND = "16",
+	SWM_RES_NOT_FOUND = "16"
 
 	<** @description: Tried to downgrade to older version **>
-	SWM_RES_OLD_VERSION = "17",
+	SWM_RES_OLD_VERSION = "17"
 
 	<** @description: SWM Internal integrity error **>
-	SWM_RES_INTERNAL_ERROR = "18",
+	SWM_RES_INTERNAL_ERROR = "18"
 
 	<** @description: Other error **>
 	SWM_RES_GENERAL_ERROR = "19"
@@ -118,7 +116,7 @@ interface swlm {
 			<** @description:
 			Flag to indicate if a user confirmation of the package is required.
 			**>
-			Boolean user_confirmation
+			Boolean request_confirmation
 
 			<** @description: 
 			The size of the available update, in bytes.
@@ -140,16 +138,11 @@ interface swlm {
 	method download_complete {
 		in {
 			<** @description:
-			Package ID of downloaded update. 
-			Not currently used.
+			Path on the local file system to the squashfs image
+			containing the update
 			**>
-			String update_id
+			String update_image
 
-			<** @description: 
-			The absolute file name path in the local file system
-			to the downloaded update squashfs image.
-			**>
-			String image_path
 
 			<** @description: 
 			The RSA signature of the SHA256SUM digest of the
@@ -170,17 +163,15 @@ interface swlm {
 	method update_confirmation {
 		in {
 			<** @description: 
-			Original transaction ID provided as an argument to 
-			the update confirmation call to HMI that generated
-			this message.
+			Update_id originally provided by SWLM when it
+			invoked update_available() on HMI
 			**>
-			UInt32 transaction_id
+			UInt32 update_id
 
 			<** @description: 
-			Was the package confirmed or not?
-			FIXME: Third option: Remind me later?
+			Approved or declined
 			**>
-			Boolean confirmed
+			Boolean approved
 		}
 	}
 
@@ -273,7 +264,7 @@ interface swlm {
 		<** @description: 
 		The ID string of the installed package.
 		**>
-		String update_id
+		String package_id
 
 		<** @description: 
 		A symbolic name of the installed package

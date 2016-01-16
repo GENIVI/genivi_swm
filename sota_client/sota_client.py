@@ -178,7 +178,7 @@ try:
     # report will be sent back to SC and HMI.
     #
     swm.dbus_method('org.genivi.software_loading_manager', 'update_available',
-                    update_id, description, request_confirmation)
+                    update_id, description, signature, request_confirmation)
 
 
     active = True

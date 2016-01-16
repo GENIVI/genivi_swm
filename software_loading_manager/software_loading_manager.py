@@ -120,6 +120,7 @@ class SLMService(dbus.service.Object):
     def update_available(self, 
                          update_id, 
                          description, 
+                         signature,
                          request_confirmation,
                          send_reply,
                          send_error): 
@@ -272,7 +273,7 @@ class SLMService(dbus.service.Object):
 
 
     @dbus.service.method("org.genivi.software_loading_manager")
-    def get_installed_packages(self): 
+    def get_installed_packages(self, include_packegs, include_module_firmware): 
         print "Got get_installed_packages()"
         return [ "bluez_driver", "bluez_apps" ]
 
