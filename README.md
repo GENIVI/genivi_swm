@@ -117,7 +117,7 @@ LocMedMgr | Local Media Manager
     
 
 
-# RUNNING THE CODE
+# RUNNING THE CODE ON UBUNTU 14.10 AND 15.10
 
 ## Install python and add ons.
 
@@ -159,6 +159,9 @@ SWLM as it processes the manifest file.
 ## View installation report
 The installation report will be displayed both by SC and HMI.
 
+## Terminate demo
+In the window where ```start_swm.sh``` was executed, press enter or ctrl-c.
+
 ## Sota client usage.
 
 Usage:
@@ -169,11 +172,12 @@ Usage:
 
     -u update_id         Pacakage id string. Default: 'media_player_1_2_3'
     -i image_file        Path to update squashfs image.
-    -s signature         RSA encrypted sha256um of image_file.
+    -s signature         RSA encrypted sha256um of image_file. (Not currently used)
     -c                   Request user confirmation.
     -d description       Description of update.
 
 Example:
+
     export PYTHONPATH="${PWD}/common/
 	cd sota_client
     python sota_client.py -u boot_loader_2.10.9 -i boot_loader.img -s 2889ee...4db0ed22cdb8f4e -c
@@ -198,7 +202,10 @@ The resulting image, ```sample_update.upd``` is provided as an argument to
 
 # SYSTEM DESCRIPTION
 
-## SOTA Client - SC [sota\_client/sota_client.py] ##
+## SOTA Client - SC  [sota\_client/sota_client.py] ##
+
+*NOTE: The SOTA Client also acts as a Diagnostic Tools Manager since
+their use cases are identical*
 
 SC simulator, to be replaced by the real GENIVI Sota Client developed
 by Advanced Telematic Systems, is a command line tool that launches
