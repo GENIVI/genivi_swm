@@ -233,7 +233,7 @@ The SC simulator has the following features
    A separate use case allows the command line to request all currently installed
    packages in PkgMgr, PartMgr, or ML.
 
-## Software Loading Manager - SWLM [software\_loading\_manager/*.py,] ##
+## Software Loading Manager - SWLM [software\_loading\_manager/*.py] ##
 SWLM coordinates all use cases in SWM. SC Initiates these use cases
 through command line parameters
 
@@ -357,9 +357,11 @@ ML has the following features
 
 
 ## Lifecycle manager - LCMgr  [lifecycle\_manager/lifecycle_manager.py] ##
-LCMgr manager (to be replaced by systemd in production) simulates
-a system component that can start and stop software entitites that
-are about to be affected by an update operation.
+
+LCMgr manager (to be replaced by systemd and Node State Managerin
+production) simulates a system component that can start and stop
+software entitites that are about to be affected by an update
+operation.
 
 LCMgr has the following features.
 
@@ -372,5 +374,10 @@ ML has the following features
 2. **Stop components**<br>
    SWLM will send a start_component, which will simulate
    component(s) stop.
+
+3. **Reboot system**<br>
+   SWLM will send a reboot command, which will simulate
+   system reboot.
+
 
 
