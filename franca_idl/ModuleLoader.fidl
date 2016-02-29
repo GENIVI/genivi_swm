@@ -1,4 +1,4 @@
-// (c) 2015 - Jaguar Land Rover.
+// (c) 2015,2016 - Jaguar Land Rover.
 //
 // Mozilla Public License 2.0
 //
@@ -10,13 +10,14 @@
 //   no defined API. This FrancaIDL file only here to reflect
 //   the API implemented by the PoC code.
 //
-// Abbreviatioms:
+// Abbreviations:
 // SC - SOTA CLient
 // SWLM - Software Loading Manager
 // ML - Module Loader (one instance per external module)
 // PackMgr - Package Manager
 // PartMgr - Partition Manager
 // HMI - Human Machine Interface (IVI screen)
+// CEDM - Consumer Electronics Device Manager
 // LocMedMgr - Local Media Manager
 
 
@@ -27,7 +28,7 @@ Module Loader API.
 There will be one specific module loader component instance for 
 each external module that can be flashed by the system.
 **>
-interface ml {
+interface ModuleLoader {
 	version { major 1 minor 0 }
 
 	<** 
@@ -35,33 +36,33 @@ interface ml {
 	Flash a new firmware to the module managed
 	by the component.
 	**>
-	method flash_module_firmware {
+	method flashModuleFirmware {
 		in {
 			<** @description:
 			The transaction ID to send back with the operation_result()
 			message that reports the outcome of the firmware flashing.
 			**>
-			String transaction_id
+			String transactionId
 
 			<** @description:
 			A path to the local file system where the firwmare 
 			image to reflash the module can be found.
 			**>
-			String image_path
+			String imagePath
 			
 
 			<** @description:
-			A list of SHA256 check sums of firwmare
-			(pointed out by image_path) that are not to be flashed
+			A list of check sums, for example SHA256 of firmware images
+			(pointed to by imagePath) that are not to be flashed
 			**>
-			array blacklisted_firmware of String
+			array blacklistedFirmware of String
 			
 
 			<** @description:
 			Are we allowed to install an older version of the firmware
 			than the one currently installed?
 			**>
-			Boolean allow_downgrade
+			Boolean allowDowngrade
 		}
 	}
 
@@ -69,19 +70,19 @@ interface ml {
 	Retrieve information about the firmware running on the
 	external module controlled by the component.
 	**>
-	method get_module_firmware_version {
+	method getModuleFirmwareVersion {
 		out {
 			<** @description:
 			The version id string for the currently installed 
 			firmware.
 			**>
-			String firmware_id
+			String firmwareId
 
 			<** @description: 
 			The unix time stamp of when the module was flashed
 			with the given firmware version
 			**>
-			UInt64 last_modified
+			UInt64 lastModified
 		}
 	}
 }

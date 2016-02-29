@@ -1,4 +1,4 @@
-// (c) 2015 - Jaguar Land Rover.
+// (c) 2015,2016 - Jaguar Land Rover.
 //
 // Mozilla Public License 2.0
 //
@@ -13,15 +13,15 @@
 // PartMgr - Partition Manager
 // HMI - Human Machine Interface (IVI screen)
 // LocMedMgr - Local Media Manager
+// CEDM - Consumer Electronics Device Manager
 
-// FIXME: Enumerated update operation result codes
 
 package org.genivi.swm
 
 <** @description: 
 Software Over The Air Client API
 **>
-interface sc {
+interface SotaClient {
 	version { major 1 minor 0 }
 
 	<** 
@@ -30,14 +30,14 @@ interface sc {
 	as available through an update_available() call made from SC to
 	SWLM.
 	**>
-	method initiate_download {
+	method initiateDownload {
 		in {
 			<** @description:
 			ID of update to download. 
 			The value is provided by the update_available() call made from SC
 			to SWLM to announce the update availability.
 			**>
-			String update_id
+			String updateId
 		}
 	}
 
@@ -47,14 +47,14 @@ interface sc {
 	Invoked by SWLM in response to an error or an explicit
 	request sent by HMI to SWLM in response to a user abort.
 	**>
-	method abort_download {
+	method abortDownload {
 		in {
 			<** @description:
 			Package ID of update to abort..
-			The value was previously provided to a initiate_download() call 
+			The value was previously provided to a initiateDownload() call 
 			made from SWLM to SC.
 			**>
-			String update_id
+			String updateId
 		}
 	}
 
@@ -63,31 +63,31 @@ interface sc {
 	Receive an update report from SWLM with the processing result of all
 	bundled operations.
 	An update report message can either be sent in response
-	to an download_complete() message transmitted from SC to SWLM,
+	to an downloadComplete() message transmitted from SC to SWLM,
 	or be sent unsolicited by SWLM to SC 
 	**>
-	method update_report {
+	method updateReport {
 		in {
 			<** @description:
 			Package ID of update reported.
-			The value is provided by the update_available() call made from SC
+			The value is provided by the updateAvailable() call made from SC
 			to SWLM to announce the update availability.
 			**>
-			String update_id
+			String updateId
 
 			<** @description: 
 			A list of operation results. Each result is associated
 			with its original update manifest entry through the id 
 			field.
 			**>
-			array operations_results of OperationResult
+			array operationsResults of OperationResult
 		}
 	}
 
 
 	<** @description:
 	A single result of a software operation, included in an 
-	update_report().
+	updateReport().
 	**>
 	struct OperationResult {
 		<** @description: 
@@ -100,12 +100,12 @@ interface sc {
 		The result code reported by PackMgr, PartMgr, or ML
 		for the given operation.
 		**>
-		UInt32 result_code
+		SWMResult resultCode
 
 		<** @description: 
 		A descriptive result text reported by PackMgr, PartMgr, or ML
 		for the given operation.
 		**>
-		String result_text
+		String resultText
 	}
 }
