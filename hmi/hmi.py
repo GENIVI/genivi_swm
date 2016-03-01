@@ -83,30 +83,30 @@ class DisplayProgress(threading.Thread):
 #
 class HMIService(dbus.service.Object):
     def __init__(self):
-        bus_name = dbus.service.BusName('org.genivi.hmi', 
+        bus_name = dbus.service.BusName('org.genivi.Hmi', 
                                         bus=dbus.SessionBus())
 
-        dbus.service.Object.__init__(self, bus_name, '/org/genivi/hmi')
+        dbus.service.Object.__init__(self, bus_name, '/org/genivi/Hmi')
         self.progress_thread = DisplayProgress()
         self.progress_thread.start()
 
         
-    @dbus.service.method('org.genivi.hmi', 
+    @dbus.service.method('org.genivi.Hmi', 
                          async_callbacks=('send_reply', 'send_error'))
-    def update_notification(self, 
+    def updateNotification(self, 
                             update_id, 
                             description,
                             send_reply,
                             send_error): 
 
         try:
-            print "HMI:  update_notification()"
+            print "HMI:  updateNotification()"
             print "  ID:            {}".format(update_id)
             print "  description:   {}".format(description)
             print "---"
 
             #
-            # Send back an async reply to the invoking software_loading_manager
+            # Send back an async reply to the invoking SoftwareLoadingManager
             # so that we can continue with user interaction without
             # risking a DBUS timeout
             #
@@ -136,10 +136,10 @@ class HMIService(dbus.service.Object):
                 approved = True
 
             #
-            # Call software_loading_manager.package_confirmation() 
+            # Call SoftwareLoadingManager.package_confirmation() 
             # to inform it of user approval / decline.
             #
-            swm.dbus_method('org.genivi.software_loading_manager','update_confirmation', update_id, approved)
+            swm.dbus_method('org.genivi.SoftwareLoadingManager','updateConfirmation', update_id, approved)
 
         except Exception as e:
             print "Exception: {}".format(e)
@@ -148,9 +148,9 @@ class HMIService(dbus.service.Object):
         return None
         
 
-    @dbus.service.method('org.genivi.hmi', 
+    @dbus.service.method('org.genivi.Hmi', 
                          async_callbacks=('send_reply', 'send_error'))
-    def manifest_started(self,
+    def manifestStarted(self,
                          update_id, 
                          total_time_estimate,
                          description,
@@ -171,9 +171,9 @@ class HMIService(dbus.service.Object):
 
         return None
     
-    @dbus.service.method('org.genivi.hmi', 
+    @dbus.service.method('org.genivi.Hmi', 
                          async_callbacks=('send_reply', 'send_error'))
-    def operation_started(self,
+    def operationStarted(self,
                           operation_id, 
                           time_estimate,
                           description,
@@ -190,9 +190,9 @@ class HMIService(dbus.service.Object):
             traceback.print_exc()
         return None
     
-    @dbus.service.method('org.genivi.hmi', 
+    @dbus.service.method('org.genivi.Hmi', 
                          async_callbacks=('send_reply', 'send_error'))
-    def update_report(self,
+    def updateReport(self,
                       update_id, 
                       results,
                       send_reply,

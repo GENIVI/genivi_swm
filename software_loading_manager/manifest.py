@@ -102,7 +102,7 @@ class Manifest:
                     # Add the result code for the given operation id
                     self.operation_results.append(
                         swm.result(op_id,
-                                   swm.SWM_RES_ALREADY_PROCESSED,
+                                   swm.SWMResult.SWM_RES_ALREADY_PROCESSED,
                                    "Operation already processed")
                         )
 
@@ -118,7 +118,7 @@ class Manifest:
                 # itself correctly.
                 try:
                     op_obj = software_operation.SoftwareOperation(self, op)
-                except OperationException as e:
+                except Exception as e:
                     print "Could not process softare operation {}: {}\nSkipped".format(op_id, e)
                     return False
 

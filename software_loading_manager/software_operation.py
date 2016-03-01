@@ -18,64 +18,64 @@ import swm
 class SoftwareOperation:
     def __init__(self, manifest, op_obj):
         self.operation_descriptor = {
-            'install_package': (
+            'installPackage': (
                 # Path to DBUS and object. 
-            "org.genivi.package_manager",
+            "org.genivi.PackageManager",
 
             # Method to call
-            "install_package",
-            # Elements to extract fron software operations object and to
+            "installPackage",
+            # Elements to extract from software operations object and to
             # provide as DBUS call arguments.
-            # Second element in tupe is default value. None -> Mandatory 
+            # Second element in tuple is default value. None -> Mandatory 
             [ ("image", None),
-              ("blacklisted_packages", dbus.Array(manifest.blacklisted_packages, "s"))
+              ("blacklistedPackages", dbus.Array(manifest.blacklisted_packages, "s"))
 
             ]),
 
-        'upgrade_package': ( "org.genivi.package_manager",
-                             "upgrade_package",
+        'upgradePackage': ( "org.genivi.PackageManager",
+                             "upgradePackage",
                              [ ("image", None),
                                ("blacklisted_packages", dbus.Array(manifest.blacklisted_packages, "s")),
                                ("allow_downgrade", manifest.allow_downgrade)
                              ]),
 
-        'remove_package': ( "org.genivi.package_manager",
-                            "remove_package",
+        'removePackage': ( "org.genivi.PackageManager",
+                            "removePackage",
                             [ ("package_id", None) ]),
 
-        'start_components': ( "org.genivi.lifecycle_manager",
-                              "start_components",
+        'startComponents': ( "org.genivi.LifecycleManager",
+                              "startComponents",
                               [ ("components", None) ]),
 
-        'stop_components': ( "org.genivi.lifecycle_manager",
-                             "stop_components",
+        'stopComponents': ( "org.genivi.LifecycleManager",
+                             "stopComponents",
                              [ ("components", None) ]),
 
-        'reboot': ( "org.genivi.lifecycle_manager",
+        'reboot': ( "org.genivi.LifecycleManager",
                     "reboot",
-                    [ ("boot_parameters", "") ]),
+                    [ ("bootParameters", "") ]),
 
-        'create_disk_partition': ( "org.genivi.partition_manager",
-                                   "create_disk_partition",
+        'createDiskPartition': ( "org.genivi.PartitionManager",
+                                   "createDiskPartition",
                                    [ ("disk", None), ("partition_number", None),
                                      ("type", None), ("start", None), ("size", None),
                                      ("guid", ""), ("name", "") ]),
             
-        'resize_disk_partition': ( "org.genivi.partition_manager", "resize_disk_partition",
+        'resizeDiskPartition': ( "org.genivi.PartitionManager", "resizeDiskPartition",
                                    [ ("disk", None), ("partition_number", None),
                                      ("start", None), ("size", None) ]),
 
-        'delete_disk_partition': ( "org.genivi.partition_manager", "delete_disk_partition",
+        'deleteDiskPartition': ( "org.genivi.PartitionManager", "deleteDiskPartition",
                                    [ ("disk", None), ("partition_number", None) ]),
 
 
-        'write_disk_partition': ( "org.genivi.partition_manager", "write_disk_partition",
+        'writeDiskPartition': ( "org.genivi.PartitionManager", "writeDiskPartition",
                                   [ ("disk", None), ("partition_number", None),
                                     ("image", None),
                                     ("blacklisted_partitions", dbus.Array(manifest.blacklisted_partitions, "s"))
         ]),
         
-        'patch_disk_partition': ( "org.genivi.partition_manager", "patch_disk_partition",
+        'patchDiskPartition': ( "org.genivi.PartitionManager", "patchDiskPartition",
                                   [ ("disk", None), ("partition_number", None),
                                     ("image", None),
                                     ("blacklisted_partitions", dbus.Array(manifest.blacklisted_partitions, "s"))
@@ -86,14 +86,14 @@ class SoftwareOperation:
         #        org.genivi.module_loader needs to be replaced
         #        by org.genivi.module_loader_ecu1
         #        This should be done programmatically
-        'flash_module_firmware_ecu1': ( "org.genivi.module_loader_ecu1", "flash_module_firmware",
+        'flashModuleFirmwareEcu1': ( "org.genivi.ModuleLoaderEcu1", "flashModuleFirmware",
                                         [ ("image", None),
                                           ("blacklisted_firmware", dbus.Array(manifest.blacklisted_firmware, "s")),
                                           ("allow_downgrade", manifest.allow_downgrade)
                                         ])
         }
 
-        print "  SoftwareOperation(): Called"
+        print "  SoftwareOperation(): Called: {}".format(op_obj)
         # Retrieve unique id for sofware operation
         if not 'id' in op_obj:
             raise Exception("SoftwareOperation(): 'id' not defined in: {}".format(op_obj))
@@ -102,6 +102,7 @@ class SoftwareOperation:
         self.arguments = []
         self.time_estimate = op_obj.get('time_estimate', 0)
         self.description = op_obj.get('description', '')
+        self.hmi_message = op_obj.get('hmi_message', '')
         self.on_failure = op_obj.get('on_failure', 'continue')
         
         # Retrieve operation
