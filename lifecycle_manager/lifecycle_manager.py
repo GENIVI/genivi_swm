@@ -19,20 +19,20 @@ import swm
 #
 class LCMgrService(dbus.service.Object):
     def __init__(self):
-        bus_name = dbus.service.BusName('org.genivi.lifecycle_manager', dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, '/org/genivi/lifecycle_manager')
+        bus_name = dbus.service.BusName('org.genivi.LifecycleManager', dbus.SessionBus())
+        dbus.service.Object.__init__(self, bus_name, '/org/genivi/LifecycleManager')
 
 
-    @dbus.service.method('org.genivi.lifecycle_manager',
+    @dbus.service.method('org.genivi.LifecycleManager',
                          async_callbacks=('send_reply', 'send_error'))
 
-    def start_components(self, 
+    def startComponents(self, 
                          transaction_id,
                          components,
                          send_reply, 
                          send_error):
 
-        print "Lifecycle Manager: Got start_components()"
+        print "Lifecycle Manager: Got startComponents()"
         print "  Operation Transaction ID: {}".format(transaction_id)
         print "  Components:               {}".format(", ".join(components))
         print "---"
@@ -52,21 +52,21 @@ class LCMgrService(dbus.service.Object):
         print  
         print "Done"
         swm.send_operation_result(transaction_id,
-                                  swm.SWM_RES_OK,
+                                  swm.SWMResult.SWM_RES_OK,
                                   "Started components {}".format(", ".join(components)))
         return None
  
                                  
-    @dbus.service.method('org.genivi.lifecycle_manager',
+    @dbus.service.method('org.genivi.LifecycleManager',
                          async_callbacks=('send_reply', 'send_error'))
 
-    def stop_components(self, 
+    def stopComponents(self, 
                         transaction_id,
                         components,
                         send_reply, 
                         send_error): 
 
-        print "Lifecycle Manager: Got stop_components()"
+        print "Lifecycle Manager: Got stopComponents()"
         print "  Operation Transaction ID: {}".format(transaction_id)
         print "  Components:               {}".format(", ".join(components))
         print "---"
@@ -86,7 +86,7 @@ class LCMgrService(dbus.service.Object):
         print  
         print "Done"
         swm.send_operation_result(transaction_id,
-                                  swm.SWM_RES_OK,
+                                  swm.SWMResult.SWM_RES_OK,
                                   "Stopped components {}".format(", ".join(components)))
         
         return None

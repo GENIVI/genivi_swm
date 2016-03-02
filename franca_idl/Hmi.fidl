@@ -1,27 +1,27 @@
-// (c) 2015 - Jaguar Land Rover.
+// (c) 2015,2016 - Jaguar Land Rover.
 //
 // Mozilla Public License 2.0
 //
 // GENIVI Software Management IDL
 //
 
-// Abbreviatioms:
+// Abbreviations:
 // SC - SOTA CLient
 // SWLM - Software Loading Manager
 // ML - Module Loader (one instance per external module)
 // PackMgr - Package Manager
 // PartMgr - Partition Manager
 // HMI - Human Machine Interface (IVI screen)
+// CEDM - Consumer Electronics Device Manager
 // LocMedMgr - Local Media Manager
 
-// FIXME: Enumerated update operation result codes
 
 package org.genivi.swm
 
 <** @description: 
 HMI External component API
 **>
-interface hmi {
+interface Hmi {
 	version { major 1 minor 0 }
 
 	<** 
@@ -30,13 +30,13 @@ interface hmi {
 	an update that needs user approval. The result of the user approval/decline
 	is sent back to SWLM using its update_confirmation() method.
 	**>
-	method update_notification {
+	method updateNotification {
 		in {
 			<** @description:
 			The manifest's update_id entry, uniquely identifying
 			this update.
 			**>
-			String update_id
+			String updateId
 
 			<** @description:
 			A descriptive text to be shown on the HMI, explaining what
@@ -54,13 +54,13 @@ interface hmi {
 	call, depending on if a user confirmation was requested for the 
 	update.
 	**>
-	method manifest_started {
+	method manifestStarted {
 		in {
 			<** @description:
-			The manifest's update_id entry, uniquely identifying
+			The manifest's updateId entry, uniquely identifying
 			this update.
 			**>
-			String update_id
+			String updateId
 
 			<** @description:
 			The estimated time, in milliseconds, it will take to
@@ -69,7 +69,7 @@ interface hmi {
 			The value is calculated in SWLM by summing up the time
 			estimate of all software opreations in the manifest.
 			**>
-			Int32 total_time_estimate
+			Int32 totalTimeEstimate
 
 			<** @description:
 			A descriptive text to be shown on the HMI for the duration
@@ -84,22 +84,22 @@ interface hmi {
 	Invoked by SWLM to notify the HMI (and the user) that the
 	processing of a software operation inside an update has started.
 
-	The given update, identified by update_id, will have reported
-	earlier through an manifest_started() call.
+	The given update, identified by updateId, will have reported
+	earlier through an manifestStarted() call.
 	**>
-	method operation_started {
+	method operationStarted {
 		in {
 			<** @description:
 			The unique software operation ID, as retrieved from the
 			manifest.
 			**>
-			String operation_id
+			String operationId
 
 			<** @description:
 			The estimated time it will take to execute this specific
 			software operation.	Given in milliseonds.
 			**>
-			Int32 time_estimate
+			Int32 timeEstimate
 
 			<** @description:
 			A message to show on the HMI for the duration of the
@@ -114,24 +114,24 @@ interface hmi {
 	Receive an update report from SWLM with the processing result of all
 	bundled operations.
 	An update report message can either be sent in response
-	to an download_complete() message transmitted from SC to SWLM,
+	to an downloadComplete() message transmitted from SC to SWLM,
 	or be sent unsolicited by SWLM to HMI 
 	**>
-	method update_report {
+	method updateReport {
 		in {
 			<** @description:
 			Update ID of update reported.
 			The value is provided by the update_available() call made from SC
 			to SWLM to announce the update availability.
 			**>
-			String update_id
+			String updateId
 
 			<** @description: 
 			A list of operation results. Each result is associated
 			with its original update manifest entry through the id 
 			field.
 			**>
-			array operations_results of OperationResult
+			array operationResults of OperationResult
 		}
 	}
 }

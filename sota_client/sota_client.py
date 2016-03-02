@@ -22,6 +22,7 @@ description='Media Player Update'
 signature='d2889ee6bc1fe1f3d7c5cdaca78384776bf437b7c6ca4db0e2c8b1d22cdb8f4e'
 update_file=''
 active=True
+
 class SOTAClientService(dbus.service.Object):
     def __init__(self, image_file, signature):
 
@@ -32,17 +33,17 @@ class SOTAClientService(dbus.service.Object):
         self.signature = signature
 
         # Define our own bus name
-        bus_name = dbus.service.BusName('org.genivi.sota_client', bus=dbus.SessionBus())
+        bus_name = dbus.service.BusName('org.genivi.SotaClient', bus=dbus.SessionBus())
 
         # Define our own object on the sota_client bus
-        dbus.service.Object.__init__(self, bus_name, '/org/genivi/sota_client')
+        dbus.service.Object.__init__(self, bus_name, '/org/genivi/SotaClient')
 
 
 
-    @dbus.service.method('org.genivi.sota_client',
+    @dbus.service.method('org.genivi.SotaClient',
                          async_callbacks=('send_reply', 'send_error'))
 
-    def initiate_download(self, 
+    def initiateDownload(self, 
                           update_id,
                           send_reply,
                           send_error): 
@@ -52,7 +53,7 @@ class SOTAClientService(dbus.service.Object):
         global description
         global vendor
         global path
-        print "Got initiate_download"
+        print "Got initiateDownload"
         print "  ID:     {}".format(update_id)
         print "---"
 
@@ -71,11 +72,11 @@ class SOTAClientService(dbus.service.Object):
         print 
         print "Done."
 
-        swm.dbus_method('org.genivi.software_loading_manager', 'download_complete', self.image_file, self.signature)
+        swm.dbus_method('org.genivi.SoftwareLoadingManager', 'downloadComplete', self.image_file, self.signature)
         return None
     
-    @dbus.service.method('org.genivi.sota_client')
-    def update_report(self,
+    @dbus.service.method('org.genivi.SotaClient')
+    def updateReport(self,
                       update_id, 
                       results):
         global active
@@ -177,7 +178,7 @@ try:
     # Once the update has been processed by SLM, an update operation
     # report will be sent back to SC and HMI.
     #
-    swm.dbus_method('org.genivi.software_loading_manager', 'update_available',
+    swm.dbus_method('org.genivi.SoftwareLoadingManager', 'updateAvailable',
                     update_id, description, signature, request_confirmation)
 
 

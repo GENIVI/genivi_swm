@@ -19,13 +19,13 @@ import swm
 #
 class PartMgrService(dbus.service.Object):
     def __init__(self):
-        bus_name = dbus.service.BusName('org.genivi.partition_manager', bus=dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, '/org/genivi/partition_manager')
+        bus_name = dbus.service.BusName('org.genivi.PartitionManager', bus=dbus.SessionBus())
+        dbus.service.Object.__init__(self, bus_name, '/org/genivi/PartitionManager')
 
 
-    @dbus.service.method('org.genivi.partition_manager',
+    @dbus.service.method('org.genivi.PartitionManager',
                          async_callbacks=('send_reply', 'send_error'))
-    def create_disk_partition(self, 
+    def createDiskPartition(self, 
                               transaction_id,
                               disk,
                               partition_number,
@@ -37,7 +37,7 @@ class PartMgrService(dbus.service.Object):
                               send_reply, 
                               send_error): 
 
-        print "Partition Manager: create_disk_partition()"
+        print "Partition Manager: createDiskPartition()"
         print "  Operfation Transaction ID: {}".format(transaction_id)
         print "  Disk:                      {}".format(disk)
         print "  Partition Number:          {}".format(partition_number)
@@ -64,15 +64,15 @@ class PartMgrService(dbus.service.Object):
         print  
         print "Done"
         swm.send_operation_result(transaction_id,
-                                  swm.SWM_RES_OK,
+                                  swm.SWMResult.SWM_RES_OK,
                                   "Partition create successful. Disk: {}:{}".format(disk, partition_number))
 
         return None
                  
 
-    @dbus.service.method('org.genivi.partition_manager',
+    @dbus.service.method('org.genivi.PartitionManager',
                          async_callbacks=('send_reply', 'send_error'))
-    def resize_disk_partition(self, 
+    def resizeDiskPartition(self, 
                               transaction_id,
                               disk,
                               partition_number,
@@ -81,7 +81,7 @@ class PartMgrService(dbus.service.Object):
                               send_reply, 
                               send_error): 
 
-        print "Partition Manager: resize_disk_partition()"
+        print "Partition Manager: resizeDiskPartition()"
         print "  Operfation Transaction ID: {}".format(transaction_id)
         print "  Disk:                      {}".format(disk)
         print "  Partition Number:          {}".format(partition_number)
@@ -105,21 +105,21 @@ class PartMgrService(dbus.service.Object):
         print  
         print "Done"
         swm.send_operation_result(transaction_id,
-                                   swm.SWM_RES_OK,
+                                   swm.SWMResult.SWM_RES_OK,
                                    "Partition resize success. Disk: {}:{}".format(disk, partition_number))
         return None
 
 
-    @dbus.service.method('org.genivi.partition_manager',
+    @dbus.service.method('org.genivi.PartitionManager',
                          async_callbacks=('send_reply', 'send_error'))
-    def delete_disk_partition(self, 
+    def deleteDiskPartition(self, 
                               transaction_id,
                               disk,
                               send_reply, 
                               send_error): 
 
-        print "Partition Manager: delete_disk_partition()"
-        print "  Operfation Transaction ID: {}".format(transaction_id)
+        print "Partition Manager: deleteDiskPartition()"
+        print "  Operation Transaction ID: {}".format(transaction_id)
         print "  Disk:                      {}".format(disk)
         print "  Partition Number:          {}".format(partition_number)
         print "---"
@@ -140,15 +140,15 @@ class PartMgrService(dbus.service.Object):
         print  
         print "Done"
         swm.send_operation_result(transaction_id,
-                                   swm.SWM_RES_OK,
+                                   swm.SWMResult.SWM_RES_OK,
                                    "Partition delete success. Disk: {}:{}".format(disk, partition_number))
 
         return None
 
 
-    @dbus.service.method('org.genivi.partition_manager',
+    @dbus.service.method('org.genivi.PartitionManager',
                          async_callbacks=('send_reply', 'send_error'))
-    def write_disk_partition(self, 
+    def writeDiskPartition(self, 
                              transaction_id,
                              disk,
                              partition_number,
@@ -157,7 +157,7 @@ class PartMgrService(dbus.service.Object):
                              send_reply, 
                              send_error): 
 
-        print "Partition Manager: write_disk_partition()"
+        print "Partition Manager: writeDiskPartition()"
         print "  Operfation Transaction ID: {}".format(transaction_id)
         print "  Disk:                      {}".format(disk)
         print "  Partition Number:          {}".format(partition_number)
@@ -173,7 +173,7 @@ class PartMgrService(dbus.service.Object):
         send_reply(True)
 
         # Simulate write
-        print "Writing partition: disk({}) partiton({}) (10 sec)".format(disk, partition_number)
+        print "Writing partition: disk({}) partition({}) (10 sec)".format(disk, partition_number)
         for i in xrange(1,50):
             sys.stdout.write('.')
             sys.stdout.flush()
@@ -181,16 +181,16 @@ class PartMgrService(dbus.service.Object):
         print  
         print "Done"
         swm.send_operation_result(transaction_id,
-                                  swm.SWM_RES_OK,
+                                  swm.SWMResult.SWM_RES_OK,
                                   "Partition write success. Disk: {}:{} Image: {}".
                                   format(disk, partition_number, image_path))
 
         return None
                  
 
-    @dbus.service.method('org.genivi.partition_manager',
+    @dbus.service.method('org.genivi.PartitionManager',
                          async_callbacks=('send_reply', 'send_error'))
-    def patch_disk_partition(self, 
+    def patchDiskPartition(self, 
                              transaction_id,
                              disk,
                              partition_number,
@@ -199,7 +199,7 @@ class PartMgrService(dbus.service.Object):
                              send_reply, 
                              send_error): 
 
-        print "Partition Manager: patch_disk_partition()"
+        print "Partition Manager: patchDiskPartition()"
         print "  Operfation Transaction ID: {}".format(transaction_id)
         print "  Disk:                      {}".format(disk)
         print "  Partition Number:          {}".format(partition_number)
@@ -223,7 +223,7 @@ class PartMgrService(dbus.service.Object):
         print  
         print "Done"
         swm.send_operation_result(transaction_id,
-                                  swm.SWM_RES_OK,
+                                  swm.SWMResult.SWM_RES_OK,
                                   "Partition patch success. Disk: {}:{} Image: {}".
                                   format(disk, partition_number, image_path))
         return None

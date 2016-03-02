@@ -10,7 +10,7 @@
 			"id": "b9e3865e-9d35-11e5-b235-eb755e788c52",
 			"hmi_message": "Stopping media player.",
 			"time_estimate":  3000,
-			"operation": "stop_components",
+			"operation": "stopComponents",
 			"components": [ "media_player" ],
 			"on_failure": "continue"
 		},
@@ -18,7 +18,7 @@
 			"id": "b9e3865e-9d35-11e5-b235-eb755e788c53",
 			"hmi_message": "Deleting old media player.",
 			"time_estimate": 5000,
-			"operation": "remove_package",
+			"operation": "removePackage",
 			"package_id": "old_media_player",
 			"on_failure": "continue"
 		},
@@ -26,7 +26,7 @@
 			"id": "d1c96216-9d35-11e5-a00b-57f2b4f03098",
 			"hmi_message": "Installing new media player.",
 			"time_estimate": 5000,
-			"operation": "install_package",
+			"operation": "installPackage",
 			"image": "packages/media_player.pkg",
 			"on_failure": "abort"
 		},
@@ -34,7 +34,7 @@
 			"id": "b9e3865e-9d35-11e5-b235-eb755e788c54",
 			"hmi_message": "Starting media player.",
 			"time_estimate": 3000,
-			"operation": "start_components",
+			"operation": "startComponents",
 			"components": [ "media_player" ],
 			"on_failure": "continue"
 		},
@@ -42,7 +42,7 @@
 			"id": "df7e5ba0-9d35-11e5-bcea-8b5024045531",
 			"hmi_message": "Reflashing amplifier software.",
 			"time_estimate": 5000,
-			"operation": "flash_module_firmware_ecu1",
+			"operation": "flashModuleFirmwareEcu1",
 			"image": "images/ecu1.img",
 			"on_failure": "continue"
 		},
@@ -50,7 +50,7 @@
 			"id": "df7e5ba0-9d35-11e5-bcea-8b5024045532",
 			"hmi_message": "Writing disk partition.",
 			"time_estimate": 10000,
-			"operation": "write_disk_partition",
+			"operation": "writeDiskPartition",
 			"image": "images/data.part",
 			"disk": "/dev/sdd",
 			"partition_number": 1,

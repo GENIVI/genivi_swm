@@ -19,13 +19,13 @@ import swm
 #
 class ECU1ModuleLoaderService(dbus.service.Object):
     def __init__(self):
-        bus_name = dbus.service.BusName('org.genivi.module_loader_ecu1', bus=dbus.SessionBus())
-        dbus.service.Object.__init__(self, bus_name, '/org/genivi/module_loader_ecu1')
+        bus_name = dbus.service.BusName('org.genivi.ModuleLoaderEcu1', bus=dbus.SessionBus())
+        dbus.service.Object.__init__(self, bus_name, '/org/genivi/ModuleLoaderEcu1')
 
-    @dbus.service.method('org.genivi.module_loader_ecu1',
+    @dbus.service.method('org.genivi.ModuleLoaderEcu1',
                          async_callbacks=('send_reply', 'send_error'))
 
-    def flash_module_firmware(self, 
+    def flashModuleFirmware(self, 
                               transaction_id, 
                               image_path,
                               blacklisted_firmware,
@@ -34,7 +34,7 @@ class ECU1ModuleLoaderService(dbus.service.Object):
                               send_error): 
 
 
-        print "Package Manager: Got flash_module_firmware()"
+        print "Package Manager: Got flashModuleFirmware()"
         print "  Operation Transaction ID: {}".format(transaction_id)
         print "  Image Path:               {}".format(image_path)
         print "  Blacklisted firmware:     {}".format(blacklisted_firmware)
@@ -56,14 +56,14 @@ class ECU1ModuleLoaderService(dbus.service.Object):
         print  
         print "Done"
         swm.send_operation_result(transaction_id,
-                                  swm.SWM_RES_OK,
+                                  swm.SWMResult.SWM_RES_OK,
                                   "Firmware flashing successful for ecu1. Path: {}".format(image_path))
 
         return None
         
-    @dbus.service.method('org.genivi.module_loader_ecu1')
-    def get_module_firmware_version(self): 
-        print "Got get_installed_packages()"
+    @dbus.service.method('org.genivi.moduleLoaderEcu1')
+    def getModuleFirmwareVersion(self): 
+        print "Got getModuleFirmwareVersion()"
         return ("ecu1_firmware_1.2.3", 1452904544)
                  
 print 

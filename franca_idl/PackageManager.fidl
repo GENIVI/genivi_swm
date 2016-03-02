@@ -1,27 +1,27 @@
-// (c) 2015 - Jaguar Land Rover.
+// (c) 2015,2016 - Jaguar Land Rover.
 //
 // Mozilla Public License 2.0
 //
 // GENIVI Software Management IDL
 //
 
-// Abbreviatioms:
+// Abbreviations:
 // SC - SOTA CLient
 // SWLM - Software Loading Manager
 // ML - Module Loader (one instance per external module)
 // PackMgr - Package Manager
 // PartMgr - Partition Manager
 // HMI - Human Machine Interface (IVI screen)
+// CEDM - Consumer Electronics Device Manager
 // LocMedMgr - Local Media Manager
 
-// FIXME: Enumerated update operation result codes
 
 package org.genivi.swm
 
 <** @description: 
 Package Manager API
 **>
-interface packmgr {
+interface PackageManager {
 	version { major 1 minor 0 }
 
 	<** 
@@ -29,24 +29,24 @@ interface packmgr {
 	Start the installation of a package using an image available
 	on local storage.
 	**>
-	method install_package {
+	method installPackage {
 		in {
 			<** @description:
 			The transaction ID to send back with the operation_result()
 			message that reports the outcome of the package installation.
 			**>
-			String transaction_id
+			String transactionId
 
 			<** @description:
 			The local file system path to the image to be forwarded
 			to the native package manager for installation
 			**>
-			String image_path
+			String imagePath
 
 			<** @description:
 			A list of package IDs that are not to be installed
 			**>
-			array blacklisted_packages of String
+			array blacklistedPackages of String
 		}
 
 	}
@@ -55,13 +55,13 @@ interface packmgr {
 	@description: 
 	Start the upgrade of a previously installed package
 	**>
-	method upgrade_package {
+	method upgradePackage {
 		in {
 			<** @description:
 			The transaction ID to send back with the operation_result()
 			message that reports the outcome of the package installation.
 			**>
-			String transaction_id
+			String transactionId
 
 			<** @description:
 			The local file system path to the image to be forwarded
@@ -72,13 +72,13 @@ interface packmgr {
 			<** @description:
 			A list of package IDs that are not to be installed
 			**>
-			array blacklisted_packages of String
+			array blacklistedPackages of String
 
 			<** @description:
 			Are we allowed to install an older version of the package
 			than the one currently installed?
 			**>
-			Boolean allow_downgrade
+			Boolean allowDowngrade
 		}
 	}
 
@@ -86,25 +86,25 @@ interface packmgr {
 	@description: 
 	Start the removal of a previously installed package
 	**>
-	method remove_package {
+	method removePackage {
 		in {
 			<** @description:
 			The transaction ID to send back with the operation_result()
 			message that reports the outcome of the package removal.
 			**>
-			String transaction_id
+			String transactionId
 
 			<** @description:
 			The id of the package to remove.
 			**>
-			String package_id
+			String packageId
 		}
 	}
 
 	<** @description:
 	Retrieve all installed packages.
 	**>
-	method get_installed_packages {
+	method getInstalledPackages {
 		out {
 			<** @description: 
 			All installed packages. 
@@ -112,35 +112,7 @@ interface packmgr {
 			FIXME: Move InstalledPackage struct to include file?
 
 			**>
-			array installed_packages of InstalledPackage
+			array installedPackages of InstalledPackage
 		}
 	}
-	
-	<** @description:
-	A single element inside the list of packages returned by the
-	get_installed_packages method.
-	**>
-	struct InstalledPackage {
-		<** @description: 
-		The ID string of the installed package.
-		**>
-		String package_id
-
-		<** @description: 
-		A symbolic name of the installed package
-		**>
-		String name
-
-		<** @description: 
-		A descriptive text of the installed package
-		**>
-		String description
-
-		<** @description: 
-		The unix time stamp of when the package was installed
-		or last updated.
-		**>
-		UInt64 last_modified
-	}
-
 }
