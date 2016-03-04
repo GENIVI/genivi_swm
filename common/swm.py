@@ -1,4 +1,4 @@
-# (c) 2015 - Jaguar Land Rover.
+# (c) 2015,2016 - Jaguar Land Rover.
 #
 # Mozilla Public License 2.0
 
@@ -7,6 +7,11 @@
 #
 import dbus
 import traceback
+import settings
+import logging
+
+logger = logging.getLogger(settings.LOGGER)
+
 
 # enum implementation not official until Python 3.4
 class SWMResult():
@@ -55,8 +60,7 @@ def dbus_method(path, method, *arguments):
         remote_method = obj.get_dbus_method(method, path)
         remote_method(*arguments)
     except Exception as e:
-        print "dbus_method({}, {}): Exception: {}".format(e, path, method)
-        traceback.print_exc()
+        logger.error('common.swm: dbus_method(%s, %s): Exception: %s', path, method, e)
 
     return None
 

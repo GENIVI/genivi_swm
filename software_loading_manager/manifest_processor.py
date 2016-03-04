@@ -1,4 +1,4 @@
-# (c) 2015 - Jaguar Land Rover.
+# (c) 2015,2016 - Jaguar Land Rover.
 #
 # Mozilla Public License 2.0
 #
@@ -12,6 +12,10 @@ import subprocess
 import dbus
 from collections import deque
 import manifest
+import settings
+import logging
+
+logger = logging.getLogger(settings.LOGGER)
 
     
 #
@@ -47,8 +51,8 @@ class ManifestProcessor:
         self.operation_results = []
 
         self.current_manifest = None
-
         self.mount_point = None
+        self.manifest_file = None
 
         try:
             ifile = open(storage_fname, "r")
@@ -62,11 +66,11 @@ class ManifestProcessor:
         ifile.close()
 
     def queue_image(self, image_path):
-        print "ManifestProcessor:queue_image({}): Called".format(image_path)
+        logger.debug('SoftwareLoadingManager.ManifestProcessor.queue_image(%s): Called.', image_path)
         self.image_queue.appendleft(image_path)
 
     def add_completed_operation(self, operation_id):
-        print "ManifestProcessor.add_completed_operation({})".format(operation_id)
+        logger.debug('SoftwareLoadingManager.ManifestProcessor.add_completed_operation(%s): Called.', operation_id)
         self.completed.append(operation_id)
         # Slow, but we don't care.
         ofile = open(self.storage_fname, "w")
@@ -92,69 +96,71 @@ class ManifestProcessor:
         #
         # Do we have any nore images to process?
         #
-        print "ManifestProcessor:load_next_manifest(): Called"
+        logger.debug('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Called.')
 
         #
         # Unmount previous mount point
         #
         if self.mount_point:
             try:
-                subprocess.check_call(["/bin/umount", self.mount_point ])
-
+                command = [settings.SQUASHFS_UNMOUNT_CMD, self.mount_point]
+                if settings.SQUASHFS_UNMOUNT_ARGS:
+                    command.insert(1, settings.SQUASHFS_UNMOUNT_ARGS) 
+                subprocess.check_call(command)
             except subprocess.CalledProcessError:
-                print "Failed to unmount {}: {}".format(self.mount_point,
-                                                        subprocess.CalledProcessError.returncode)
+                logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed to unmount %s: %s.',
+                             self.mount_point, subprocess.CalledProcessError.returncode)
         self.mount_point = None
         self.current_manifest = None
         
         if len(self.image_queue) == 0:
-            print "ManifestProcessor:load_next_manifest(): Image queue is empty"
+            logger.debug('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Image queue is empty.')
             return False
+        logger.debug('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Manifests in queue: %s.', len(self.image_queue))
 
-        print "ManifestProcessor:load_next_manifest(): #{}".format(len(self.image_queue))
         image_path = self.image_queue.pop()
-        print "Will process update image: {}".format(image_path)
+        logger.debug('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Processing update image: %s.', image_path)
 
         # Mount the file system
         self.mount_point = "/tmp/swlm/{}".format(os.getpid())
-        print "Will create mount point: {}".format(self.mount_point)
-    
+        logger.debug('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Creating mount point: %s.', self.mount_point)
         try:
             os.makedirs(self.mount_point)
-        except os.OSError as e:
-            print "Failed to create {}: {}".format(self.mount_point, e)
+        except OSError as e:
+            logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed creating mount point %s: %s.', self.mount_point, e)
             pass
         
         try:
-            subprocess.check_call(["/bin/mount", image_path, self.mount_point ])
+            command = [settings.SQUASHFS_MOUNT_CMD, image_path, self.mount_point]
+            if settings.SQUASHFS_MOUNT_ARGS:
+                command.insert(1, settings.SQUASHFS_MOUNT_ARGS) 
+            subprocess.check_call(command)
         except subprocess.CalledProcessError:
-            print "Failed to mount {} on {}: {}".format(image_path,
-                                                        self.mount_point,
-                                                        subprocess.CalledProcessError.returncode)
+            logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed mounting %s on %s: %s.',
+                         image_path, self.mount_point, subprocess.CalledProcessError.returncode)
             return False
 
         # Create the new manifest object
-        try:
-            self.current_manifest = manifest.Manifest([], [], [], self)
-        except Exception as e:
-            print "Manifest exception: {}".format(e)
-
         # Specify manifest file to load
-        manifest_file= "{}/update_manifest.json".format(self.mount_point)
+        self.manifest_file= "{}/update_manifest.json".format(self.mount_point)
+        try:
+            self.current_manifest = manifest.Manifest(self)
+        except Exception as e:
+            logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed loading manifest: %s.', e)
     
-        if not self.current_manifest.load_from_file(manifest_file):
-            print "Failed to load manifest {}".format(manifest_file)
+        if not self.current_manifest:
             self.current_manifest = None
             # Unmount file system
             try:
-                subprocess.check_call(["/bin/umount", self.mount_point ])
-
+                command = [settings.SQUASHFS_UNMOUNT_CMD, self.mount_point]
+                if settings.SQUASHFS_UNMOUNT_ARGS:
+                    command.insert(1, settings.SQUASHFS_UNMOUNT_ARGS) 
+                subprocess.check_call(command)
             except subprocess.CalledProcessError:
-                print "Failed to unmount {}: {}".format(self.mount_point,
-                                                        subprocess.CalledProcessError.returncode)
+                logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed unmounting %s: %s.',
+                             self.mount_point, subprocess.CalledProcessError.returncode)
             self.mount_point = None
             return False
-
 
         return True
     

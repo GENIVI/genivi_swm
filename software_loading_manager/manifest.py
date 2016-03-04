@@ -14,17 +14,18 @@ from collections import deque
 import software_operation
 import swm
 import traceback
+import settings
+import logging
+
+logger = logging.getLogger(settings.LOGGER)
+
+
 #
 # Load and execute a single manifest
 #
 class Manifest:
-    # There is a better way of doing this, but
-    # this will work for now
-    def __init__(self,
-                 blacklisted_firmware,
-                 blacklisted_packages,
-                 blacklisted_partitions,
-                 manifest_processor):
+
+    def __init__(self, manifest_processor):
         #
         # The transaction we are waiting for a reply callback on
         #
@@ -35,54 +36,50 @@ class Manifest:
         self.manifest_processor = manifest_processor
         self.mount_point = manifest_processor.mount_point
 
-        # Store the blacklists to be injected as arguments
-        # where the operation descriptor specifies it.
-        self.blacklisted_partitions = blacklisted_partitions
-        self.blacklisted_firmware = blacklisted_firmware
-        self.blacklisted_packages = blacklisted_packages
-
         # Reset the update result
         self.operation_results = []
+        
+        # Load manifest file
+        if not self.load_from_file(self.manifest_processor.manifest_file):
+            return None
+
 
     # Load a manifest from a file
     def load_from_file(self, manifest_fname):
-        print "Manifest:load_from_file({}): Called.".format(manifest_fname)
+        logger.debug('SoftwareLoadingManager.Manifest.load_from_file(%s): Called.', manifest_fname)
         try:
             with open(manifest_fname, "r") as f:
-                print "Opened. Will load string"
+                logger.debug('SoftwareLoadingManager.Manifest.load_from_file(%s): File opened, loading strings.', manifest_fname)
                 return self.load_from_string(f.read())
-            
         except IOError as e:
-            print "Could not open manifest {}: {}".format(manifest_fname, e)
-            return False
+           logger.error('SoftwareLoadingManager.Manifest.load_from_file(%s): Could not open manifest: %s.', manifest_fname, e)
+           return False
 
             
     # Load a manifest from a string
     def load_from_string(self, manifest_string):
 
-        print "Manifest.load_from_string(): Called"
+        logger.debug('SoftwareLoadingManager.Manifest.load_from_string(%s): Called.', manifest_string)
         try:
             manifest = json.loads(manifest_string)
         except ValueError as e:
-            print "Manifest: Failed to parse JSON string: {}".format(e)
+            logger.error('SoftwareLoadingManager.Manifest.load_from_string(%s): Failed to parse JSON string: %s.', manifest_string, e)
             return False
 
         # Retrieve top-level elements
-        self.update_id = manifest.get('update_id', False)
+        self.update_id = manifest.get('updateId', False)
         self.name = manifest.get('name', False)
         self.description = manifest.get('description', False)
-        self.show_hmi_progress = manifest.get('show_hmi_progress', False)
-        self.show_hmi_result = manifest.get('show_hmi_result', False)
-        self.allow_downgrade = manifest.get('allow_downgrade', False)
-        self.get_user_confirmation = manifest.get('get_user_confirmation', False)
+        self.show_hmi_progress = manifest.get('showHmiProgress', False)
+        self.show_hmi_result = manifest.get('showHmiResult', False)
+        self.get_user_confirmation = manifest.get('getUserConfirmation', False)
         self.operations = deque()
-        print "Manifest.update_id:             {}".format(self.update_id)
-        print "Manifest.name:                  {}".format(self.name)
-        print "Manifest.description:           {}".format(self.description)
-        print "Manifest.get_user_confirmation: {}".format(self.get_user_confirmation)
-        print "Manifest.show_hmi_progress:     {}".format(self.show_hmi_progress)
-        print "Manifest.show_hmi_result:       {}".format(self.show_hmi_result)
-        print "Manifest.allow_downgrade:       {}".format(self.allow_downgrade)
+        logger.debug('SoftwareLoadingManager.Manifest.updateId:            %s', self.update_id)
+        logger.debug('SoftwareLoadingManager.Manifest.name:                %s', self.name)
+        logger.debug('SoftwareLoadingManager.Manifest.description:         %s', self.description)
+        logger.debug('SoftwareLoadingManager.Manifest.getUserConfirmation: %s', self.get_user_confirmation)
+        logger.debug('SoftwareLoadingManager.Manifest.showHmiProgress:     %s', self.show_hmi_progress)
+        logger.debug('SoftwareLoadingManager.Manifest.showHmiResult:       %s', self.show_hmi_result)
 
         # Traverse all operations and create / load up a relevant 
         # object for each one.
@@ -94,7 +91,7 @@ class Manifest:
 
                 # Skip entire operation if operation_id is not defined.
                 if not op_id:
-                    print "Manifest operation is missing operation_id. Skipped"
+                    logger.warning('SoftwareLoadingManager.Manifest.load_from_string(%s): Manifest operation is missing operationId. Skipped.', manifest_string)
                     continue
 
                 # Check if this operation has already been executed
@@ -106,7 +103,7 @@ class Manifest:
                                    "Operation already processed")
                         )
 
-                    print "Software operation {} already completed. Deleted from manifest".format(op_id)
+                    logger.info('SoftwareLoadingManager.Manifest.load_from_string(%s): Manifest operation %s already completed. Deleted from manifest.', manifest_string, op_id)
                     # Continue with the next operation
                     continue
 
@@ -119,19 +116,18 @@ class Manifest:
                 try:
                     op_obj = software_operation.SoftwareOperation(self, op)
                 except Exception as e:
-                    print "Could not process softare operation {}: {}\nSkipped".format(op_id, e)
+                    logger.error('SoftwareLoadingManager.Manifest.load_from_string(%s): Could not process manifest operation: %s.\nSkipped', manifest_string, e)
                     return False
 
                 # Add new object to operations we need to process
                 self.operations.append(op_obj)
         except Exception as e:
-            print "Manifest exception: {}".format(e)
-            traceback.print_exc()
+            logger.error('SoftwareLoadingManager.Manifest.load_from_string(%s): Manifest exception: %s.', manifest_string, e)
             return False
 
         # Check that we have all mandatory fields set
         if False in [ self.update_id, self.name, self.description ]:
-            print "One of update_id, name, description, or operations not set"
+            logger.error('SoftwareLoadingManager.Manifest.load_from_string(%s): One of mandatory updateId, name, description. or operations not set.', manifest_string)
             return False
 
         return True
@@ -165,7 +161,7 @@ class Manifest:
         # Check that we have an active transaction to
         # work with.
         if not self.active_operation:
-            print "complete_transaction(): Warning: No active transaction for {}.".format(transaction_id)
+            logger.warning('SoftwareLoadingManager.Manifest.complete_transaction(%s): No active transaction.', transaction_id)
             return False
 
         # We have completed this specific transaction

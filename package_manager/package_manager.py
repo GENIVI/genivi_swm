@@ -13,6 +13,11 @@ from dbus.mainloop.glib import DBusGMainLoop
 import sys
 import time
 import swm
+import settings
+import logging
+
+logger = logging.getLogger(settings.LOGGER)
+
 
 #
 # Package manager service
@@ -32,13 +37,10 @@ class PkgMgrService(dbus.service.Object):
                         send_reply, 
                         send_error): 
 
-        try:
-            print "Package Manager: Install Package"
-            print "  Operation Transaction ID: {}".format(transaction_id)
-            print "  Image Path:               {}".format(image_path)
-            print "  Blacklisted packages:     {}".format(blacklisted_packages)
-            print "---"
+        logger.debug('PackageManager.PkgMgrService.installPackage(%s, %s, %s): Called.',
+                     transaction_id, image_path, blacklisted_packages)
 
+        try:
             #
             # Send back an immediate reply since DBUS
             # doesn't like python dbus-invoked methods to do 
@@ -47,19 +49,17 @@ class PkgMgrService(dbus.service.Object):
             send_reply(True)
 
             # Simulate install
-            print "Intalling package: {} (5 sec)".format(image_path)
+            sys.stdout.write("Intalling package: {} (5 sec)\n".format(image_path))
             for i in xrange(1,50):
                 sys.stdout.write('.')
                 sys.stdout.flush()
                 time.sleep(0.1)
-            print  
-            print "Done"
+            sys.stdout.write("\nDone\n")
             swm.send_operation_result(transaction_id,
                                       swm.SWMResult.SWM_RES_OK,
                                       "Installation successful. Path: {}".format(image_path))
         except Exception as e:
-            print "install_package() Exception: {}".format(e)
-            traceback.print_exc()
+            logger.error('PackageManager.PkgMgrService.installPackage(): Exception: %s.', e)
             swm.send_operation_result(transaction_id,
                                       swm.SWMResult.SWM_RES_INTERNAL_ERROR,
                                       "Internal_error: {}".format(e))
@@ -77,14 +77,10 @@ class PkgMgrService(dbus.service.Object):
                         send_reply, 
                         send_error): 
 
-        try:
-            print "Package Manager: Upgrade package"
-            print "  Operation Transaction ID: {}".format(transaction_id)
-            print "  Image Path:               {}".format(image_path)
-            print "  Allow downgrade:          {}".format(allow_downgrade)
-            print "  Blacklisted packages:     {}".format(blacklisted_packages)
-            print "---"
+        logger.debug('PackageManager.PkgMgrService.upgradePackage(%s, %s, %s, %s): Called.',
+                     transaction_id, image_path, blacklisted_packages, allow_downgrade)
 
+        try:
             #
             # Send back an immediate reply since DBUS
             # doesn't like python dbus-invoked methods to do 
@@ -93,20 +89,18 @@ class PkgMgrService(dbus.service.Object):
             send_reply(True)
 
             # Simulate install
-            print "Upgrading package: {} (5 sec)".format(image_path)
+            sys.stdout.write("Upgrading package: {} (5 sec)\n".format(image_path))
             for i in xrange(1,50):
                 sys.stdout.write('.')
                 sys.stdout.flush()
                 time.sleep(0.1)
-            print  
-            print "Done"
+            sys.stdout.write("\nDone\n")
             swm.send_operation_result(transaction_id,
                                       swm.SWMResult.SWM_RES_OK,
                                       "Upgrade successful. Path: {}".format(image_path))
 
         except Exception as e:
-            print "upgrade_package() Exception: {}".format(e)
-            traceback.print_exc()
+            logger.error('PackageManager.PkgMgrService.upgradePackage(): Exception: %s.', e)
             swm.send_operation_result(transaction_id,
                                       swm.SWMResult.SWM_RES_INTERNAL_ERROR,
                                       "Internal_error: {}".format(e))
@@ -119,12 +113,11 @@ class PkgMgrService(dbus.service.Object):
                        package_id,
                        send_reply, 
                        send_error): 
-        try:
-            print "Package Manager: Remove package"
-            print "  Operation Transaction ID: {}".format(transaction_id)
-            print "  Package ID:               {}".format(package_id)
-            print "---"
 
+        logger.debug('PackageManager.PkgMgrService.removePackage(%s, %s): Called.',
+                     transaction_id, package_id)
+
+        try:
             #
             # Send back an immediate reply since DBUS
             # doesn't like python dbus-invoked methods to do 
@@ -133,19 +126,17 @@ class PkgMgrService(dbus.service.Object):
             send_reply(True)
 
             # Simulate remove
-            print "Upgrading package: {} (5 sec)".format(package_id)
+            sys.stdout.write("Upgrading package: {} (5 sec)\n".format(package_id))
             for i in xrange(1,50):
                 sys.stdout.write('.')
                 sys.stdout.flush()
                 time.sleep(0.1)
-            print  
-            print "Done"
+            sys.stdout.write("\nDone\n")
             swm.send_operation_result(transaction_id,
                                       swm.SWMResult.SWM_RES_OK,
                                       "Removal successful. Package_id: {}".format(package_id))
         except Exception as e:
-            print "upgrade_package() Exception: {}".format(e)
-            traceback.print_exc()
+            logger.error('PackageManager.PkgMgrService.removePackage(): Exception: %s.', e)
             swm.send_operation_result(transaction_id,
                                       swm.SWMResult.SWM_RES_INTERNAL_ERROR,
                                       "Internal_error: {}".format(e))
@@ -154,15 +145,12 @@ class PkgMgrService(dbus.service.Object):
 
     @dbus.service.method('org.genivi.PackageManager')
     def getInstalledPackages(self): 
-        print "Got get_installed_packages()"
+        logger.debug('PackageManager.PkgMgrService.getInstalledPackages(): Called.')
         return [ 'bluez_driver_1.2.2', 'bluez_apps_2.4.4' ]
                  
 
 
-print 
-print "Package Manager."
-print
-
+logger.debug('Package Manager - Running')
 
 DBusGMainLoop(set_as_default=True)
 pkg_mgr = PkgMgrService()

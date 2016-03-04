@@ -13,6 +13,10 @@ from dbus.mainloop.glib import DBusGMainLoop
 import sys
 import time
 import swm
+import settings
+import logging
+
+logger = logging.getLogger(settings.LOGGER)
 
 #
 # Partition manager service
@@ -37,36 +41,32 @@ class PartMgrService(dbus.service.Object):
                               send_reply, 
                               send_error): 
 
-        print "Partition Manager: createDiskPartition()"
-        print "  Operfation Transaction ID: {}".format(transaction_id)
-        print "  Disk:                      {}".format(disk)
-        print "  Partition Number:          {}".format(partition_number)
-        print "  Partition Type:            {}".format(partition_type)
-        print "  Start:                     {}".format(start)
-        print "  Size:                      {}".format(size)
-        print "  GUID:                      {}".format(guid)
-        print "  Name:                      {}".format(name)
-        print "---"
+        logger.debug('PartitionManager.PartMgrService.createDiskPartition(%s, %s, %s, %s, %s, %s, %s, %s): Called.',
+                     transaction_id, disk, partition_number, partition_type, start, size, guid, name)
 
-        #
-        # Send back an immediate reply since DBUS
-        # doesn't like python dbus-invoked methods to do 
-        # their own calls (nested calls).
-        #
-        send_reply(True)
+        try:
+            #
+            # Send back an immediate reply since DBUS
+            # doesn't like python dbus-invoked methods to do 
+            # their own calls (nested calls).
+            #
+            send_reply(True)
 
-        # Simulate install
-        print "Create partition: disk({}) partiton({}) (3 sec)".format(disk, partition_number)
-        for i in xrange(1,30):
-            sys.stdout.write('.')
-            sys.stdout.flush()
-            time.sleep(0.1)
-        print  
-        print "Done"
-        swm.send_operation_result(transaction_id,
-                                  swm.SWMResult.SWM_RES_OK,
-                                  "Partition create successful. Disk: {}:{}".format(disk, partition_number))
-
+            # Simulate install
+            sys.stdout.write("Create partition: disk({}) partiton({}) (3 sec)\n".format(disk, partition_number))
+            for i in xrange(1,30):
+                sys.stdout.write('.')
+                sys.stdout.flush()
+                time.sleep(0.1)
+            sys.stdout.write("\nDone\n")
+            swm.send_operation_result(transaction_id,
+                                      swm.SWMResult.SWM_RES_OK,
+                                      "Partition create successful. Disk: {}:{}".format(disk, partition_number))
+        except Exception as e:
+            logger.error('PartitionManager.PartMgrService.resizeDiskPartition(): Exception: %s.', e)
+            swm.send_operation_result(transaction_id,
+                                      swm.SWMResult.SWM_RES_INTERNAL_ERROR,
+                                      "Internal_error: {}".format(e))
         return None
                  
 
@@ -81,32 +81,32 @@ class PartMgrService(dbus.service.Object):
                               send_reply, 
                               send_error): 
 
-        print "Partition Manager: resizeDiskPartition()"
-        print "  Operfation Transaction ID: {}".format(transaction_id)
-        print "  Disk:                      {}".format(disk)
-        print "  Partition Number:          {}".format(partition_number)
-        print "  Start:                     {}".format(start)
-        print "  Size:                      {}".format(size)
-        print "---"
+        logger.debug('PartitionManager.PartMgrService.resizeDiskPartition(%s, %s, %s, %s, %s): Called.',
+                     transaction_id, disk, partition_number, start, size)
 
-        #
-        # Send back an immediate reply since DBUS
-        # doesn't like python dbus-invoked methods to do 
-        # their own calls (nested calls).
-        #
-        send_reply(True)
+        try:
+            #
+            # Send back an immediate reply since DBUS
+            # doesn't like python dbus-invoked methods to do 
+            # their own calls (nested calls).
+            #
+            send_reply(True)
 
-        # Simulate install
-        print "Resizing partition: disk({}) partiton({}) (10 sec)".format(disk, partition_number)
-        for i in xrange(1,50):
-            sys.stdout.write('.')
-            sys.stdout.flush()
-            time.sleep(0.2)
-        print  
-        print "Done"
-        swm.send_operation_result(transaction_id,
-                                   swm.SWMResult.SWM_RES_OK,
-                                   "Partition resize success. Disk: {}:{}".format(disk, partition_number))
+            # Simulate install
+            sys.stdout.write("Resizing partition: disk({}) partiton({}) (10 sec)\n".format(disk, partition_number))
+            for i in xrange(1,50):
+                sys.stdout.write('.')
+                sys.stdout.flush()
+                time.sleep(0.2)
+            sys.stdout.write("\nDone\n")
+            swm.send_operation_result(transaction_id,
+                                       swm.SWMResult.SWM_RES_OK,
+                                       "Partition resize success. Disk: {}:{}".format(disk, partition_number))
+        except Exception as e:
+            logger.error('PartitionManager.PartMgrService.resizeDiskPartition(): Exception: %s.', e)
+            swm.send_operation_result(transaction_id,
+                                      swm.SWMResult.SWM_RES_INTERNAL_ERROR,
+                                      "Internal_error: {}".format(e))
         return None
 
 
@@ -118,31 +118,32 @@ class PartMgrService(dbus.service.Object):
                               send_reply, 
                               send_error): 
 
-        print "Partition Manager: deleteDiskPartition()"
-        print "  Operation Transaction ID: {}".format(transaction_id)
-        print "  Disk:                      {}".format(disk)
-        print "  Partition Number:          {}".format(partition_number)
-        print "---"
+        logger.debug('PartitionManager.PartMgrService.deleteDiskPartition(%s, %s, %s): Called.',
+                     transaction_id, disk, partition_number)
 
-        #
-        # Send back an immediate reply since DBUS
-        # doesn't like python dbus-invoked methods to do 
-        # their own calls (nested calls).
-        #
-        send_reply(True)
+        try:
+            #
+            # Send back an immediate reply since DBUS
+            # doesn't like python dbus-invoked methods to do 
+            # their own calls (nested calls).
+            #
+            send_reply(True)
 
-        # Simulate install
-        print "Delete partition: disk({}) partiton({}) (5 sec)".format(disk, partition_number)
-        for i in xrange(1,10):
-            sys.stdout.write('.')
-            sys.stdout.flush()
-            time.sleep(0.2)
-        print  
-        print "Done"
-        swm.send_operation_result(transaction_id,
-                                   swm.SWMResult.SWM_RES_OK,
-                                   "Partition delete success. Disk: {}:{}".format(disk, partition_number))
-
+            # Simulate install
+            sys.stdout.write("Delete partition: disk({}) partiton({}) (5 sec)\n".format(disk, partition_number))
+            for i in xrange(1,10):
+                sys.stdout.write('.')
+                sys.stdout.flush()
+                time.sleep(0.2)
+            sys.stdout.write("\nDone\n")
+            swm.send_operation_result(transaction_id,
+                                       swm.SWMResult.SWM_RES_OK,
+                                       "Partition delete success. Disk: {}:{}".format(disk, partition_number))
+        except Exception as e:
+            logger.error('PartitionManager.PartMgrService.deleteDiskPartition(): Exception: %s.', e)
+            swm.send_operation_result(transaction_id,
+                                      swm.SWMResult.SWM_RES_INTERNAL_ERROR,
+                                      "Internal_error: {}".format(e))
         return None
 
 
@@ -157,34 +158,33 @@ class PartMgrService(dbus.service.Object):
                              send_reply, 
                              send_error): 
 
-        print "Partition Manager: writeDiskPartition()"
-        print "  Operfation Transaction ID: {}".format(transaction_id)
-        print "  Disk:                      {}".format(disk)
-        print "  Partition Number:          {}".format(partition_number)
-        print "  Image Path:                {}".format(image_path)
-        print "  Blacklisted Partitions:    {}".format(blacklisted_partitions)
-        print "---"
+        logger.debug('PartitionManager.PartMgrService.writeDiskPartition(%s, %s, %s, %s, %s): Called.',
+                     transaction_id, disk, partition_number, image_path, blacklisted_partitions)
 
-        #
-        # Send back an immediate reply since DBUS
-        # doesn't like python dbus-invoked methods to do 
-        # their own calls (nested calls).
-        #
-        send_reply(True)
+        try:
+            #
+            # Send back an immediate reply since DBUS
+            # doesn't like python dbus-invoked methods to do 
+            # their own calls (nested calls).
+            #
+            send_reply(True)
 
-        # Simulate write
-        print "Writing partition: disk({}) partition({}) (10 sec)".format(disk, partition_number)
-        for i in xrange(1,50):
-            sys.stdout.write('.')
-            sys.stdout.flush()
-            time.sleep(0.2)
-        print  
-        print "Done"
-        swm.send_operation_result(transaction_id,
-                                  swm.SWMResult.SWM_RES_OK,
-                                  "Partition write success. Disk: {}:{} Image: {}".
-                                  format(disk, partition_number, image_path))
-
+            # Simulate write
+            sys.stdout.write("Writing partition: disk({}) partition({}) (10 sec)\n".format(disk, partition_number))
+            for i in xrange(1,50):
+                sys.stdout.write('.')
+                sys.stdout.flush()
+                time.sleep(0.2)
+            sys.stdout.write("\nDone\n")
+            swm.send_operation_result(transaction_id,
+                                      swm.SWMResult.SWM_RES_OK,
+                                      "Partition write success. Disk: {}:{} Image: {}".
+                                      format(disk, partition_number, image_path))
+        except Exception as e:
+            logger.error('PartitionManager.PartMgrService.writeDiskPartition(): Exception: %s.', e)
+            swm.send_operation_result(transaction_id,
+                                      swm.SWMResult.SWM_RES_INTERNAL_ERROR,
+                                      "Internal_error: {}".format(e))
         return None
                  
 
@@ -199,39 +199,37 @@ class PartMgrService(dbus.service.Object):
                              send_reply, 
                              send_error): 
 
-        print "Partition Manager: patchDiskPartition()"
-        print "  Operfation Transaction ID: {}".format(transaction_id)
-        print "  Disk:                      {}".format(disk)
-        print "  Partition Number:          {}".format(partition_number)
-        print "  Image Path:                {}".format(image_path)
-        print "  Blacklisted Partitions:    {}".format(blacklisted_partitions)
-        print "---"
+        logger.debug('PartitionManager.PartMgrService.patchDiskPartition(%s, %s, %s, %s, %s): Called.',
+                     transaction_id, disk, partition_number, image_path, blacklisted_partitions)
 
-        #
-        # Send back an immediate reply since DBUS
-        # doesn't like python dbus-invoked methods to do 
-        # their own calls (nested calls).
-        #
-        send_reply(True)
+        try:
+            #
+            # Send back an immediate reply since DBUS
+            # doesn't like python dbus-invoked methods to do 
+            # their own calls (nested calls).
+            #
+            send_reply(True)
 
-        # Simulate patch
-        print "Patching partition: disk({}) partiton({}) (10 sec)".format(disk, partition_number)
-        for i in xrange(1,50):
-            sys.stdout.patch('.')
-            sys.stdout.flush()
-            time.sleep(0.2)
-        print  
-        print "Done"
-        swm.send_operation_result(transaction_id,
-                                  swm.SWMResult.SWM_RES_OK,
-                                  "Partition patch success. Disk: {}:{} Image: {}".
-                                  format(disk, partition_number, image_path))
+            # Simulate patch
+            sys.stdout.write("Patching partition: disk({}) partiton({}) (10 sec)\n".format(disk, partition_number))
+            for i in xrange(1,50):
+                sys.stdout.patch('.')
+                sys.stdout.flush()
+                time.sleep(0.2)
+            sys.stdout.write("\nDone\n")
+            swm.send_operation_result(transaction_id,
+                                      swm.SWMResult.SWM_RES_OK,
+                                      "Partition patch success. Disk: {}:{} Image: {}".
+                                      format(disk, partition_number, image_path))
+        except Exception as e:
+            logger.error('PartitionManager.PartMgrService.patchDiskPartition(): Exception: %s.', e)
+            swm.send_operation_result(transaction_id,
+                                      swm.SWMResult.SWM_RES_INTERNAL_ERROR,
+                                      "Internal_error: {}".format(e))
         return None
                  
+logger.debug('Partition Manager - Running')
 
-print 
-print "Partition Manager."
-print
 DBusGMainLoop(set_as_default=True)
 part_mgr = PartMgrService()
 

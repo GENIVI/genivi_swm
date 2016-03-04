@@ -13,6 +13,11 @@ from dbus.mainloop.glib import DBusGMainLoop
 import sys
 import time
 import swm
+import settings
+import logging
+
+logger = logging.getLogger(settings.LOGGER)
+
 
 #
 # ECU Module Loader service
@@ -34,12 +39,8 @@ class ECU1ModuleLoaderService(dbus.service.Object):
                               send_error): 
 
 
-        print "Package Manager: Got flashModuleFirmware()"
-        print "  Operation Transaction ID: {}".format(transaction_id)
-        print "  Image Path:               {}".format(image_path)
-        print "  Blacklisted firmware:     {}".format(blacklisted_firmware)
-        print "  Allow downgrade:          {}".format(allow_downgrade)
-        print "---"
+        logger.debug('ModuleLoader.ECU1ModuleLoaderService.flashModuleFirmware(%s, %s, %s, %s): Called.',
+                     transaction_id, image_path, blacklisted_firmware, allow_downgrade)
 
         # Send back an immediate reply since DBUS
         # doesn't like python dbus-invoked methods to do 
@@ -48,13 +49,12 @@ class ECU1ModuleLoaderService(dbus.service.Object):
         send_reply(True)
 
         # Simulate install
-        print "Intalling on ECU1: {} (5 sec):".format(image_path)
+        sys.stdout.write("Intalling on ECU1: {} (5 sec):\n".format(image_path))
         for i in xrange(1,50):
             sys.stdout.write('.')
             sys.stdout.flush()
             time.sleep(0.1)
-        print  
-        print "Done"
+        sys.stdout.write("\nDone\n")
         swm.send_operation_result(transaction_id,
                                   swm.SWMResult.SWM_RES_OK,
                                   "Firmware flashing successful for ecu1. Path: {}".format(image_path))
@@ -63,12 +63,10 @@ class ECU1ModuleLoaderService(dbus.service.Object):
         
     @dbus.service.method('org.genivi.moduleLoaderEcu1')
     def getModuleFirmwareVersion(self): 
-        print "Got getModuleFirmwareVersion()"
+        logger.debug('ModuleLoader.ECU1ModuleLoaderService.getModuleFirmwareVersion(): Called.')
         return ("ecu1_firmware_1.2.3", 1452904544)
                  
-print 
-print "ECU1 Module Loader."
-print
+logger.debug('ECU1 Module Loader - Running')
 
 DBusGMainLoop(set_as_default=True)
 module_loader_ecu1 = ECU1ModuleLoaderService()

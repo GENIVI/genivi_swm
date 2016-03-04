@@ -13,6 +13,11 @@ from dbus.mainloop.glib import DBusGMainLoop
 import sys
 import time
 import swm
+import settings
+import logging
+
+logger = logging.getLogger(settings.LOGGER)
+
 
 #
 # Lifecycle manager service
@@ -32,10 +37,7 @@ class LCMgrService(dbus.service.Object):
                          send_reply, 
                          send_error):
 
-        print "Lifecycle Manager: Got startComponents()"
-        print "  Operation Transaction ID: {}".format(transaction_id)
-        print "  Components:               {}".format(", ".join(components))
-        print "---"
+        logger.debug('LifecycleManager.LCMgrService.startComponents(%s, %s): Called.', transaction_id, components)
 
         #
         # Send back an immediate reply since DBUS
@@ -44,13 +46,10 @@ class LCMgrService(dbus.service.Object):
         #
         send_reply(True)
 
-        # Simulate install
-        print "Starting :"
+        # Simulate starting components
         for i in components:
-            print "    Starting: {} (3 sec)".format(i)
+            logger.debug('LifecycleManager.LCMgrService.startComponents(): Starting: %s', i)
             time.sleep(3.0)
-        print  
-        print "Done"
         swm.send_operation_result(transaction_id,
                                   swm.SWMResult.SWM_RES_OK,
                                   "Started components {}".format(", ".join(components)))
@@ -66,10 +65,7 @@ class LCMgrService(dbus.service.Object):
                         send_reply, 
                         send_error): 
 
-        print "Lifecycle Manager: Got stopComponents()"
-        print "  Operation Transaction ID: {}".format(transaction_id)
-        print "  Components:               {}".format(", ".join(components))
-        print "---"
+        logger.debug('LifecycleManager.LCMgrService.stopComponents(%s, %s): Called.', transaction_id, components)
 
         #
         # Send back an immediate reply since DBUS
@@ -78,13 +74,10 @@ class LCMgrService(dbus.service.Object):
         #
         send_reply(True)
 
-        # Simulate install
-        print "Stopping :"
+        # Simulate stopping components
         for i in components:
-            print "    Stopping: {} (3 sec)".format(i)
+            logger.debug('LifecycleManager.LCMgrService.stopComponents(): Stopping: %s', i)
             time.sleep(3.0)
-        print  
-        print "Done"
         swm.send_operation_result(transaction_id,
                                   swm.SWMResult.SWM_RES_OK,
                                   "Stopped components {}".format(", ".join(components)))
@@ -93,9 +86,7 @@ class LCMgrService(dbus.service.Object):
 
 
 
-print 
-print "Lifecycle Manager."
-print
+logger.debug('Lifecycle Manager - Running')
 
 
 DBusGMainLoop(set_as_default=True)

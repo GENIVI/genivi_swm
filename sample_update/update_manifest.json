@@ -1,60 +1,60 @@
 {
-    "update_id": "media_player_update",
+    "updateId": "media_player_update",
     "name": "Media Player",
     "description": "A media player that will connect to all your devices and stream their audio and video.",
-    "get_user_confirmation": true, 
-    "show_hmi_progress": false, 
-    "show_hmi_result": true, 
+    "getUserConfirmation": true, 
+    "showHmiProgress": false, 
+    "showHmiResult": true, 
     "operations": [
 		{ 
 			"id": "b9e3865e-9d35-11e5-b235-eb755e788c52",
-			"hmi_message": "Stopping media player.",
-			"time_estimate":  3000,
+			"hmiMessage": "Stopping media player.",
+			"timeEstimate":  3000,
 			"operation": "stopComponents",
 			"components": [ "media_player" ],
-			"on_failure": "continue"
+			"onFailure": "continue"
 		},
 		{ 
 			"id": "b9e3865e-9d35-11e5-b235-eb755e788c53",
-			"hmi_message": "Deleting old media player.",
-			"time_estimate": 5000,
+			"hmiMessage": "Deleting old media player.",
+			"timeEstimate": 5000,
 			"operation": "removePackage",
-			"package_id": "old_media_player",
-			"on_failure": "continue"
+			"packageId": "old_media_player",
+			"onFailure": "continue"
 		},
 		{ 
 			"id": "d1c96216-9d35-11e5-a00b-57f2b4f03098",
-			"hmi_message": "Installing new media player.",
-			"time_estimate": 5000,
+			"hmiMessage": "Installing new media player.",
+			"timeEstimate": 5000,
 			"operation": "installPackage",
 			"image": "packages/media_player.pkg",
-			"on_failure": "abort"
+			"onFailure": "abort"
 		},
 		{ 
 			"id": "b9e3865e-9d35-11e5-b235-eb755e788c54",
-			"hmi_message": "Starting media player.",
-			"time_estimate": 3000,
+			"hmiMessage": "Starting media player.",
+			"timeEstimate": 3000,
 			"operation": "startComponents",
 			"components": [ "media_player" ],
-			"on_failure": "continue"
+			"onFailure": "continue"
 		},
 		{
 			"id": "df7e5ba0-9d35-11e5-bcea-8b5024045531",
-			"hmi_message": "Reflashing amplifier software.",
-			"time_estimate": 5000,
+			"hmiMessage": "Reflashing amplifier software.",
+			"timeEstimate": 5000,
 			"operation": "flashModuleFirmwareEcu1",
 			"image": "images/ecu1.img",
-			"on_failure": "continue"
+			"onFailure": "continue"
 		},
 		{
 			"id": "df7e5ba0-9d35-11e5-bcea-8b5024045532",
-			"hmi_message": "Writing disk partition.",
-			"time_estimate": 10000,
+			"hmiMessage": "Writing disk partition.",
+			"timeEstimate": 10000,
 			"operation": "writeDiskPartition",
 			"image": "images/data.part",
 			"disk": "/dev/sdd",
-			"partition_number": 1,
-			"on_failure": "continue"
+			"partitionNumber": 1,
+			"onFailure": "continue"
 		}
     ]
 }

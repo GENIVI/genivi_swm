@@ -13,6 +13,10 @@ import sys
 import getopt
 import os
 import swm
+import settings
+import logging
+
+logger = logging.getLogger(settings.LOGGER)
 
 #
 # Define the DBUS-facing Software Loading Manager service
@@ -38,11 +42,11 @@ class SLMService(dbus.service.Object):
                                  update_id, 
                                  results):
         # Send installation report to HMI
-        print "Sending report to Hmi.updateReport()"
+        logger.debug('SoftwareLoadingManager.SLMService.distribute_update_result(%s): Sending report to Hmi.updateReport().', update_id)
         swm.dbus_method("org.genivi.Hmi", "updateReport", dbus.String(update_id), results)
 
         # Send installation report to SOTA
-        print "Sending report to SotaClient.updateReport()"
+        logger.debug('SoftwareLoadingManager.SLMService.distribute_update_result(%s): Sending report to SotaClient.updateReport().', update_id)
         swm.dbus_method("org.genivi.SotaClient", "updateReport", dbus.String(update_id), results)
 
     def get_current_manifest(self):
@@ -125,10 +129,8 @@ class SLMService(dbus.service.Object):
                          send_reply,
                          send_error): 
 
-        print "Got download available"
-        print "  ID:      {}".format(update_id)
-        print "  descr:   {}".format(description)
-        print "  confirm: {}".format(request_confirmation)
+        logger.debug('SoftwareLoadingManager.SLMService.updateAvailable(%s, %s, %s, %s): Called.',
+                     update_id, description, signature, request_confirmation)
         
         # Send back an immediate reply since DBUS
         # doesn't like python dbus-invoked methods to do 
@@ -142,13 +144,11 @@ class SLMService(dbus.service.Object):
         # to drive the use case forward.
         #
         if request_confirmation:
+            logger.debug('SoftwareLoadingManager.SLMService.updateAvailable(): Called Hmi.updateNotification().')
             swm.dbus_method("org.genivi.Hmi", "updateNotification", update_id, description)
-            print "  Called Hmi.updateNotification()"
-            print "---"
             return None
 
-        print "  No user confirmation requested. Will initiate download"
-        print "---"
+        logger.debug('SoftwareLoadingManager.SLMService.updateAvailable(): No user cnfirmation requested: initiating download.')
         self.initiate_download(update_id)
         return None
 
@@ -156,11 +156,13 @@ class SLMService(dbus.service.Object):
     @dbus.service.method("org.genivi.SoftwareLoadingManager",
                          async_callbacks=('send_reply', 'send_error'))
     def updateConfirmation(self,        
-                            update_id, 
-                            approved,
-                            send_reply, 
-                            send_error): 
+                           update_id, 
+                           approved,
+                           send_reply, 
+                           send_error): 
 
+        logger.debug('SoftwareLoadingManager.SLMService.updateConfirmation(%s, %s): Called.',
+                     update_id, approved)
         
         #
         # Send back an immediate reply since DBUS
@@ -169,9 +171,6 @@ class SLMService(dbus.service.Object):
         #
         send_reply(True)
 
-        print "Got updateConfirmation()."
-        print "  Approved: {}".format(approved)
-        print "  ID:       {}".format(update_id)
         if approved:
             #
             # Call the SOTA client and ask it to start the download.
@@ -179,21 +178,18 @@ class SLMService(dbus.service.Object):
             # download complete on this process to actually
             # process the package.
             #
-            print "Approved: Will call initiate_download()"
+            logger.debug('SoftwareLoadingManager.SLMService.updateConfirmation(): Approved: Calling initiate_ownload().')
             self.initiate_download(update_id)
-            print "Approved: Called SotaClient.initiateDownload()"
-            print "---"
+            logger.debug('SoftwareLoadingManager.SLMService.updateConfirmation(): Approved: Called SotaClient.initiateDownload().')
         else:
             # User did not approve. Send installation report
-            print "Declined: Will call installation_report()"
+            logger.debug('SoftwareLoadingManager.SLMService.updateConfirmation(): Declined: Calling installation_report().')
             self.distribute_update_result(update_id, [
                 swm.result('N/A',
                            swm.SWMResult.SWM_RES_USER_DECLINED,
                            "Installation declined by user")
             ]) 
-
-            print "Declined. Called sota_client.installation_report()"
-            print "---"
+            logger.debug('SoftwareLoadingManager.SLMService.updateConfirmation(): Declined: Called SotaClient.installationReport().')
 
         return None
 
@@ -205,18 +201,16 @@ class SLMService(dbus.service.Object):
                           send_reply,
                           send_error): 
             
-        print "Got download complete"
-        print "  path:      {}".format(update_image)
-        print "  signature: {}".format(signature)
-        print "---"
-
+        logger.debug('SoftwareLoadingManager.SLMService.downloadComplete(%s, %s): Called.',
+                     update_image, signature)
+        
         #
         # Send back an immediate reply since DBUS
         # doesn't like python dbus-invoked methods to do 
         # their own calls (nested calls).
         #
         send_reply(True)
-        print "FIXME: Check signature of update image"
+        logger.warning('SoftwareLoadingManager.SLMService.downloadComplete(): FIXME: Check signature of update image.')
 
         #
         # Queue the image.
@@ -225,9 +219,7 @@ class SLMService(dbus.service.Object):
             self.manifest_processor.queue_image(update_image)
             self.start_next_operation()
         except Exception as e:
-            print "Failed to process downloaded update: {}".format(e)
-            traceback.print_exc()
-
+            logger.error('SoftwareLoadingManager.SLMService.downloadComplete(): Failed to process downloaded update: %s.', e)
         return None
 
     #
@@ -245,13 +237,10 @@ class SLMService(dbus.service.Object):
                          send_reply,
                          send_error): 
 
+        logger.debug('SoftwareLoadingManager.SLMService.operationResult(%s, %s, %s): Called.',
+                     transaction_id, result_code, result_text)
+        
         try:
-            print "Got operationResult()"
-            print "  transaction_id: {}".format(transaction_id)
-            print "  result_code:    {}".format(result_code)
-            print "  result_text:    {}".format(result_text)
-            print "---"
-
             # Send back an immediate reply since DBUS
             # doesn't like python dbus-invoked methods to do 
             # their own calls (nested calls).
@@ -260,7 +249,7 @@ class SLMService(dbus.service.Object):
 
             manifest = self.get_current_manifest()
             if not manifest:
-                print "Warning: No manifest to handle callback reply"
+                logger.warning('SoftwareLoadingManager.SLMService.operationResult(): No manifest to handle callback reply.')
                 return None
 
             manifest.complete_transaction(transaction_id, result_code, result_text)
@@ -268,13 +257,15 @@ class SLMService(dbus.service.Object):
                 self.distribute_update_result(manifest.update_id,
                                               manifest.operation_results)
         except Exception as e:
-            print "Failed to process operation result: {}".format(e)
+            logger.error('SoftwareLoadingManager.SLMService.operationResult(): Failed to process operation result: %s.', e)
             traceback.print_exc()
-
+        return None
 
     @dbus.service.method("org.genivi.SoftwareLoadingManager")
     def getInstalledPackages(self, include_packegs, include_module_firmware): 
-        print "Got get_installed_packages()"
+        logger.debug('SoftwareLoadingManager.SLMService.getInstalledPackages(%s, %s): Called.',
+                     include_packegs, include_module_firmware)
+        
         return [ "bluez_driver", "bluez_apps" ]
 
 def usage():
@@ -287,9 +278,7 @@ def usage():
     sys.exit(255)
 
 
-print 
-print "Software Loading Manager."
-print
+logger.debug('Software Loading Manager - Running')
 
 try:  
     opts, args= getopt.getopt(sys.argv[1:], "rd:")

@@ -15,6 +15,11 @@ import sys
 import time
 import swm
 import traceback
+import settings
+import logging
+
+logger = logging.getLogger(settings.LOGGER)
+
 
 # Default command line arguments
 update_id='media_player_1_2_3'
@@ -53,9 +58,8 @@ class SOTAClientService(dbus.service.Object):
         global description
         global vendor
         global path
-        print "Got initiateDownload"
-        print "  ID:     {}".format(update_id)
-        print "---"
+
+        logger.debug('SotaClient.SotaClientService.initiateDownload(%s): Called.', update_id)
 
         # Send back an immediate reply since DBUS
         # doesn't like python dbus-invoked methods to do 
@@ -64,13 +68,12 @@ class SOTAClientService(dbus.service.Object):
         send_reply(True)
 
         #  Simulate download
-        print "Downloading"
+        sys.stdout.write("Downloading\n")
         for i in xrange(1,10):
             sys.stdout.write('.')
             sys.stdout.flush()
             time.sleep(0.1)
-        print 
-        print "Done."
+        sys.stdout.write("\nDone.\n")
 
         swm.dbus_method('org.genivi.SoftwareLoadingManager', 'downloadComplete', self.image_file, self.signature)
         return None
@@ -80,14 +83,12 @@ class SOTAClientService(dbus.service.Object):
                       update_id, 
                       results):
         global active
-        print "Update report"
-        print "  ID:          {}".format(update_id)
+
+        logger.debug('SotaClient.SotaClientService.updateReport(%s): Called.', update_id)
         for result in results:
-            print "    operation_id: {}".format(result['id'])
-            print "    code:         {}".format(result['result_code'])
-            print "    text:         {}".format(result['result_text'])
-            print "  ---"
-        print "---"
+            logger.debug('    operationId: %s, code: %s, text: %s',
+                         result['id'], result['result_code'], result['result_text'])
+        logger.debug('SotaClient.SotaClientService.updateReport(%s): Complete.', update_id)
         active = False
         return None
 
@@ -141,9 +142,8 @@ if not image_file:
 try:
    image_desc = open(image_file, "r")
 except IOError as e:
-    print "Could not open {} for reading: {}".format(image_file, e)
+    logger.debug('SotaClient.SotaClientService: Could not open %s: %s.', image_file, e)
     sys.exit(255)
-    
 image_desc.close()
 
 print "Will simulate downloaded update:"

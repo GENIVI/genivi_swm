@@ -10,6 +10,11 @@ import os
 import subprocess
 import dbus
 import swm
+import settings
+import logging
+
+logger = logging.getLogger(settings.LOGGER)
+
 #
 # Software operation
 # Contains a single software operation
@@ -17,93 +22,17 @@ import swm
 #
 class SoftwareOperation:
     def __init__(self, manifest, op_obj):
-        self.operation_descriptor = {
-            'installPackage': (
-                # Path to DBUS and object. 
-            "org.genivi.PackageManager",
-
-            # Method to call
-            "installPackage",
-            # Elements to extract from software operations object and to
-            # provide as DBUS call arguments.
-            # Second element in tuple is default value. None -> Mandatory 
-            [ ("image", None),
-              ("blacklistedPackages", dbus.Array(manifest.blacklisted_packages, "s"))
-
-            ]),
-
-        'upgradePackage': ( "org.genivi.PackageManager",
-                             "upgradePackage",
-                             [ ("image", None),
-                               ("blacklisted_packages", dbus.Array(manifest.blacklisted_packages, "s")),
-                               ("allow_downgrade", manifest.allow_downgrade)
-                             ]),
-
-        'removePackage': ( "org.genivi.PackageManager",
-                            "removePackage",
-                            [ ("package_id", None) ]),
-
-        'startComponents': ( "org.genivi.LifecycleManager",
-                              "startComponents",
-                              [ ("components", None) ]),
-
-        'stopComponents': ( "org.genivi.LifecycleManager",
-                             "stopComponents",
-                             [ ("components", None) ]),
-
-        'reboot': ( "org.genivi.LifecycleManager",
-                    "reboot",
-                    [ ("bootParameters", "") ]),
-
-        'createDiskPartition': ( "org.genivi.PartitionManager",
-                                   "createDiskPartition",
-                                   [ ("disk", None), ("partition_number", None),
-                                     ("type", None), ("start", None), ("size", None),
-                                     ("guid", ""), ("name", "") ]),
-            
-        'resizeDiskPartition': ( "org.genivi.PartitionManager", "resizeDiskPartition",
-                                   [ ("disk", None), ("partition_number", None),
-                                     ("start", None), ("size", None) ]),
-
-        'deleteDiskPartition': ( "org.genivi.PartitionManager", "deleteDiskPartition",
-                                   [ ("disk", None), ("partition_number", None) ]),
-
-
-        'writeDiskPartition': ( "org.genivi.PartitionManager", "writeDiskPartition",
-                                  [ ("disk", None), ("partition_number", None),
-                                    ("image", None),
-                                    ("blacklisted_partitions", dbus.Array(manifest.blacklisted_partitions, "s"))
-        ]),
-        
-        'patchDiskPartition': ( "org.genivi.PartitionManager", "patchDiskPartition",
-                                  [ ("disk", None), ("partition_number", None),
-                                    ("image", None),
-                                    ("blacklisted_partitions", dbus.Array(manifest.blacklisted_partitions, "s"))
-                                  ]),
-        
-        # FIXME: We need to find a specific module loader
-        #        that handles the target module. 
-        #        org.genivi.module_loader needs to be replaced
-        #        by org.genivi.module_loader_ecu1
-        #        This should be done programmatically
-        'flashModuleFirmwareEcu1': ( "org.genivi.ModuleLoaderEcu1", "flashModuleFirmware",
-                                        [ ("image", None),
-                                          ("blacklisted_firmware", dbus.Array(manifest.blacklisted_firmware, "s")),
-                                          ("allow_downgrade", manifest.allow_downgrade)
-                                        ])
-        }
-
-        print "  SoftwareOperation(): Called: {}".format(op_obj)
+        logger.debug('SoftwareLoadingManager.SoftwareOperation: Called: %s', op_obj)
         # Retrieve unique id for sofware operation
         if not 'id' in op_obj:
             raise Exception("SoftwareOperation(): 'id' not defined in: {}".format(op_obj))
 
         self.operation_id = op_obj['id']
         self.arguments = []
-        self.time_estimate = op_obj.get('time_estimate', 0)
+        self.time_estimate = op_obj.get('timeEstimate', 0)
         self.description = op_obj.get('description', '')
-        self.hmi_message = op_obj.get('hmi_message', '')
-        self.on_failure = op_obj.get('on_failure', 'continue')
+        self.hmi_message = op_obj.get('hmiMessage', '')
+        self.on_failure = op_obj.get('onFailure', 'continue')
         
         # Retrieve operation
         if not 'operation' in op_obj:
@@ -112,20 +41,22 @@ class SoftwareOperation:
         operation = op_obj['operation']
         
         # Retrieve the operation descriptor
-        if operation not in self.operation_descriptor:
+        if operation not in settings.OPERATIONS:
             raise Exception("operation {} not supported.".format(operation))
 
         # Store the DBUS path (org.genivi.xxx), method, and elements from
         # software operations to provide with DBUS call.
-        (self.path, self.method, arguments) = self.operation_descriptor[operation]
+        (self.path, self.method, arguments, parameters) = settings.OPERATIONS[operation]
 
-        print "  SoftwareOperation(): operation_id:  {}".format(self.operation_id)
-        print "  SoftwareOperation(): operation:     {}".format(operation)
-        print "  SoftwareOperation(): time_estimate: {}".format(self.time_estimate)
-        print "  SoftwareOperation(): description:   {}".format(self.description)
-        print "  SoftwareOperation(): on_failure:    {}".format(self.on_failure)
-        print "  SoftwareOperation(): dbus path:     {}".format(self.path)
-        print "  SoftwareOperation(): dbus method:   {}".format(self.method)
+        logger.debug('SoftwareLoadingManager.SoftwareOperation: operationId:  %s', self.operation_id)
+        logger.debug('SoftwareLoadingManager.SoftwareOperation: operation:    %s', operation)
+        logger.debug('SoftwareLoadingManager.SoftwareOperation: timeEstimate: %s', self.time_estimate)
+        logger.debug('SoftwareLoadingManager.SoftwareOperation: hmiMessage:   %s', self.hmi_message)
+        logger.debug('SoftwareLoadingManager.SoftwareOperation: description:  %s', self.description)
+        logger.debug('SoftwareLoadingManager.SoftwareOperation: onFailure:    %s', self.on_failure)
+        logger.debug('SoftwareLoadingManager.SoftwareOperation: path:         %s', self.path)
+        logger.debug('SoftwareLoadingManager.SoftwareOperation: method:       %s', self.method)
+
         # Go through the list of arguments and extract them
         # from the manifest's software operation object
         # These arguments will be provided, in order, to the DBUS call
@@ -135,17 +66,20 @@ class SoftwareOperation:
                 # and default was None, specifying that the argument
                 # is mandatory.
                 if default_value == None:
-                    print "  SoftwareOperation(): Mandatory element {} not defined in operation".format(argument)
-
+                    logger.error('SoftwareLoadingManager.SoftwareOperation: Mandatory element %s not defined in operation', argument)
                     raise Exception("Element {} not defined in operation: {}".format(argument,self.operation_id))
                 else:
                     # Argument not found in software operation, but
                     # we have a default value
                     value = default_value
-                    print "  SoftwareOperation(): method_arg {} = {} (default)".format(argument, value)
+                    if isinstance(value, list) and not value:
+                        # this is only necessary for empty lists as dbus won't be able to detect
+                        # the type from an empty list, hence create an empty string list explicitly.
+                        value = dbus.Array(value, 's')
+                    logger.debug('SoftwareLoadingManager.SoftwareOperation: method_arg %s = %s (default)', argument, value)
             else:
                 value = op_obj[argument]
-                print "  SoftwareOperation(): method_arg {} = {} (from manifest)".format(argument, value)
+                logger.debug('SoftwareLoadingManager.SoftwareOperation: method_arg %s = %s (manifest)', argument, value)
 
             #
             # Ugly workaround.
@@ -164,7 +98,7 @@ class SoftwareOperation:
         try:
             swm.dbus_method(self.path, self.method, transaction_id, *self.arguments)
         except Exception as e:
-            print "SoftwareOperation.send_transaction({}): Exception: {}".format(self.operation_id, e)
+            logger.error('SoftwareLoadingManager.SoftwareOperation.send_transaction(%s): Exception %s', transaction_id, e)
             return False
 
         return True
