@@ -16,11 +16,25 @@ killswm () {
 	exit 0
 }
 
-#if [ "$(id -u)" != "0" ]
-#then
-#	echo "How about sudo..."
-#	exit 1
-#fi
+export PYTHONPATH="${PWD}/common/"
+
+python -c "import settings,sys; sys.exit(settings.SQUASHFS_FUSE)"
+if [ "$?" == "0" ] ; then
+    echo "Using root mount..."
+    if [ "$(id -u)" != "0" ] ; then
+        echo "How about sudo..."
+        exit 1
+    fi
+else
+    echo "Using user mount..."
+    MOUNT_CMD=`python -c "import settings; print settings.SQUASHFS_MOUNT_CMD"`
+    UNMOUNT_CMD=`python -c "import settings; print settings.SQUASHFS_UNMOUNT_CMD"`
+    command -v $MOUNT_CMD >/dev/null 2>&1 && command -v $UNMOUNT_CMD >/dev/null 2>&1
+    if [ $? != 0 ] ; then
+        echo "Need $MOUNT_CMD and $UNMOUNT_CMD for user mount."
+        exit 1
+    fi
+fi
 
 usage() {
 	echo "Usage: ${0} [-r] [-i]"
@@ -45,7 +59,6 @@ while getopts ":ri" opt; do
   esac
 done
 
-export PYTHONPATH="${PWD}/common/"
 rm -f $PID_FNAME
 gnome-terminal --geometry 80x15+0+0 -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;Package Manager\007\"; cd package_manager;python package_manager.py" &
 

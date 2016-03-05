@@ -273,15 +273,18 @@ OPERATIONS = {
 # point which are provided programmatically, set the variable to None. Do not use
 # an empty string or a string with spaces.
 #
-# Regular mount as root 
-#SQUASHFS_MOUNT_CMD = "/bin/mount"
-#SQUASHFS_MOUNT_ARGS = None
-#SQUASHFS_UNMOUNT_CMD = "/bin/umount"
-#SQUASHFS_UNMOUNT_ARGS = None
-#
-# User mount
-SQUASHFS_MOUNT_CMD = "/usr/local/bin/squashfuse"
-SQUASHFS_MOUNT_ARGS = None
-SQUASHFS_UNMOUNT_CMD = "/bin/fusermount"
-SQUASHFS_UNMOUNT_ARGS = "-u"
+SQUASHFS_FUSE = True
+if SQUASHFS_FUSE:
+    # FUSE mount
+    SQUASHFS_MOUNT_CMD = "/usr/local/bin/squashfuse"
+    SQUASHFS_MOUNT_ARGS = None
+    SQUASHFS_UNMOUNT_CMD = "/bin/fusermount"
+    SQUASHFS_UNMOUNT_ARGS = "-u"
+else:
+    # Regular mount as root 
+    SQUASHFS_MOUNT_CMD = "/bin/mount"
+    SQUASHFS_MOUNT_ARGS = None
+    SQUASHFS_UNMOUNT_CMD = "/bin/umount"
+    SQUASHFS_UNMOUNT_ARGS = None
+
 
