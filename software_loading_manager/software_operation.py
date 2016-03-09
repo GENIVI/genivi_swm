@@ -21,7 +21,7 @@ logger = logging.getLogger(settings.LOGGER)
 # loaded from a manifest file.
 #
 class SoftwareOperation:
-    def __init__(self, manifest, op_obj):
+    def __init__(self, op_obj):
         logger.debug('SoftwareLoadingManager.SoftwareOperation: Called: %s', op_obj)
         # Retrieve unique id for sofware operation
         if not 'id' in op_obj:
@@ -88,7 +88,7 @@ class SoftwareOperation:
             # can open it.
             #
             if argument == "image":
-                self.arguments.append("{}/{}".format(manifest.mount_point, value))
+                self.arguments.append("{}/{}".format(op_obj['mountPoint'], value))
             else:
                 self.arguments.append(value)
 

@@ -34,59 +34,15 @@ class ManifestProcessor:
         # all completed software operations.
         self.storage_fname = storage_fname
 
-        # Transaction ID to use when sending
-        # out a DBUS transaction to another
-        # conponent. The component, in its callback
-        # to us, will use the same transaction ID, allowing
-        # us to tie a callback reply to an originating transaction.
-        #
-        # Please note that this is not the same thing as an operation id
-        # which is an element  of the manifest uniquely identifying each
-        # software operation.
-        self.next_transaction_id = 0
-
-        # The stored result for all completed software operations
-        # Each element contains the software operation id, the
-        # result code, and a descriptive text.
-        self.operation_results = []
-
         self.current_manifest = None
         self.mount_point = None
         self.manifest_file = None
 
-        try:
-            ifile = open(storage_fname, "r")
-        except:
-            # File could not be read. Start with empty
-            self.completed = []
-            return
-
-        # Parse JSON object
-        self.completed = json.load(ifile)
-        ifile.close()
 
     def queue_image(self, image_path):
         logger.debug('SoftwareLoadingManager.ManifestProcessor.queue_image(%s): Called.', image_path)
         self.image_queue.appendleft(image_path)
 
-    def add_completed_operation(self, operation_id):
-        logger.debug('SoftwareLoadingManager.ManifestProcessor.add_completed_operation(%s): Called.', operation_id)
-        self.completed.append(operation_id)
-        # Slow, but we don't care.
-        ofile = open(self.storage_fname, "w")
-        json.dump(self.completed, ofile)
-        ofile.close()
-
-    #
-    # Return true if the provided tranasaction id has
-    # been completed.
-    #
-    def is_operation_completed(self, transaction_id):
-        return not transaction_id or transaction_id in self.completed
-        
-    def get_next_transaction_id(self):
-        self.next_transaction_id = self.next_transaction_id + 1
-        return self.next_transaction_id
     
     #
     # Load the next manifest to process from the queue populated
@@ -144,7 +100,7 @@ class ManifestProcessor:
         # Specify manifest file to load
         self.manifest_file= "{}/update_manifest.json".format(self.mount_point)
         try:
-            self.current_manifest = manifest.Manifest(self)
+            self.current_manifest = manifest.Manifest(self.mount_point, self.manifest_file, self.storage_fname)
         except Exception as e:
             logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed loading manifest: %s.', e)
     

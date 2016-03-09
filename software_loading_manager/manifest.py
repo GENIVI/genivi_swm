@@ -25,7 +25,7 @@ logger = logging.getLogger(settings.LOGGER)
 #
 class Manifest:
 
-    def __init__(self, manifest_processor):
+    def __init__(self, mount_point, manifest_file, database_file):
         #
         # The transaction we are waiting for a reply callback on
         #
@@ -33,15 +33,41 @@ class Manifest:
         #        although the manifest file format does.
         #
         self.active_operation = None
-        self.manifest_processor = manifest_processor
-        self.mount_point = manifest_processor.mount_point
+        self.mount_point = mount_point
+        self.manifest_file = manifest_file
+        self.database_file = database_file
+
+        # Transaction ID to use when sending
+        # out a DBUS transaction to another
+        # component. The component, in its callback
+        # to us, will use the same transaction ID, allowing
+        # us to tie a callback reply to an originating transaction.
+        #
+        # Please note that this is not the same thing as an operation id
+        # which is an element  of the manifest uniquely identifying each
+        # software operation.
+        self.next_transaction_id = 0
 
         # Reset the update result
         self.operation_results = []
         
+        # load database file            
+        self.completed = []
+        try:
+            ifile = open(self.database_file, "r")
+            self.completed = json.load(ifile)
+            ifile.close()
+        except IOError as e:
+			pass
+
         # Load manifest file
-        if not self.load_from_file(self.manifest_processor.manifest_file):
+        if not self.load_from_file(self.manifest_file):
             return None
+
+    # Get next transaction id for dbus message
+    def get_next_transaction_id(self):
+        self.next_transaction_id = self.next_transaction_id + 1
+        return self.next_transaction_id
 
 
     # Load a manifest from a file
@@ -95,7 +121,7 @@ class Manifest:
                     continue
 
                 # Check if this operation has already been executed
-                if self.manifest_processor.is_operation_completed(op_id):
+                if self.is_operation_completed(op_id):
                     # Add the result code for the given operation id
                     self.operation_results.append(
                         swm.result(op_id,
@@ -114,7 +140,8 @@ class Manifest:
                 # operation object so that the new object can initialize
                 # itself correctly.
                 try:
-                    op_obj = software_operation.SoftwareOperation(self, op)
+                    op['mountPoint'] = self.mount_point
+                    op_obj = software_operation.SoftwareOperation(op)
                 except Exception as e:
                     logger.error('SoftwareLoadingManager.Manifest.load_from_string(%s): Could not process manifest operation: %s.\nSkipped', manifest_string, e)
                     return False
@@ -139,7 +166,7 @@ class Manifest:
         # Retrieve next operation to process.
         op = self.operations.popleft()
  
-        transaction_id = self.manifest_processor.get_next_transaction_id()
+        transaction_id = self.get_next_transaction_id()
 
         #
         # Invoke the software operation object, created by
@@ -166,7 +193,7 @@ class Manifest:
 
         # We have completed this specific transaction
         # Store it so that we don't run it again on restart
-        self.manifest_processor.add_completed_operation(self.active_operation.operation_id)
+        self.add_completed_operation(self.active_operation.operation_id)
 
         #
         # Add the result code from a software operation to self
@@ -181,4 +208,21 @@ class Manifest:
 
         self.active_operation = None
         return True
+        
+    #
+    # Return true if the provided tranasaction id has
+    # been completed.
+    #
+    def is_operation_completed(self, transaction_id):
+        return not transaction_id or transaction_id in self.completed
+        
+    def add_completed_operation(self, operation_id):
+        logger.debug('SoftwareLoadingManager.Manifest.add_completed_operation(%s): Called.', operation_id)
+        self.completed.append(operation_id)
+        # Slow, but we don't care.
+        ofile = open(self.database_file, "w")
+        json.dump(self.completed, ofile)
+        ofile.close()
+
+
 
