@@ -1,8 +1,11 @@
-# (c) 2015,2016 - Jaguar Land Rover.
-#
-# Mozilla Public License 2.0
-#
-# Library to process updates
+# -*- coding: utf-8 -*-
+""" Database library to store update progress and results.
+
+This module provides classes and methods to process a queue of manifests.
+
+(c) 2015, 2016 - Jaguar Land Rover.
+Mozilla Public License 2.0
+"""
 
 
 
@@ -14,6 +17,7 @@ from collections import deque
 import manifest
 import settings
 import logging
+import traceback
 
 logger = logging.getLogger(settings.LOGGER)
 
@@ -23,7 +27,18 @@ logger = logging.getLogger(settings.LOGGER)
 # operations
 #
 class ManifestProcessor:
-    def __init__(self, storage_fname):
+    """Manifest Processing
+    
+    This class processes multiple images with their manifests.
+    """
+    
+    def __init__(self, dbstore):
+        """Constructor
+        
+        Create a new ManifestProcessor instance.
+        
+        @param dbstore Reference to the database store
+        """
 
         #
         # A queue of Manifest objects waiting to be processed.
@@ -32,7 +47,7 @@ class ManifestProcessor:
         
         # File name we will use to read and store
         # all completed software operations.
-        self.storage_fname = storage_fname
+        self.dbstore = dbstore
 
         self.current_manifest = None
         self.mount_point = None
@@ -40,6 +55,13 @@ class ManifestProcessor:
 
 
     def queue_image(self, image_path):
+        """Place image into processing queue
+        
+        Add a new image to the processing queue. Images are squashfs
+        archives.
+        
+        @param image_path Path to the image
+        """
         logger.debug('SoftwareLoadingManager.ManifestProcessor.queue_image(%s): Called.', image_path)
         self.image_queue.appendleft(image_path)
 
@@ -49,6 +71,13 @@ class ManifestProcessor:
     # by queue_manifest()
     #
     def load_next_manifest(self):
+        """Load next manifest from image
+        
+        Mount the squashfs image and load the manifest in it for processing.
+        
+        @return True if successful, False otherwise
+        """
+        
         #
         # Do we have any nore images to process?
         #
@@ -78,14 +107,16 @@ class ManifestProcessor:
         logger.debug('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Processing update image: %s.', image_path)
 
         # Mount the file system
-        self.mount_point = "/tmp/swlm/{}".format(os.getpid())
+        if not settings.SQUASHFS_MOUNT_POINT.endswith('/'):
+            self.mount_point = settings.SQUASHFS_MOUNT_POINT + '/' + str(os.getpid())
+        else:
+            self.mount_point = settings.SQUASHFS_MOUNT_POINT + str(os.getpid())
         logger.debug('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Creating mount point: %s.', self.mount_point)
         try:
             os.makedirs(self.mount_point)
         except OSError as e:
             logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed creating mount point %s: %s.', self.mount_point, e)
             pass
-        
         try:
             command = [settings.SQUASHFS_MOUNT_CMD, image_path, self.mount_point]
             if settings.SQUASHFS_MOUNT_ARGS:
@@ -100,9 +131,10 @@ class ManifestProcessor:
         # Specify manifest file to load
         self.manifest_file= "{}/update_manifest.json".format(self.mount_point)
         try:
-            self.current_manifest = manifest.Manifest(self.mount_point, self.manifest_file, self.storage_fname)
+            self.current_manifest = manifest.Manifest(self.mount_point, self.manifest_file, self.dbstore)
         except Exception as e:
             logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed loading manifest: %s.', e)
+            traceback.print_exc()
     
         if not self.current_manifest:
             self.current_manifest = None

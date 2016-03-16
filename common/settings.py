@@ -1,9 +1,11 @@
-# (c) 2015,2016 - Jaguar Land Rover.
-#
-# Mozilla Public License 2.0
-#
-# Python-based PoC for Software Loading Manager
-#
+# -*- coding: utf-8 -*-
+""" Database library to store update progress and results.
+
+This module provides the configuration settings for Software Management.
+
+(c) 2015, 2016 - Jaguar Land Rover.
+Mozilla Public License 2.0
+"""
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -273,6 +275,7 @@ OPERATIONS = {
 # point which are provided programmatically, set the variable to None. Do not use
 # an empty string or a string with spaces.
 #
+SQUASHFS_MOUNT_POINT = "/tmp/swlm"
 SQUASHFS_FUSE = True
 if SQUASHFS_FUSE:
     # FUSE mount
@@ -287,4 +290,7 @@ else:
     SQUASHFS_UNMOUNT_CMD = "/bin/umount"
     SQUASHFS_UNMOUNT_ARGS = None
 
+
+# Database Settings
+DB_URL = "sqlite:/tmp/swlm.sqlite"
 

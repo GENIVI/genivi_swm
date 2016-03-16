@@ -1,4 +1,4 @@
-# (c) 2015 - Jaguar Land Rover.
+# (c) 2015, 2016 - Jaguar Land Rover.
 #
 # Mozilla Public License 2.0
 #
@@ -15,6 +15,7 @@ import os
 import swm
 import settings
 import logging
+import database
 
 logger = logging.getLogger(settings.LOGGER)
 
@@ -22,8 +23,8 @@ logger = logging.getLogger(settings.LOGGER)
 # Define the DBUS-facing Software Loading Manager service
 #
 class SLMService(dbus.service.Object):
-    def __init__(self, db_path):
-        self.manifest_processor = manifest_processor.ManifestProcessor(db_path)
+    def __init__(self, dbstore):
+        self.manifest_processor = manifest_processor.ManifestProcessor(dbstore)
         # Define our own bus name
         bus_name = dbus.service.BusName('org.genivi.SoftwareLoadingManager', bus=dbus.SessionBus())        
         # Define our own object on the SoftwareLoadingManager bus
@@ -252,7 +253,7 @@ class SLMService(dbus.service.Object):
                 logger.warning('SoftwareLoadingManager.SLMService.operationResult(): No manifest to handle callback reply.')
                 return None
 
-            manifest.complete_transaction(transaction_id, result_code, result_text)
+            manifest.complete_operation(transaction_id, result_code, result_text)
             if not self.start_next_operation():
                 self.distribute_update_result(manifest.update_id,
                                               manifest.operation_results)
@@ -269,12 +270,11 @@ class SLMService(dbus.service.Object):
         return [ "bluez_driver", "bluez_apps" ]
 
 def usage():
-    print "Usage:", sys.argv[0], "[-r] [-d database_file] "
+    print "Usage:", sys.argv[0], "[-r]"
     print
     print "  -r                Reset the completed operations database prior to running"
-    print "  -d database_file  Path to database file to store completed operations in"
     print
-    print "Example:", sys.argv[0],"-r -d /tmp/database"
+    print "Example:", sys.argv[0],"-r"
     sys.exit(255)
 
 
@@ -287,29 +287,22 @@ except getopt.GetoptError:
     print "Could not parse arguments."
     usage()
 
-db_path = "/tmp/completed_operations.json"
-reset_db = False
+dbstore = database.openDatabase()
+if not dbstore:
+    logger.error('Software Loading Manager - Database Error')
+    exit(1)
 
 for o, a in opts:
     if o == "-r":
-        reset_db = True
-    elif o == "-d":
-        db_path = a
+        database.resetDatabaseSchema(dbstore)
     else:
         print "Unknown option: {}".format(o)
         usage()
 
 DBusGMainLoop(set_as_default=True)
 
-# Check if we are to delete the old database.
-if reset_db:
-    try:
-        os.remove(db_path)
-    except:
-        pass
 
-
-slm_sota = SLMService(db_path)
+slm_sota = SLMService(dbstore)
 
 while True:
     gtk.main_iteration()
