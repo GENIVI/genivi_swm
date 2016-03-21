@@ -13,9 +13,9 @@ usage() {
     echo
     echo "  -d update_dir       The directory to create a squashfs image from."
     echo "                      The directory must contain a 'update_manifest.json' file."
-	echo
+    echo
     echo "  -o update_fname     The file name of the squashfs image to be generated."
-	echo
+    echo
     exit 1
 }
 

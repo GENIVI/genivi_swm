@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Database library to store update progress and results.
+""" Software Management Core Library
 
 This module provides the core library for Software Management.
 
@@ -30,7 +30,7 @@ class SWMResult():
     SWM_RES_DEPENDENCY_FAILURE = 2
     SWM_RES_VALIDATION_FAILED = 3
     SWM_RES_INSTALL_FAILED = 4
-    SWM_RES_UPGRADE_FAILIED = 5
+    SWM_RES_UPGRADE_FAILED = 5
     SWM_RES_REMOVAL_FAILED = 6
     SWM_RES_FLASH_FAILED = 7
     SWM_RES_CREATE_PARTITION_FAILED = 8

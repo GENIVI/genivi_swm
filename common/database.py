@@ -347,7 +347,8 @@ class SWOperation(Persistance):
     operation is associated with a software update trough a foreign key.
     """
     __storm_table__ = "SWOperation"
-    SQL_CREATE = "CREATE TABLE SWOperation (id VARCHAR PRIMARY KEY, operation VARCHAR, updateId VARCHAR, startTime VARCHAR, finishTime VARCHAR, status VARCHAR, resultCode INTEGER)"
+    SQL_CREATE = "CREATE TABLE SWOperation (id VARCHAR PRIMARY KEY, operation VARCHAR, updateId VARCHAR, \
+                  startTime VARCHAR, finishTime VARCHAR, status VARCHAR, resultCode INTEGER, resultText VARCHAR)"
     SQL_CLEAR = "DELETE FROM SWOperation"
     ST_PENDING = u"PENDING"
     ST_STARTED = u"STARTED"
@@ -362,6 +363,7 @@ class SWOperation(Persistance):
     finishTime = DateTime()
     status = Unicode()
     resultCode = Int()
+    resultText = Unicode()
     
     def __init__(self, id, updateId, operation):
         """Constructor
@@ -387,37 +389,43 @@ class SWOperation(Persistance):
         self.startTime = datetime.utcnow()
         self.status = SWOperation.ST_STARTED
 
-    def finish(self, resultCode):
+    def finish(self, resultCode, resultText):
         """Finish the software operation
         
         Sets the finishTime timestamp and the status to ST_FINISHED.
         
         @param resultCode Result code
+        @param resultText Detailed text message
         """
         self.finishTime = datetime.utcnow()
         self.resultCode = resultCode
+        self.resultText = unicode(resultText)
         self.status = SWOperation.ST_FINISHED
 
-    def abort(self, resultCode):
+    def abort(self, resultCode, resultText):
         """Abort the software operation
         
         Sets the finishTime timestamp and the status to ST_ABORTED.
 
         @param resultCode Result code
+        @param resultText Detailed text message
         """
         self.finishTime = datetime.utcnow()
         self.resultCode = resultCode
+        self.resultText = unicode(resultText)
         self.status = SWOperation.ST_ABORTED
         
-    def error(self, resultCode):
+    def error(self, resultCode, resultText):
         """Set this software operation to error status
         
         Sets the finishTime timestamp and the status to ST_ERROR.
 
         @param resultCode Result code
+        @param resultText Detailed text message
         """
         self.finishTime = datetime.utcnow()
         self.resultCode = resultCode
+        self.resultText = unicode(resultText)
         self.status = SWOperation.ST_ERROR
         
     def isfinished(self):

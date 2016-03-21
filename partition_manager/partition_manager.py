@@ -1,10 +1,11 @@
-# (c) 2015 - Jaguar Land Rover.
-#
-# Mozilla Public License 2.0
-#
-# Python-based partition manager PoC
+# -*- coding: utf-8 -*-
+""" Partition Management
 
+This module provides classes and methods for managing partitions.
 
+(c) 2015, 2016 - Jaguar Land Rover.
+Mozilla Public License 2.0
+"""
 
 import gtk
 import dbus

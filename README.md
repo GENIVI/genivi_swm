@@ -1,5 +1,5 @@
 
-Copyright (C) 2014-2015 Jaguar Land Rover
+Copyright (C) 2015,2016 Jaguar Land Rover
 
 This document is licensed under Creative Commons
 Attribution-ShareAlike 4.0 International.
@@ -117,23 +117,68 @@ LocMedMgr | Local Media Manager
     
 
 
-# RUNNING THE CODE ON UBUNTU 14.10 AND 15.10
+# INSTALLATION AND CONFIGURATION
 
-## Install python and add ons.
+## Installation on Debian and Ubuntu
 
 Make sure you have Python 2.7 (or later 2.X) installed.
 
 Install the necessary python libraries
 
-    sudo apt-get install python-gtk2
+    sudo apt-get install python-gtk2 python-storm
 
+## Installation on Fedora
 
-## Launch SWM components
+Make sure you have Python 2.7 (or later 2.X) installed.
+
+Install the necessary python libraries
+
+    sudo dnf install python-gtk2 python-storm
+
+## Configuration (All Distributions)
+
+All configuration is accomplished by changing the configuration variables in ```common/settings.py```. 
+
+Common settings are:
+
+* SWM_SIMULATION:
+  If set to ```True``` SWM runs in simulation mode. In this mode FUSE and
+  squashfuse are used to mount the SquashFS archive containing the update.
+  If set to ```False``` SWM must be run as root.
+  
+* SWM_SIMULATION_WAIT:
+  Time in seconds to wait for simulated operations.
+  
+* DB_URL:
+  SWM maintains update information in a SQLite database. This variable sets
+  path and name of the database file.
+  
+* LOGGER:
+  The standard logger is ```swm.default```, which outputs logging information
+  to the console and to the file specified by ```LOGFILE```. Other loggers are
+  ```swm.console``` which outputs to the console only and ```swm.file``` which
+  outputs to a log file only.
+  
+* LOGFILE:
+  Path and name to the log file.
+  
+
+# RUNNING
+
 In a terminal window, run a fully automated demo using:
 
     sudo sh start_swm.sh -r 
 
-```sudo``` is needed since the sample_update.upd file is a squashfs image that needs to be mounted.
+```sudo``` is needed only if running in *real mode* with ```SWM_SIMULATION = False``` in ```common/settings.py```.
+
+**WARNING:** When running in *real mode* SWM attempts to install the software package nano on the system. The
+```start_swm.sh``` script figures out what distribution it is running on and chooses an RPM (Fedora) or DEB (Debian and Ubuntu)
+software update to execute.
+
+When running in *simulation mode*, you need to have Filesystem in User Space (FUSE) and squashfuse installed on your system.
+FUSE is standard for virtually all Linux distributions, including Debian, Fedora and Ubuntu. squashfuse is not a standard
+package and the distributions do not have it in their repositories. However, it can easily be compiled from source which can
+be found at https://github.com/vasi/squashfuse.
 
 ```-r``` Specifies that the database storing already processed software operations (hosted in an update) should
 be reset. If that is not done, subsequent runs will all return "Already processed"
@@ -145,8 +190,14 @@ and control the actions.
 Each launched component will get their own terminal window.
 
 ## Watch execution
-The system will execute the manifest from ```sample_update/update_manifest.json```, stored in the
-```sample_update.upd``` squashfs image of the ```sample_update``` directory.
+When running in *simulation mode* the system will execute the manifest from ```sample_update/update_manifest.json```,
+stored in the ```sample_update.upd``` squashfs image of the ```sample_update``` directory.
+
+When running in *real mode* the system will determine what distribution it is running on and then:
+* if running on Fedora, execute the manifest from ```rpm_update/update_manifest.json```, stored in the ```rpm_update.upd```
+  squashfs image of the ```rpm_update``` directory;
+* if running on Debian or Ubuntu, execute the manifest from ```deb_update/update_manifest.json```, stored in the ```deb_update.upd```
+  squashfs image of the ```deb_update``` directory.
 
 During the execution the HMI window will show an overall progress bar and a progress bar for each
 software operation carried out.

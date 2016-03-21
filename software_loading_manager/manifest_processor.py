@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Database library to store update progress and results.
+""" Manifest Processing
 
 This module provides classes and methods to process a queue of manifests.
 
@@ -88,9 +88,8 @@ class ManifestProcessor:
         #
         if self.mount_point:
             try:
-                command = [settings.SQUASHFS_UNMOUNT_CMD, self.mount_point]
-                if settings.SQUASHFS_UNMOUNT_ARGS:
-                    command.insert(1, settings.SQUASHFS_UNMOUNT_ARGS) 
+                command = settings.SQUASHFS_UNMOUNT_CMD
+                command.append(self.mount_point)
                 subprocess.check_call(command)
             except subprocess.CalledProcessError:
                 logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed to unmount %s: %s.',
@@ -118,9 +117,9 @@ class ManifestProcessor:
             logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed creating mount point %s: %s.', self.mount_point, e)
             pass
         try:
-            command = [settings.SQUASHFS_MOUNT_CMD, image_path, self.mount_point]
-            if settings.SQUASHFS_MOUNT_ARGS:
-                command.insert(1, settings.SQUASHFS_MOUNT_ARGS) 
+            command = settings.SQUASHFS_MOUNT_CMD
+            command.append(image_path)
+            command.append(self.mount_point)
             subprocess.check_call(command)
         except subprocess.CalledProcessError:
             logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed mounting %s on %s: %s.',
@@ -140,9 +139,8 @@ class ManifestProcessor:
             self.current_manifest = None
             # Unmount file system
             try:
-                command = [settings.SQUASHFS_UNMOUNT_CMD, self.mount_point]
-                if settings.SQUASHFS_UNMOUNT_ARGS:
-                    command.insert(1, settings.SQUASHFS_UNMOUNT_ARGS) 
+                command = settings.SQUASHFS_UNMOUNT_CMD
+                command.append(self.mount_point)
                 subprocess.check_call(command)
             except subprocess.CalledProcessError:
                 logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed unmounting %s: %s.',

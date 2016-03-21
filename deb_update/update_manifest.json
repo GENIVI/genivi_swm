@@ -1,0 +1,36 @@
+{
+    "updateId": "nano_editor_update",
+    "name": "Nano Editor",
+    "description": "A small editor so you can hack your infotainment system.",
+    "getUserConfirmation": true, 
+    "showHmiProgress": false, 
+    "showHmiResult": true, 
+    "operations": [
+		{ 
+			"id": "b9e3865e-9d35-11e5-b235-eb755e788c53",
+			"hmiMessage": "Deleting old Nano package.",
+			"timeEstimate": 5000,
+			"operation": "removePackage",
+			"packageId": "nano",
+			"onFailure": "continue"
+		},
+		{ 
+			"id": "d1c96216-9d35-11e5-a00b-57f2b4f03098",
+			"hmiMessage": "Installing new Nano package.",
+			"timeEstimate": 5000,
+			"operation": "installPackage",
+			"image": "packages/nano_2.2.6-3_amd64.deb",
+			"onFailure": "abort"
+		},
+		{ 
+			"id": "32c5fe09-e2cc-445d-a903-86932493d063",
+			"hmiMessage": "Upgrading Nano package.",
+			"timeEstimate": 5000,
+			"operation": "upgradePackage",
+			"image": "packages/nano_2.2.4-1_amd64.deb",
+			"onFailure": "abort",
+            "allowDowngrade": true
+		}
+    ]
+}
+

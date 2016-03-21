@@ -16,19 +16,38 @@ killswm () {
 	exit 0
 }
 
+DISTRO=`lsb_release -i | cut -d ':' -f 2 | tr -d ' \t\n'`
+case "$DISTRO" in
+Fedora)
+    sed -i '0,/PACKAGE_MANAGER.*/s//PACKAGE_MANAGER = "rpm"/' common/settings.py
+    ;;
+Debian|Ubuntu)
+    sed -i '0,/PACKAGE_MANAGER.*/s//PACKAGE_MANAGER = "deb"/' common/settings.py
+    ;;
+esac
+
 export PYTHONPATH="${PWD}/common/"
+
+python -c "import settings,sys; sys.exit(settings.SWM_SIMULATION)"
+if [ "$?" == "0" ] ; then
+    echo "Running in real mode..."
+    if [ "$(id -u)" != "0" ] ; then
+        echo "Must be root to run in real mode!"
+        exit 1
+    fi
+    SIM_MODE="0"
+else
+    echo "Running in simulation mode..."
+    SIM_MODE="1"
+fi
 
 python -c "import settings,sys; sys.exit(settings.SQUASHFS_FUSE)"
 if [ "$?" == "0" ] ; then
-    echo "Using root mount..."
-    if [ "$(id -u)" != "0" ] ; then
-        echo "How about sudo..."
-        exit 1
-    fi
+    echo "Using root mount."
 else
-    echo "Using user mount..."
-    MOUNT_CMD=`python -c "import settings; print settings.SQUASHFS_MOUNT_CMD"`
-    UNMOUNT_CMD=`python -c "import settings; print settings.SQUASHFS_UNMOUNT_CMD"`
+    echo "Using user mount."
+    MOUNT_CMD=`python -c "import settings; print settings.SQUASHFS_MOUNT_CMD[0]"`
+    UNMOUNT_CMD=`python -c "import settings; print settings.SQUASHFS_UNMOUNT_CMD[0]"`
     command -v $MOUNT_CMD >/dev/null 2>&1 && command -v $UNMOUNT_CMD >/dev/null 2>&1
     if [ $? != 0 ] ; then
         echo "Need $MOUNT_CMD and $UNMOUNT_CMD for user mount."
@@ -78,9 +97,20 @@ if [ "${INTERACTIVE}" = "false" ]
 then
 	cd sota_client
 	echo "Running SOTA client with HMI user confirmation turned off. Use -c to turn on"
-	python sota_client.py -u sample_app_1.2.3 -i ../sample_update.upd -s xxx -d "Sample Update Description"
-	read x
-	killswm
+    if [ "$SIM_MODE" == "1" ] ; then
+        python sota_client.py -u sample_app_1.2.3 -i ../sample_update.upd -s xxx -d "Sample Update Description"
+    else
+        case "$DISTRO" in
+        Fedora)
+            python sota_client.py -u nano-2.3.6 -i ../rpm_update.upd -s xxx -d "Updating RPM Package"
+            ;;
+        Debian|Ubuntu)
+            python sota_client.py -u nano-2.2.6 -i ../deb_update.upd -s xxx -d "Updating DEB Package"
+            ;;
+        esac
+    fi
+    read x
+    killswm
 	exit 0
 fi
 

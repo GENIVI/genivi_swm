@@ -9,14 +9,32 @@ Mozilla Public License 2.0
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Don't change this.
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
+# Simulation
+# If simulation is enabled all modules only simulate their operations
+# rather than carrying them out. Simulation simply means outputting
+# progress to the logging facilities.
+SWM_SIMULATION = False
+SWM_SIMULATION_WAIT = 5
+
+# Database Settings
+# SWM operations and their results are stored in a SQLite database.
+DB_URL = "sqlite:/tmp/swlm.sqlite"
+
 # Logging settings
-import logging.config
 LOGGER = 'swm.default'
 LOGFILE = os.path.join(BASE_DIR, 'swm.log')
+
+
+# Don't change anything below this line unless you are familiar with the
+# settings.
+
+# Logger configuration
+import logging.config
 LOGGING_CONFIG = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -276,21 +294,45 @@ OPERATIONS = {
 # an empty string or a string with spaces.
 #
 SQUASHFS_MOUNT_POINT = "/tmp/swlm"
-SQUASHFS_FUSE = True
+SQUASHFS_FUSE = SWM_SIMULATION
 if SQUASHFS_FUSE:
     # FUSE mount
-    SQUASHFS_MOUNT_CMD = "/usr/local/bin/squashfuse"
-    SQUASHFS_MOUNT_ARGS = None
-    SQUASHFS_UNMOUNT_CMD = "/bin/fusermount"
-    SQUASHFS_UNMOUNT_ARGS = "-u"
+    SQUASHFS_MOUNT_CMD = ["/usr/local/bin/squashfuse"]
+    SQUASHFS_UNMOUNT_CMD = ["/bin/fusermount", "-u"]
 else:
     # Regular mount as root 
-    SQUASHFS_MOUNT_CMD = "/bin/mount"
-    SQUASHFS_MOUNT_ARGS = None
-    SQUASHFS_UNMOUNT_CMD = "/bin/umount"
-    SQUASHFS_UNMOUNT_ARGS = None
+    SQUASHFS_MOUNT_CMD = ["/bin/mount"]
+    SQUASHFS_UNMOUNT_CMD = ["/bin/umount"]
 
 
-# Database Settings
-DB_URL = "sqlite:/tmp/swlm.sqlite"
-
+# Package Management Commands
+#
+# SWM uses the platform's package management systems to install, upgrade and
+# remove software packages.
+#
+PACKAGE_MANAGER = "rpm"
+if PACKAGE_MANAGER == "rpm":
+    PKGMGR_INSTALL_CMD = ["rpm", "--install"]
+    PKGMGR_UPGRADE_CMD = ["rpm", "--upgrade", "--oldpackage"]
+    PKGMGR_REMOVE_CMD = ["rpm", "--erase"]
+    PKGMGR_LIST_CMD = ["rpm", "--query", "--all"]
+    PKGMGR_CHECK_CMD = ["rpm", "--query"]
+    PKGMGR_DEL_ARCH = '.'
+    PKGMGR_DEL_REL = '-'
+    PKGMGR_DEL_VER = '-'
+elif PACKAGE_MANAGER == "deb":
+    PKGMGR_INSTALL_CMD = ["dpkg", "--install"]
+    PKGMGR_UPGRADE_CMD = ["dpkg", "--install"]
+    PKGMGR_REMOVE_CMD = ["dpkg", "--purge"]
+    PKGMGR_LIST_CMD = ["dpkg-query", "--show", "--showformat", "'${Package}-${Version}.${Architecture}\n'"]
+    PKGMGR_CHECK_CMD = ["dpkg-query", "--list"]
+    PKGMGR_DEL_ARCH = '_'
+    PKGMGR_DEL_REL = '-'
+    PKGMGR_DEL_VER = '_'
+else:
+    PKGMGR_INSTALL_CMD = ["echo", "Incorrect package manager defined."]
+    PKGMGR_UPGRADE_CMD = ["echo", "Incorrect package manager defined."]
+    PKGMGR_REMOVE_CMD = ["echo", "Incorrect package manager defined."]
+    PKGMGR_LIST_CMD = ["echo", "Incorrect package manager defined."]
+    PKGMGR_CHECK_CMD = ["echo", "Incorrect package manager defined."]
+  

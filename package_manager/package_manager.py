@@ -1,9 +1,13 @@
-# (c) 2015 - Jaguar Land Rover.
-#
-# Mozilla Public License 2.0
-#
-# Python-based package manager PoC
+# -*- coding: utf-8 -*-
+""" Package Management
 
+This module provides classes and methods for installing, upgrading and
+removing packages on the target. It uses the native package management
+system.
+
+(c) 2015, 2016 - Jaguar Land Rover.
+Mozilla Public License 2.0
+"""
 
 
 import gtk
@@ -15,6 +19,8 @@ import time
 import swm
 import settings
 import logging
+import os.path
+import subprocess
 
 logger = logging.getLogger(settings.LOGGER)
 
@@ -23,7 +29,18 @@ logger = logging.getLogger(settings.LOGGER)
 # Package manager service
 #
 class PkgMgrService(dbus.service.Object):
+    """Package Manager Service
+    
+    Handles installation, upgrading and removing of packages using the platform's
+    native package manager. The platform package management commands are defined
+    by the settings in common.
+    """
+
     def __init__(self):
+        """Constructor
+        
+        Initalize instance as a dbus service object.
+        """
         bus_name = dbus.service.BusName('org.genivi.PackageManager', bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, bus_name, '/org/genivi/PackageManager')
 
@@ -35,7 +52,18 @@ class PkgMgrService(dbus.service.Object):
                         image_path,
                         blacklisted_packages,
                         send_reply, 
-                        send_error): 
+                        send_error):
+        """Install Software Package
+        
+        Dbus callback for installing a software package using the platform's
+        package management system.
+        
+        @param transaction_id Software Loading Manager transaction id
+        @param image_path Path to the software package to be installed
+        @param blacklisted_packages List of packages that must not be installed
+        @param send_reply DBus callback for a standard reply
+        @param send_error DBus callback for error response
+        """
 
         logger.debug('PackageManager.PkgMgrService.installPackage(%s, %s, %s): Called.',
                      transaction_id, image_path, blacklisted_packages)
@@ -47,17 +75,44 @@ class PkgMgrService(dbus.service.Object):
             # their own calls (nested calls).
             #
             send_reply(True)
+            
+            # extract package and check for blacklisted
+            pkg = os.path.basename(image_path)
+            if pkg in blacklisted_packages:
+                logger.warning('PackageManager.PkgMgrService.installPackage(): Blacklisted Package: %s', pkg)
+                swm.send_operation_result(transaction_id,
+                                            swm.SWMResult.SWM_RES_OPERATION_BLACKLISTED,
+                                            "Blacklisted Package: {}".format(pkg))
+                return None
 
-            # Simulate install
-            sys.stdout.write("Intalling package: {} (5 sec)\n".format(image_path))
-            for i in xrange(1,50):
-                sys.stdout.write('.')
-                sys.stdout.flush()
-                time.sleep(0.1)
-            sys.stdout.write("\nDone\n")
-            swm.send_operation_result(transaction_id,
-                                      swm.SWMResult.SWM_RES_OK,
-                                      "Installation successful. Path: {}".format(image_path))
+            # assemble installation command
+            cmd = settings.PKGMGR_INSTALL_CMD
+            cmd.append(image_path)
+            logger.info('PackageManager.PkgMgrService.installPackage(): Command: %s', cmd)
+
+            if settings.SWM_SIMULATION:
+                # simulate installation
+                logger.info('PackageManager.PkgMgrService.installPackage(): Installation Simulation...')
+                time.sleep(settings.SWM_SIMULATION_WAIT)
+                resultcode = swm.SWMResult.SWM_RES_OK
+                resulttext = "Installation Simulation successful. Command: {}".format(cmd)
+                logger.info('PackageManager.PkgMgrService.installPackage(): Installation Simulation successful.')
+            else:
+                # perform installation
+                sp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if sp.wait() == 0:
+                    (stdout, stderr) = sp.communicate()
+                    resultcode = swm.SWMResult.SWM_RES_OK
+                    resulttext = "Installation successful. Result: {}".format(stdout)
+                    logger.info('PackageManager.PkgMgrService.installPackage(): Installation successful.')
+                else:
+                    (stdout, stderr) = sp.communicate()
+                    resultcode = swm.SWMResult.SWM_RES_INSTALL_FAILED
+                    resulttext = "Installation failed. Error: {}".format(stderr)
+                    logger.error('PackageManager.PkgMgrService.installPackage(): Installation failed: %s.', stderr)
+                
+            swm.send_operation_result(transaction_id, resultcode, resulttext)
+
         except Exception as e:
             logger.error('PackageManager.PkgMgrService.installPackage(): Exception: %s.', e)
             swm.send_operation_result(transaction_id,
@@ -76,6 +131,18 @@ class PkgMgrService(dbus.service.Object):
                         allow_downgrade,
                         send_reply, 
                         send_error): 
+        """Upgrade Software Package
+        
+        Dbus callback for upgrading a software package using the platform's
+        package management system.
+        
+        @param transaction_id Software Loading Manager transaction id
+        @param image_path Path to the software package to be installed
+        @param blacklisted_packages List of packages that must not be installed
+        @param allow_downgrade Permit downgrading of the package to a previous version
+        @param send_reply DBus callback for a standard reply
+        @param send_error DBus callback for error response
+        """
 
         logger.debug('PackageManager.PkgMgrService.upgradePackage(%s, %s, %s, %s): Called.',
                      transaction_id, image_path, blacklisted_packages, allow_downgrade)
@@ -88,16 +155,55 @@ class PkgMgrService(dbus.service.Object):
             #
             send_reply(True)
 
-            # Simulate install
-            sys.stdout.write("Upgrading package: {} (5 sec)\n".format(image_path))
-            for i in xrange(1,50):
-                sys.stdout.write('.')
-                sys.stdout.flush()
-                time.sleep(0.1)
-            sys.stdout.write("\nDone\n")
-            swm.send_operation_result(transaction_id,
-                                      swm.SWMResult.SWM_RES_OK,
-                                      "Upgrade successful. Path: {}".format(image_path))
+            # extract package and check for blacklisted
+            pkg = os.path.basename(image_path)
+            if pkg in blacklisted_packages:
+                logger.warning('PackageManager.PkgMgrService.upgradePackage(): Blacklisted Package: %s', pkg)
+                swm.send_operation_result(transaction_id,
+                                            swm.SWMResult.SWM_RES_OPERATION_BLACKLISTED,
+                                            "Blacklisted Package: {}".format(pkg))
+                return None
+
+            # check if package is installed and compare versions
+            pkglist = self.checkInstalledPackage(pkg)
+            if len(pkglist) > 0 and not allow_downgrade:
+                # only need to check package version if package is installed
+                # and downgrading is not allowed
+                if not self.isNewer(pkglist, pkg):
+                    logger.info('PackageManager.PkgMgrService.upgradePackage(): Downgrade prohibited.')
+                    swm.send_operation_result(transaction_id,
+                                                swm.SWMResult.SWM_RES_OLD_VERSION,
+                                                "Package downgrade prohibited.")
+                    return None
+                    
+
+            # assemble upgrade command
+            cmd = settings.PKGMGR_UPGRADE_CMD
+            cmd.append(image_path)
+            logger.info('PackageManager.PkgMgrService.upgradePackage(): Command: %s', cmd)
+
+            if settings.SWM_SIMULATION:
+                # simulate upgrade
+                logger.info('PackageManager.PkgMgrService.upgradePackage(): Upgrade Simulation...')
+                time.sleep(settings.SWM_SIMULATION_WAIT)
+                resultcode = swm.SWMResult.SWM_RES_OK
+                resulttext = "Upgrade Simulation successful. Command: {}".format(cmd)
+                logger.info('PackageManager.PkgMgrService.upgradePackage(): Upgrade Simulation successful.')
+            else:
+                # perform upgrade
+                sp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if sp.wait() == 0:
+                    (stdout, stderr) = sp.communicate()
+                    resultcode = swm.SWMResult.SWM_RES_OK
+                    resulttext = "Upgrade successful. Result: {}".format(stdout)
+                    logger.info('PackageManager.PkgMgrService.upgradePackage(): Upgrade successful.')
+                else:
+                    (stdout, stderr) = sp.communicate()
+                    resultcode = swm.SWMResult.SWM_RES_UPGRADE_FAILED
+                    resulttext = "Upgrade failed. Error: {}".format(stderr)
+                    logger.error('PackageManager.PkgMgrService.upgradePackage(): Upgrade failed: %s.', stderr)
+                
+            swm.send_operation_result(transaction_id, resultcode, resulttext)
 
         except Exception as e:
             logger.error('PackageManager.PkgMgrService.upgradePackage(): Exception: %s.', e)
@@ -113,6 +219,16 @@ class PkgMgrService(dbus.service.Object):
                        package_id,
                        send_reply, 
                        send_error): 
+        """Remove Software Package
+        
+        Dbus callback for installing a software package using the platform's
+        package management system.
+        
+        @param transaction_id Software Loading Manager transaction id
+        @param package_id Name of the software package
+        @param send_error DBus callback for error response
+        """
+
 
         logger.debug('PackageManager.PkgMgrService.removePackage(%s, %s): Called.',
                      transaction_id, package_id)
@@ -125,29 +241,162 @@ class PkgMgrService(dbus.service.Object):
             #
             send_reply(True)
 
-            # Simulate remove
-            sys.stdout.write("Upgrading package: {} (5 sec)\n".format(package_id))
-            for i in xrange(1,50):
-                sys.stdout.write('.')
-                sys.stdout.flush()
-                time.sleep(0.1)
-            sys.stdout.write("\nDone\n")
-            swm.send_operation_result(transaction_id,
-                                      swm.SWMResult.SWM_RES_OK,
-                                      "Removal successful. Package_id: {}".format(package_id))
+            # assemble remove command
+            cmd = settings.PKGMGR_REMOVE_CMD
+            cmd.append(package_id)
+            logger.info('PackageManager.PkgMgrService.removePackage(): Command: %s', cmd)
+
+            if settings.SWM_SIMULATION:
+                # simulate removal
+                logger.info('PackageManager.PkgMgrService.removePackage(): Removal Simulation...')
+                time.sleep(settings.SWM_SIMULATION_WAIT)
+                resultcode = swm.SWMResult.SWM_RES_OK
+                resulttext = "Removal Simulation successful. Command: {}".format(cmd)
+                logger.info('PackageManager.PkgMgrService.removePackage(): Removal Simulation successful.')
+            else:
+                # perform removal
+                sp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                if sp.wait() == 0:
+                    (stdout, stderr) = sp.communicate()
+                    resultcode = swm.SWMResult.SWM_RES_OK
+                    resulttext = "Removal successful. Result: {}".format(stdout)
+                    logger.info('PackageManager.PkgMgrService.removePackage(): Removal successful.')
+                else:
+                    (stdout, stderr) = sp.communicate()
+                    resultcode = swm.SWMResult.SWM_RES_REMOVAL_FAILED
+                    resulttext = "Removal failed. Error: {}".format(stderr)
+                    logger.error('PackageManager.PkgMgrService.removePackage(): Removal failed: %s.', stderr)
+                
+            swm.send_operation_result(transaction_id, resultcode, resulttext)
+
         except Exception as e:
             logger.error('PackageManager.PkgMgrService.removePackage(): Exception: %s.', e)
             swm.send_operation_result(transaction_id,
                                       swm.SWMResult.SWM_RES_INTERNAL_ERROR,
                                       "Internal_error: {}".format(e))
         return None
-        return None
+
 
     @dbus.service.method('org.genivi.PackageManager')
-    def getInstalledPackages(self): 
-        logger.debug('PackageManager.PkgMgrService.getInstalledPackages(): Called.')
-        return [ 'bluez_driver_1.2.2', 'bluez_apps_2.4.4' ]
-                 
+    def getInstalledPackages(self):
+        """Get a list of installed packages
+        """
+        try:
+            # assemble list command
+            cmd = settings.PKGMGR_LIST_CMD
+            logger.debug('PackageManager.PkgMgrService.getInstalledPackages(): Command: %s', cmd)
+            
+            if settings.SWM_SIMULATION:
+                # simulate package list
+                return [ 'bluez_driver_1.2.2', 'bluez_apps_2.4.4' ]
+            else:
+                # return package list
+                sp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                (stdout, stderr) = sp.communicate()
+                if sp.returncode == 0:
+                    pl = stdout.split("\n")[:-1]
+                    logger.debug('PackageManager.PkgMgrService.getInstalledPackages(): Package List: %s.', pl)
+                    return pl
+                else:
+                    logger.error('PackageManager.PkgMgrService.getInstalledPackages(): Error: %s.', stderr)
+                    return None
+
+        except Exception as e:
+            logger.error('PackageManager.PkgMgrService.getInstalledPackages(): Exception: %s.', e)
+            return None
+             
+             
+    def checkInstalledPackage(self, package):
+        """Check if a package is installed
+        
+        @param package Name of package to check.
+        @return List of packages that match, empty list otherwise
+        """
+        try:
+            # assemble check command
+            name = self.splitPackageName(package)[0]
+            cmd = settings.PKGMGR_CHECK_CMD
+            cmd.append(name)
+            logger.debug('PackageManager.PkgMgrService.checkInstalledPackage(): Command: %s', cmd)
+            
+            if settings.SWM_SIMULATION:
+                # simulate package list
+                return [ splitext(package)[0] ]
+            else:
+                # check if package is installed
+                sp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                (stdout, stderr) = sp.communicate()
+                if sp.returncode == 0:
+                    pl = stdout.split("\n")[:-1]
+                    logger.info('PackageManager.PkgMgrService.checkInstalledPackages(): Package List: %s.', pl)
+                    return pl
+                else:
+                    logger.info('PackageManager.PkgMgrService.checkInstalledPackages(): Package not installed.')
+                    return []
+            
+        except Exception as e:
+            logger.error('PackageManager.PkgMgrService.checkInstalledPackage(): Exception: %s.', e)
+            return []
+            
+            
+    def splitPackageName(self, package):
+        """Split a package name into its parts
+        
+        @param package Name of the package
+        @return Tuple of (name,ver,rel,arch,ptype)
+        """
+        ptype = None
+        arch = None
+        rel = None
+        ver = None
+        name = None
+        try:
+            out = package.rsplit('.', 1)
+            if len(out) > 1:
+                ptype = out[1]
+            out = out[0].rsplit(settings.PKGMGR_DEL_ARCH, 1)
+            if len(out) > 1:
+                arch = out[1]
+            out = out[0].rsplit(settings.PKGMGR_DEL_REL, 1)
+            if len(out) > 1:
+                rel = out[1]
+            out = out[0].rsplit(settings.PKGMGR_DEL_VER, 1)
+            if len(out) > 1:
+                ver = out[1]
+            name = out[0]
+            return (name, ver, rel, arch, ptype)
+        except Exception as e:
+            logger.error('PackageManager.PkgMgrService.splitPackageName(): Exception: %s.', e)
+            return None
+            
+            
+    def getPackageVersion(self, package):
+        """Extract version from a package name
+        
+        @param package Name of the package
+        @return Package version
+        """
+        (name, ver, rel, arch, ptype) = self.splitPackageName(package)
+        return ver
+        
+        
+    def isNewer(self, package_list, package):
+        """Check if package is newer than all packages in a list
+        of packages
+        
+        @param packagelist List of packages to check against
+        @param package Package to check
+        @return True if package is newer, False otherwise
+        """
+        
+        version = self.getPackageVersion(package)
+        for pkg in package_list:
+            pver = self.getPackageVersion(pkg)
+            if version <= pver:
+                return False
+        return True
+            
+            
 
 
 logger.debug('Package Manager - Running')

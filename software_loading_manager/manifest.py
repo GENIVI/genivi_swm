@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" Database library to store update progress and results.
+""" Manifest Processing
 
 This module provides classes and methods to process a manifest with
 software updates.
@@ -258,7 +258,7 @@ class Manifest:
         # We have completed this specific transaction
         # Store it so that we don't run it again on restart
         swo = self.software_update.getSWOperation(self.active_operation.operation_id)
-        swo.finish(result_code)
+        swo.finish(result_code,result_text)
         self.software_update.finish()
         self.software_update.update()
 
