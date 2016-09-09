@@ -21,6 +21,10 @@ import settings
 import logging
 import os.path
 import subprocess
+import os
+import getopt
+import daemon
+
 
 logger = logging.getLogger(settings.LOGGER)
 
@@ -86,7 +90,7 @@ class PkgMgrService(dbus.service.Object):
                 return None
 
             # assemble installation command
-            cmd = settings.PKGMGR_INSTALL_CMD
+            cmd = list(settings.PKGMGR_INSTALL_CMD)
             cmd.append(image_path)
             logger.info('PackageManager.PkgMgrService.installPackage(): Command: %s', cmd)
 
@@ -178,7 +182,7 @@ class PkgMgrService(dbus.service.Object):
                     
 
             # assemble upgrade command
-            cmd = settings.PKGMGR_UPGRADE_CMD
+            cmd = list(settings.PKGMGR_UPGRADE_CMD)
             cmd.append(image_path)
             logger.info('PackageManager.PkgMgrService.upgradePackage(): Command: %s', cmd)
 
@@ -242,7 +246,7 @@ class PkgMgrService(dbus.service.Object):
             send_reply(True)
 
             # assemble remove command
-            cmd = settings.PKGMGR_REMOVE_CMD
+            cmd = list(settings.PKGMGR_REMOVE_CMD)
             cmd.append(package_id)
             logger.info('PackageManager.PkgMgrService.removePackage(): Command: %s', cmd)
 
@@ -283,7 +287,7 @@ class PkgMgrService(dbus.service.Object):
         """
         try:
             # assemble list command
-            cmd = settings.PKGMGR_LIST_CMD
+            cmd = list(settings.PKGMGR_LIST_CMD)
             logger.debug('PackageManager.PkgMgrService.getInstalledPackages(): Command: %s', cmd)
             
             if settings.SWM_SIMULATION:
@@ -315,7 +319,7 @@ class PkgMgrService(dbus.service.Object):
         try:
             # assemble check command
             name = self.splitPackageName(package)[0]
-            cmd = settings.PKGMGR_CHECK_CMD
+            cmd = list(settings.PKGMGR_CHECK_CMD)
             cmd.append(name)
             logger.debug('PackageManager.PkgMgrService.checkInstalledPackage(): Command: %s', cmd)
             
@@ -397,12 +401,61 @@ class PkgMgrService(dbus.service.Object):
         return True
             
             
+class PkgMgrDaemon(daemon.Daemon):
+    """
+    """
+    
+    def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+        super(PkgMgrDaemon, self).__init__(pidfile, stdin, stdout, stderr)
+
+    def run(self):
+        DBusGMainLoop(set_as_default=True)
+        pkg_mgr = PkgMgrService()
+        while True:
+            gtk.main_iteration()
 
 
-logger.debug('Package Manager - Running')
+def usage():
+    print "Usage:", sys.argv[0], "foreground|start|stop|restart"
+    print
+    print "  foreground     Start in foreground"
+    print "  start          Start in background"
+    print "  stop           Stop daemon running in background"
+    print "  restart        Restart daemon running in background"
+    print
+    print "Example:", sys.argv[0],"foreground"
+    sys.exit(1)
 
-DBusGMainLoop(set_as_default=True)
-pkg_mgr = PkgMgrService()
 
-while True:
-    gtk.main_iteration()
+if __name__ == "__main__":
+    logger.debug('Package Manager - Initializing')
+    pid_file = settings.PID_FILE_DIR + os.path.splitext(os.path.basename(__file__))[0] + '.pid'
+
+    try:  
+        opts, args = getopt.getopt(sys.argv[1:], "")
+    except getopt.GetoptError:
+        print "Package Manager - Could not parse arguments."
+        usage()
+            
+    pkgmgr_daemon = PkgMgrDaemon(pid_file, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
+            
+    for a in args:
+        if a in ('foreground', 'fg'):
+            # in foreground we also log to the console
+            logger.addHandler(logging._handlers['console'])
+            logger.debug('Package Manager - Running')
+            pkgmgr_daemon.run()
+        elif a in ('start', 'st'):
+            logger.debug('Package Manager - Starting')
+            pkgmgr_daemon.start()
+        elif a in ('stop', 'sp'):
+            logger.debug('Package Manager - Stopping')
+            pkgmgr_daemon.stop()
+        elif a in ('restart', 're'):
+            logger.debug('Package Manager - Restarting')
+            pkgmgr_daemon.restart()
+        else:
+            print "Unknown command: {}".format(a)
+            usage()
+            sys.exit(1)
+ 

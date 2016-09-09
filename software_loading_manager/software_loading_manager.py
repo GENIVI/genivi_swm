@@ -16,6 +16,7 @@ import swm
 import settings
 import logging
 import database
+import daemon
 
 logger = logging.getLogger(settings.LOGGER)
 
@@ -269,40 +270,79 @@ class SLMService(dbus.service.Object):
         
         return [ "bluez_driver", "bluez_apps" ]
 
+
+class SWLMDaemon(daemon.Daemon):
+    """
+    """
+    dbstore = None
+    
+    def __init__(self, dbstore, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+        super(SWLMDaemon, self).__init__(pidfile, stdin, stdout, stderr)
+        self.dbstore = dbstore
+
+    def run(self):
+        DBusGMainLoop(set_as_default=True)
+        swlm_service = SLMService(self.dbstore)
+        while True:
+            gtk.main_iteration()
+
+
 def usage():
-    print "Usage:", sys.argv[0], "[-r]"
+    print "Usage:", sys.argv[0], "foreground|start|stop|restart [-r]"
     print
-    print "  -r                Reset the completed operations database prior to running"
+    print "  foreground     Start in foreground"
+    print "  start          Start in background"
+    print "  stop           Stop daemon running in background"
+    print "  restart        Restart daemon running in background"
+    print "  -r             Reset the completed operations database prior to running"
     print
-    print "Example:", sys.argv[0],"-r"
-    sys.exit(255)
+    print "Example:", sys.argv[0],"foreground -r"
+    sys.exit(1)
 
 
-logger.debug('Software Loading Manager - Running')
+if __name__ == "__main__":
+    logger.debug('Software Loading Manager - Initializing')
+    pid_file = settings.PID_FILE_DIR + os.path.splitext(os.path.basename(__file__))[0] + '.pid'
 
-try:  
-    opts, args= getopt.getopt(sys.argv[1:], "rd:")
-
-except getopt.GetoptError:
-    print "Could not parse arguments."
-    usage()
-
-dbstore = database.openDatabase()
-if not dbstore:
-    logger.error('Software Loading Manager - Database Error')
-    exit(1)
-
-for o, a in opts:
-    if o == "-r":
-        database.resetDatabaseSchema(dbstore)
-    else:
-        print "Unknown option: {}".format(o)
+    try:  
+        opts, args = getopt.getopt(sys.argv[1:], "r")
+    except getopt.GetoptError:
+        print "Software Loading Manager - Could not parse arguments."
         usage()
 
-DBusGMainLoop(set_as_default=True)
+    dbstore = database.openDatabase()
+    if not dbstore:
+        logger.error('Software Loading Manager - Database Error')
+        exit(1)
 
+    for o, p in opts:
+        if o == "-r":
+            logger.debug('Software Loading Manager - Resetting Database')
+            database.resetDatabaseSchema(dbstore)
+        else:
+            print "Unknown option: {} {}".format(o, p)
+            usage()
+            
+    swlm_daemon = SWLMDaemon(dbstore, pid_file, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
+            
+    for a in args:
+        if a in ('foreground', 'fg'):
+            # in foreground we also log to the console
+            logger.addHandler(logging._handlers['console'])
+            logger.debug('Software Loading Manager - Running')
+            swlm_daemon.run()
+        elif a in ('start', 'st'):
+            logger.debug('Software Loading Manager - Starting')
+            swlm_daemon.start()
+        elif a in ('stop', 'sp'):
+            logger.debug('Software Loading Manager - Stopping')
+            swlm_daemon.stop()
+        elif a in ('restart', 're'):
+            logger.debug('Software Loading Manager - Restarting')
+            swlm_daemon.restart()
+        else:
+            print "Unknown command: {}".format(a)
+            usage()
+            sys.exit(1)
+ 
 
-slm_sota = SLMService(dbstore)
-
-while True:
-    gtk.main_iteration()

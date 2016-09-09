@@ -88,12 +88,12 @@ class ManifestProcessor:
         #
         if self.mount_point:
             try:
-                command = settings.SQUASHFS_UNMOUNT_CMD
+                command = list(settings.SQUASHFS_UNMOUNT_CMD)
                 command.append(self.mount_point)
                 subprocess.check_call(command)
-            except subprocess.CalledProcessError:
+            except subprocess.CalledProcessError as e:
                 logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed to unmount %s: %s.',
-                             self.mount_point, subprocess.CalledProcessError.returncode)
+                             self.mount_point, e)
         self.mount_point = None
         self.current_manifest = None
         
@@ -117,13 +117,13 @@ class ManifestProcessor:
             logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed creating mount point %s: %s.', self.mount_point, e)
             pass
         try:
-            command = settings.SQUASHFS_MOUNT_CMD
+            command = list(settings.SQUASHFS_MOUNT_CMD)
             command.append(image_path)
             command.append(self.mount_point)
             subprocess.check_call(command)
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
             logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed mounting %s on %s: %s.',
-                         image_path, self.mount_point, subprocess.CalledProcessError.returncode)
+                         image_path, self.mount_point, e)
             return False
 
         # Create the new manifest object
@@ -139,12 +139,12 @@ class ManifestProcessor:
             self.current_manifest = None
             # Unmount file system
             try:
-                command = settings.SQUASHFS_UNMOUNT_CMD
+                command = list(settings.SQUASHFS_UNMOUNT_CMD)
                 command.append(self.mount_point)
                 subprocess.check_call(command)
-            except subprocess.CalledProcessError:
+            except subprocess.CalledProcessError as e:
                 logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed unmounting %s: %s.',
-                             self.mount_point, subprocess.CalledProcessError.returncode)
+                             self.mount_point, e)
             self.mount_point = None
             return False
 

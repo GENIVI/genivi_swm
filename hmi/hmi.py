@@ -15,7 +15,12 @@ import code, signal
 import traceback
 import swm
 from termios import tcflush, TCIOFLUSH
+import settings
 import sys
+import os
+import getopt
+import daemon
+
 
 class DisplayProgress(threading.Thread):
     
@@ -214,18 +219,63 @@ class HMIService(dbus.service.Object):
             traceback.print_exc()
         return None
 
-print
-print "HMI Simulator"
-print "Please enter package installation approval when prompted"
-print
-
-
-gtk.gdk.threads_init()
-DBusGMainLoop(set_as_default=True)
-pkg_mgr = HMIService()
-
-while True:
-    gtk.main_iteration()
-
+class HMIDaemon(daemon.Daemon):
+    """
+    """
     
+    def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+        super(HMIDaemon, self).__init__(pidfile, stdin, stdout, stderr)
 
+    def run(self):
+        gtk.gdk.threads_init()
+        DBusGMainLoop(set_as_default=True)
+        hmi = HMIService()
+        while True:
+            gtk.main_iteration()
+
+
+def usage():
+    print "Usage:", sys.argv[0], "foreground|start|stop|restart"
+    print
+    print "  foreground     Start in foreground"
+    print "  start          Start in background"
+    print "  stop           Stop daemon running in background"
+    print "  restart        Restart daemon running in background"
+    print
+    print "Example:", sys.argv[0],"foreground"
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    print "HMI Simulator - Initializing"
+    pid_file = settings.PID_FILE_DIR + os.path.splitext(os.path.basename(__file__))[0] + '.pid'
+
+    try:  
+        opts, args = getopt.getopt(sys.argv[1:], "")
+    except getopt.GetoptError:
+        print "HMI Simulator - Could not parse arguments."
+        usage()
+            
+            
+    for a in args:
+        if a in ('foreground', 'fg'):
+            print "HMI Simulator - Running"
+            print "Please enter package installation approval when prompted"
+            hmi_daemon = HMIDaemon(pid_file, stdin='/dev/stdin', stdout='/dev/stdout', stderr='/dev/stderr')
+            hmi_daemon.run()
+        elif a in ('start', 'st'):
+            print "HMI Simulator - Starting"
+            hmi_daemon = HMIDaemon(pid_file, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
+            hmi_daemon.start()
+        elif a in ('stop', 'sp'):
+            print "HMI Simulator - Stopping"
+            hmi_daemon = HMIDaemon(pid_file, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
+            hmi_daemon.stop()
+        elif a in ('restart', 're'):
+            print "HMI Simulator - Restarting"
+            hmi_daemon = HMIDaemon(pid_file, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
+            hmi_daemon.restart()
+        else:
+            print "Unknown command: {}".format(a)
+            usage()
+            sys.exit(1)

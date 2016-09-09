@@ -18,7 +18,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # If simulation is enabled all modules only simulate their operations
 # rather than carrying them out. Simulation simply means outputting
 # progress to the logging facilities.
-SWM_SIMULATION = False
+SWM_SIMULATION = True
 SWM_SIMULATION_WAIT = 5
 
 # Database Settings
@@ -29,6 +29,9 @@ DB_URL = "sqlite:/tmp/swlm.sqlite"
 LOGGER = 'swm.default'
 LOGFILE = os.path.join(BASE_DIR, 'swm.log')
 
+# Directory for the PID files for the various SWM processes
+# It has to be an absolute path with a trailing '/'.
+PID_FILE_DIR = "/tmp/"
 
 # Don't change anything below this line unless you are familiar with the
 # settings.

@@ -4,7 +4,7 @@
 #
 # Mozilla Public License 2.0
 #
-# Ubuntu Software Manager Loader launch script
+# Software Manager Loader launch script
 #
 
 PID_FNAME=/tmp/swm_pidlist
@@ -58,13 +58,15 @@ fi
 usage() {
 	echo "Usage: ${0} [-r] [-i]"
 	echo "  -r    Reset completed operation database"
-	echo "  -i    Run in interactive mode. Start sota_client separately"
+	echo "  -i    Run in interactive mode. Start sota_client separately (implies foreground)"
+	echo "  -b    Run in background, daemonize SWM applications"
 	exit 255
 }
 
 SWLM_ARG=""
-INTERACTIVE=false
-while getopts ":ri" opt; do
+INTERACTIVE="false"
+BACKGROUND="false"
+while getopts ":rib" opt; do
   case $opt in
     r)
 		SWLM_ARG="-r"
@@ -72,26 +74,43 @@ while getopts ":ri" opt; do
 	i)
 		INTERACTIVE="true"
 		;;
+	b)
+		BACKGROUND="true"
+		;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
       ;;
   esac
 done
 
-rm -f $PID_FNAME
-gnome-terminal --geometry 80x15+0+0 -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;Package Manager\007\"; cd package_manager;python package_manager.py" &
+if [ "${BACKGROUND}" = "true" ]
+then
+   echo "Running in Background"
+   echo "Use stop_swm.sh to stop the running SWM processes."
+   python ./package_manager/package_manager.py start
+   python ./partition_manager/partition_manager.py start
+   python ./module_loader_ecu1/module_loader_ecu1.py start
+   python ./software_loading_manager/software_loading_manager.py ${SWLM_ARG} start
+   python ./lifecycle_manager/lifecycle_manager.py start
+   python ./hmi/hmi.py start
+else
+   echo "Running in Foreground"
 
-gnome-terminal --geometry 80x15+0+500 -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;Partition Manager\007\";cd partition_manager; python partition_manager.py"
+   rm -f $PID_FNAME
+   gnome-terminal --geometry 80x15+0+0 -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;Package Manager\007\"; cd package_manager;python package_manager.py foreground"
 
-gnome-terminal --geometry 80x15+0+1000 -x \bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;ECU1 Module Loader\007\"; cd module_loader_ecu1; python module_loader_ecu1.py"
+   gnome-terminal --geometry 80x15+0+500 -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;Partition Manager\007\";cd partition_manager; python partition_manager.py foreground"
 
-gnome-terminal --geometry 80x24+0+1500 -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;Software Loading Manager\007\";cd software_loading_manager; python software_loading_manager.py ${SWLM_ARG}"
+   gnome-terminal --geometry 80x15+0+1000 -x \bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;ECU1 Module Loader\007\"; cd module_loader_ecu1; python module_loader_ecu1.py foreground"
 
-gnome-terminal --geometry 80x15+0+2000  -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;Lifecycle Manager\007\";cd lifecycle_manager; python lifecycle_manager.py"
+   gnome-terminal --geometry 80x24+0+1500 -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;Software Loading Manager\007\";cd software_loading_manager; python software_loading_manager.py ${SWLM_ARG} foreground"
 
-gnome-terminal --geometry 80x20+0+2500 -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;HMI\007\";cd hmi;python hmi.py"
+   gnome-terminal --geometry 80x15+0+2000  -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;Lifecycle Manager\007\";cd lifecycle_manager; python lifecycle_manager.py foreground"
 
-trap killswm INT
+   gnome-terminal --geometry 80x20+0+2500 -x bash -c "echo \$BASHPID >> $PID_FNAME; echo -ne \"\033]0;HMI\007\";cd hmi;python hmi.py foreground"
+
+   trap killswm INT
+fi
 
 if [ "${INTERACTIVE}" = "false" ]
 then
@@ -109,23 +128,25 @@ then
             ;;
         esac
     fi
+    if [ "${BACKGROUND}" = "false" ]
+    then
+        echo "Press Enter shut down Software Manager"
+        read x
+        killswm
+	    exit 0
+	fi
+else
+    echo "Please run"
+    echo
+    echo "   cd sota_client"
+    echo "   sudo PYTHONPATH=\"\${PWD}/../common/\" python sota_client.py -u sample_app_1.2.3 -c -i ../sample_update.upd -s xxx -d \"Sample Update Description\""
+    echo
+    echo "to start package use case."
+    echo 
+    echo "Press Enter shut down Software Manager"
     read x
     killswm
-	exit 0
 fi
 
-echo "Please run"
-echo
-echo "   cd sota_client"
-echo "   sudo PYTHONPATH=\"\${PWD}/../common/\" python sota_client.py -u sample_app_1.2.3 -c -i ../sample_update.upd -s xxx -d \"Sample Update Description\""
-echo
-echo "to start package use case."
-echo 
-echo "Press Enter shut down Software Manager"
-
-
-
-read x
-killswm
 
 

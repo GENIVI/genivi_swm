@@ -15,6 +15,9 @@ import time
 import swm
 import settings
 import logging
+import os
+import getopt
+import daemon
 
 logger = logging.getLogger(settings.LOGGER)
 
@@ -85,12 +88,60 @@ class LCMgrService(dbus.service.Object):
         return None
 
 
+class LCMgrDaemon(daemon.Daemon):
+    """
+    """
+    
+    def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+        super(LCMgrDaemon, self).__init__(pidfile, stdin, stdout, stderr)
 
-logger.debug('Lifecycle Manager - Running')
+    def run(self):
+        DBusGMainLoop(set_as_default=True)
+        lc_mgr = LCMgrService()
+        while True:
+            gtk.main_iteration()
 
 
-DBusGMainLoop(set_as_default=True)
-pkg_mgr = LCMgrService()
+def usage():
+    print "Usage:", sys.argv[0], "foreground|start|stop|restart"
+    print
+    print "  foreground     Start in foreground"
+    print "  start          Start in background"
+    print "  stop           Stop daemon running in background"
+    print "  restart        Restart daemon running in background"
+    print
+    print "Example:", sys.argv[0],"foreground"
+    sys.exit(1)
 
-while True:
-    gtk.main_iteration()
+
+if __name__ == "__main__":
+    logger.debug('Lifecycle Manager - Initializing')
+    pid_file = settings.PID_FILE_DIR + os.path.splitext(os.path.basename(__file__))[0] + '.pid'
+
+    try:  
+        opts, args = getopt.getopt(sys.argv[1:], "")
+    except getopt.GetoptError:
+        print "Lifecycle Manager - Could not parse arguments."
+        usage()
+            
+    lcmgr_daemon = LCMgrDaemon(pid_file, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
+            
+    for a in args:
+        if a in ('foreground', 'fg'):
+            # in foreground we also log to the console
+            logger.addHandler(logging._handlers['console'])
+            logger.debug('Lifecycle Manager - Running')
+            lcmgr_daemon.run()
+        elif a in ('start', 'st'):
+            logger.debug('Lifecycle Manager - Starting')
+            lcmgr_daemon.start()
+        elif a in ('stop', 'sp'):
+            logger.debug('Lifecycle Manager - Stopping')
+            lcmgr_daemon.stop()
+        elif a in ('restart', 're'):
+            logger.debug('Lifecycle Manager - Restarting')
+            lcmgr_daemon.restart()
+        else:
+            print "Unknown command: {}".format(a)
+            usage()
+            sys.exit(1)

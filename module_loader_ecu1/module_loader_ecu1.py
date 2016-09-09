@@ -15,6 +15,9 @@ import time
 import swm
 import settings
 import logging
+import os
+import getopt
+import daemon
 
 logger = logging.getLogger(settings.LOGGER)
 
@@ -66,10 +69,61 @@ class ECU1ModuleLoaderService(dbus.service.Object):
         logger.debug('ModuleLoader.ECU1ModuleLoaderService.getModuleFirmwareVersion(): Called.')
         return ("ecu1_firmware_1.2.3", 1452904544)
                  
-logger.debug('ECU1 Module Loader - Running')
 
-DBusGMainLoop(set_as_default=True)
-module_loader_ecu1 = ECU1ModuleLoaderService()
+class ECU1ModuleLoaderDaemon(daemon.Daemon):
+    """
+    """
+    
+    def __init__(self, pidfile, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
+        super(ECU1ModuleLoaderDaemon, self).__init__(pidfile, stdin, stdout, stderr)
 
-while True:
-    gtk.main_iteration()
+    def run(self):
+        DBusGMainLoop(set_as_default=True)
+        ecu1_module_loader = ECU1ModuleLoaderService()
+        while True:
+            gtk.main_iteration()
+
+
+def usage():
+    print "Usage:", sys.argv[0], "foreground|start|stop|restart"
+    print
+    print "  foreground     Start in foreground"
+    print "  start          Start in background"
+    print "  stop           Stop daemon running in background"
+    print "  restart        Restart daemon running in background"
+    print
+    print "Example:", sys.argv[0],"foreground"
+    sys.exit(1)
+
+
+if __name__ == "__main__":
+    logger.debug('ECU1 Module Loader - Initializing')
+    pid_file = settings.PID_FILE_DIR + os.path.splitext(os.path.basename(__file__))[0] + '.pid'
+
+    try:  
+        opts, args = getopt.getopt(sys.argv[1:], "")
+    except getopt.GetoptError:
+        print "ECU1 Module Loader - Could not parse arguments."
+        usage()
+            
+    ecu1_module_loader_daemon = ECU1ModuleLoaderDaemon(pid_file, stdin='/dev/null', stdout='/dev/null', stderr='/dev/null')
+            
+    for a in args:
+        if a in ('foreground', 'fg'):
+            # in foreground we also log to the console
+            logger.addHandler(logging._handlers['console'])
+            logger.debug('ECU1 Module Loader - Running')
+            ecu1_module_loader_daemon.run()
+        elif a in ('start', 'st'):
+            logger.debug('ECU1 Module Loader - Starting')
+            ecu1_module_loader_daemon.start()
+        elif a in ('stop', 'sp'):
+            logger.debug('ECU1 Module Loader - Stopping')
+            ecu1_module_loader_daemon.stop()
+        elif a in ('restart', 're'):
+            logger.debug('ECU1 Module Loader - Restarting')
+            ecu1_module_loader_daemon.restart()
+        else:
+            print "Unknown command: {}".format(a)
+            usage()
+            sys.exit(1)

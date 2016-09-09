@@ -6,6 +6,7 @@
 # of Software Loading manager.
 
 
+import os
 import gtk
 import dbus
 import dbus.service
@@ -137,6 +138,8 @@ if not image_file:
     print "No -i image_file provided."
     print
     usage()
+
+image_file = os.path.abspath(image_file)
     
 # Can we open the confirmation file?
 try:
