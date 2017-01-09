@@ -18,7 +18,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 # If simulation is enabled all modules only simulate their operations
 # rather than carrying them out. Simulation simply means outputting
 # progress to the logging facilities.
-SWM_SIMULATION = True
+def str2bool(v):
+    return v.lower() in ("yes", "true", "t", "1")
+
+SWM_SIMULATION = str2bool(os.getenv('SLM_SWM_SIMULATION', 'false'))
 SWM_SIMULATION_WAIT = 5
 
 # Database Settings
@@ -313,7 +316,7 @@ else:
 # SWM uses the platform's package management systems to install, upgrade and
 # remove software packages.
 #
-PACKAGE_MANAGER = "rpm"
+PACKAGE_MANAGER = os.getenv('SLM_PACKAGE_MANAGER', 'rpm')
 if PACKAGE_MANAGER == "rpm":
     PKGMGR_INSTALL_CMD = ["rpm", "--install"]
     PKGMGR_UPGRADE_CMD = ["rpm", "--upgrade", "--oldpackage"]
