@@ -13,7 +13,6 @@ Mozilla Public License 2.0
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
 # Simulation
 # If simulation is enabled all modules only simulate their operations
 # rather than carrying them out. Simulation simply means outputting
@@ -23,6 +22,10 @@ def str2bool(v):
 
 SWM_SIMULATION = str2bool(os.getenv('SLM_SWM_SIMULATION', 'false'))
 SWM_SIMULATION_WAIT = 5
+
+# HMI
+# Enable the HMI
+HMI_ENABLED = str2bool(os.getenv('SLM_HMI_ENABLED', 'false'))
 
 # Database Settings
 # SWM operations and their results are stored in a SQLite database.

@@ -43,9 +43,10 @@ class SLMService(dbus.service.Object):
     def distribute_update_result(self, 
                                  update_id, 
                                  results):
-        # Send installation report to HMI
-        logger.debug('SoftwareLoadingManager.SLMService.distribute_update_result(%s): Sending report to Hmi.updateReport().', update_id)
-        swm.dbus_method("org.genivi.Hmi", "updateReport", dbus.String(update_id), results)
+        if settings.HMI_ENABLED:
+            # Send installation report to HMI
+            logger.info('SoftwareLoadingManager.SLMService.distribute_update_result(%s): Sending report to Hmi.updateReport().', update_id)
+            swm.dbus_method("org.genivi.Hmi", "updateReport", dbus.String(update_id), results)
 
         # Send installation report to SOTA
         logger.debug('SoftwareLoadingManager.SLMService.distribute_update_result(%s): Sending report to SotaClient.updateReport().', update_id)
@@ -71,12 +72,15 @@ class SLMService(dbus.service.Object):
             # Recursively call self to engage next manifest.
             return self.start_next_manifest()
 
-        self.inform_hmi_of_new_operation(manifest.active_operation)
+        if settings.HMI_ENABLED:
+            self.inform_hmi_of_new_operation(manifest.active_operation)
         return True
         
     def inform_hmi_of_new_operation(self,op):
-        swm.dbus_method("org.genivi.Hmi", "operationStarted",
-                        op.operation_id, op.time_estimate, op.hmi_message)
+        logger.info('inform hmi of new operation')
+        if settings.HMI_ENABLED:
+            swm.dbus_method("org.genivi.Hmi", "operationStarted",
+                            op.operation_id, op.time_estimate, op.hmi_message)
         return None
     
     def inform_hmi_of_new_manifest(self,manifest):
@@ -84,8 +88,9 @@ class SLMService(dbus.service.Object):
         for op in manifest.operations:
             total_time = total_time + op.time_estimate
 
-        swm.dbus_method("org.genivi.Hmi", "manifestStarted",
-                        manifest.update_id, total_time, manifest.description)
+        if settings.HMI_ENABLED:
+            swm.dbus_method("org.genivi.Hmi", "manifestStarted",
+                            manifest.update_id, total_time, manifest.description)
         return None
     
     def start_next_operation(self):
@@ -118,7 +123,8 @@ class SLMService(dbus.service.Object):
             return self.manifest_processor.load_next_manifest()
 
         # Inform HMI of active operation
-        self.inform_hmi_of_new_operation(manifest.active_operation)
+        if settings.HMI_ENABLED:
+            self.inform_hmi_of_new_operation(manifest.active_operation)
         return True
 
     @dbus.service.method("org.genivi.SoftwareLoadingManager",
