@@ -1,0 +1,18 @@
+{
+    "updateId": "libats",
+    "name": "ATS Demo Package",
+    "description": "A package that installs a file at `/etc/example.configfile` to demo installing a package.",
+    "getUserConfirmation": false,
+    "showHmiProgress": false,
+    "showHmiResult": false,
+    "operations": [
+      {
+        "id": "0c24f1ca-2a9e-4c0f-a730-fd29f759db89",
+        "hmiMessage": "Installing libats.",
+        "timeEstimate": 5000,
+        "operation": "installPackage",
+        "image": "packages/libats-2.0.0-r0.core2_64.rpm",
+        "onFailure": "abort"
+      }
+    ]
+}
