@@ -6,7 +6,7 @@
 
 
 
-import gtk
+import gobject
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
@@ -98,8 +98,6 @@ class LCMgrDaemon(daemon.Daemon):
     def run(self):
         DBusGMainLoop(set_as_default=True)
         lc_mgr = LCMgrService()
-        while True:
-            gtk.main_iteration()
 
 
 def usage():
@@ -132,9 +130,13 @@ if __name__ == "__main__":
             logger.addHandler(logging._handlers['console'])
             logger.debug('Lifecycle Manager - Running')
             lcmgr_daemon.run()
+            mainloop = gobject.MainLoop()
+            mainloop.run()
         elif a in ('start', 'st'):
             logger.debug('Lifecycle Manager - Starting')
-            lcmgr_daemon.start()
+            #lcmgr_daemon.start()
+            mainloop = gobject.MainLoop()
+            mainloop.run()
         elif a in ('stop', 'sp'):
             logger.debug('Lifecycle Manager - Stopping')
             lcmgr_daemon.stop()

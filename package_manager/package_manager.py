@@ -10,7 +10,7 @@ Mozilla Public License 2.0
 """
 
 
-import gtk
+import gobject
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
@@ -411,8 +411,6 @@ class PkgMgrDaemon(daemon.Daemon):
     def run(self):
         DBusGMainLoop(set_as_default=True)
         pkg_mgr = PkgMgrService()
-        while True:
-            gtk.main_iteration()
 
 
 def usage():
@@ -445,9 +443,13 @@ if __name__ == "__main__":
             logger.addHandler(logging._handlers['console'])
             logger.debug('Package Manager - Running')
             pkgmgr_daemon.run()
+            mainloop = gobject.MainLoop()
+            mainloop.run()
         elif a in ('start', 'st'):
             logger.debug('Package Manager - Starting')
-            pkgmgr_daemon.start()
+            #pkgmgr_daemon.start()
+            mainloop = gobject.MainLoop()
+            mainloop.run()
         elif a in ('stop', 'sp'):
             logger.debug('Package Manager - Stopping')
             pkgmgr_daemon.stop()

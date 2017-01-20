@@ -4,7 +4,7 @@
 #
 # Python dbus service that coordinates all use cases.
 #
-import gtk
+import gobject
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 import manifest_processor
@@ -283,8 +283,6 @@ class SWLMDaemon(daemon.Daemon):
     def run(self):
         DBusGMainLoop(set_as_default=True)
         swlm_service = SLMService(self.dbstore)
-        while True:
-            gtk.main_iteration()
 
 
 def usage():
@@ -331,9 +329,13 @@ if __name__ == "__main__":
             logger.addHandler(logging._handlers['console'])
             logger.debug('Software Loading Manager - Running')
             swlm_daemon.run()
+            mainloop = gobject.MainLoop()
+            mainloop.run()
         elif a in ('start', 'st'):
             logger.debug('Software Loading Manager - Starting')
-            swlm_daemon.start()
+            #swlm_daemon.start()
+            mainloop = gobject.MainLoop()
+            mainloop.run()
         elif a in ('stop', 'sp'):
             logger.debug('Software Loading Manager - Stopping')
             swlm_daemon.stop()

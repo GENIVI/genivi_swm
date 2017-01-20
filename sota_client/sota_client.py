@@ -7,7 +7,7 @@
 
 
 import os
-import gtk
+import gobject
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
@@ -189,7 +189,8 @@ try:
 
     # Active will be set to false by installation_report()
     while active:
-        gtk.main_iteration()
+        mainloop = gobject.MainLoop()
+        mainloop.run()
 
 except Exception as e:
     print "Exception: {}".format(e)
