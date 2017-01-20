@@ -117,9 +117,9 @@ class ManifestProcessor:
             logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed creating mount point %s: %s.', self.mount_point, e)
             pass
         try:
-            command = list(settings.SQUASHFS_MOUNT_CMD)
-            command.append(image_path)
-            command.append(self.mount_point)
+            command = settings.SQUASHFS_MOUNT_CMD.format(
+                    mount_point=self.mount_point,
+                    image_path=image_path).split()
             subprocess.check_call(command)
         except subprocess.CalledProcessError as e:
             logger.error('SoftwareLoadingManager.ManifestProcessor.load_next_manifest(): Failed mounting %s on %s: %s.',

@@ -300,12 +300,12 @@ SQUASHFS_MOUNT_POINT = "/tmp/swlm"
 SQUASHFS_FUSE = SWM_SIMULATION
 if SQUASHFS_FUSE:
     # FUSE mount
-    SQUASHFS_MOUNT_CMD = ["/usr/local/bin/squashfuse"]
+    SQUASHFS_MOUNT_CMD = "/usr/local/bin/squashfuse {image_path} {mount_point}"
     SQUASHFS_UNMOUNT_CMD = ["/bin/fusermount", "-u"]
 else:
     # Regular mount as root 
-    SQUASHFS_MOUNT_CMD = ["/bin/mount"]
-    SQUASHFS_UNMOUNT_CMD = ["/bin/umount"]
+    SQUASHFS_MOUNT_CMD = "unsquashfs -f -d {mount_point} {image_path}"
+    SQUASHFS_UNMOUNT_CMD = ["/bin/rm", "-r"]
 
 
 # Package Management Commands
