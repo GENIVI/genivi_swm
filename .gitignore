@@ -70,3 +70,6 @@ target/
 
 # dotenv
 .env
+
+# Vagrant
+vagrant/.vagrant
