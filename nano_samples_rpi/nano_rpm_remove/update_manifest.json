@@ -1,0 +1,26 @@
+{
+    "updateId": "nano_editor_remove",
+    "name": "Nano Editor",
+    "description": "A small editor so you can hack your infotainment system.",
+    "getUserConfirmation": true,
+    "showHmiProgress": false,
+    "showHmiResult": true,
+    "operations": [
+                {
+                        "id": "32c5fe09-e2cc-445d-a903-86932493d064",
+                        "hmiMessage": "Removing nano.",
+                        "timeEstimate": 5000,
+                        "operation": "removePackage",
+                        "packageId": "nano",
+                        "onFailure": "continue"
+                },
+                {
+                        "id": "b9e3865e-9d35-11e5-b235-eb755e788c54",
+                        "hmiMessage": "Removing ncurses-terminfo.",
+                        "timeEstimate": 5000,
+                        "operation": "removePackage",
+                        "packageId": "ncurses-terminfo",
+                        "onFailure": "continue"
+                }
+    ]
+}
