@@ -1,0 +1,27 @@
+{
+    "updateId": "nano_editor_install",
+    "name": "Nano Editor",
+    "description": "A small editor so you can hack your infotainment system.",
+    "getUserConfirmation": true, 
+    "showHmiProgress": false, 
+    "showHmiResult": true, 
+    "operations": [
+                {
+                        "id": "d1c96216-9d35-11e5-a00b-57f2b4f03010",
+                        "hmiMessage": "Installing ncurses-terminfo.",
+                        "timeEstimate": 5000,
+                        "operation": "installPackage",
+                        "image": "packages/ncurses-terminfo-6.0+20160625-r0.cortexa7hf_neon_vfpv4.rpm",
+                        "onFailure": "abort"
+                },
+		{ 
+			"id": "d1c96216-9d35-11e5-a00b-57f2b4f03097",
+			"hmiMessage": "Installing new Nano package.",
+			"timeEstimate": 5000,
+			"operation": "installPackage",
+			"image": "packages/nano-2.2.5-r3.0.cortexa7hf_neon_vfpv4.rpm",
+			"onFailure": "abort"
+		}
+    ]
+}
+
