@@ -29,7 +29,7 @@ HMI_ENABLED = str2bool(os.getenv('SLM_HMI_ENABLED', 'false'))
 
 # Database Settings
 # SWM operations and their results are stored in a SQLite database.
-DB_URL = "sqlite:/tmp/swlm.sqlite"
+DB_URL = "sqlite:/var/run/swlm.sqlite"
 
 # Logging settings
 LOGGER = 'swm.default'
